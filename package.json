@@ -1,0 +1,21 @@
+{
+  "name": "@replicate/client",
+  "version": "0.0.0-development",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Replicate API JS Client",
+  "exports": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "github:replicate/replicate-js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@replicate/types-openapi": "^1.0.1"
+  }
+}
