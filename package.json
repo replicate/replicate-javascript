@@ -1,0 +1,23 @@
+{
+  "name": "replicate",
+  "version": "0.0.1",
+  "description": "This is a design document for figuring out the design of the future JavaScript client for Replicate’s HTTP API. Let’s design the API here, before we write any code. README-driven development!",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/replicate/replicate-js.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/replicate/replicate-js/issues"
+  },
+  "homepage": "https://github.com/replicate/replicate-js#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}

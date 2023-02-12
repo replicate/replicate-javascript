@@ -8,16 +8,14 @@ This is a design document for figuring out the design of the future JavaScript c
 
 Install with `npm install replicate`
 
+Set your API token as `REPLICATE_API_TOKEN` in your environment.
+
+To run a prediction and return its 
+
 ```jsx
-import Replicate from "@replicate/client";
+import replicate from "@replicate/client";
 
-const replicate = new Replicate({
-  // get your token from https://replicate.com/account
-  auth: "<YOUR TOKEN HERE>",
-  userAgent: "my-app/1.2.3",
-});
-
-const prediction = await replicate.createAndAwaitPrediction({
+let output = await replicate.predict({
   version: "<MODEL VERSION>",
   input: {
     // your model inputs need to be set here
@@ -25,26 +23,40 @@ const prediction = await replicate.createAndAwaitPrediction({
   },
 });
 
-// {
-//   id: "ufawqhfynnddngldkgtslldrkq",
-//   version: "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-//   urls: {
-//     get: "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
-//     cancel: "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
-//   },
-//   created_at: "2020-02-02T00:00:00.00000Z",
-//   started_at: "2022-02-02T00:01:00.00000Z",
-//   completed_at: "2022-02-02T00:02:00.00000Z",
-//   status: "starting",
-//   input: {
-//     text: "Alice"
-//   },
-//   output: [
-//     "https://replicate.com/api/models/stability-ai/stable-diffusion/files/9c3b6fe4-2d37-4571-a17a-83951b1cb120/out-0.png"
-//   ],
-//   error: null,
-//   metrics: {}
-// }
+// "https://replicate.delivery/pbxt/lGWovsQZ7jZuNtPvofMth1rSeCcVn5xes8dWWdWZ64MlTi7gA/out-0.png"
+```
+
+Or, you can run a prediction in the background to do more advanced stuff:
+
+```jsx
+let prediction = await replicate.predictions.create({
+  version: "<MODEL VERSION>",
+  input: {
+    prompt: "painting of a cat by andy warhol",
+  },
+});
+
+prediction.status
+// "starting"
+
+await prediction.reload()
+prediction.status
+// "processing"
+
+prediction.logs
+// Using seed: 53168
+//  0%|          | 0/50 [00:00<?, ?it/s]
+//  2%|▏         | 1/50 [00:00<00:12,  3.83it/s]
+// ...
+
+await prediction.wait()
+
+prediction.status
+// "succeeded"
+
+prediction.output
+// "https://replicate.delivery/pbxt/lGWovsQZ7jZuNtPvofMth1rSeCcVn5xes8dWWdWZ64MlTi7gA/out-0.png"
+
 ```
 
 ## Features
