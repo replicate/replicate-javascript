@@ -1,7 +1,7 @@
 {
   "name": "replicate",
   "version": "0.0.1",
-  "description": "This is a design document for figuring out the design of the future JavaScript client for Replicate’s HTTP API. Let’s design the API here, before we write any code. README-driven development!",
+  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
