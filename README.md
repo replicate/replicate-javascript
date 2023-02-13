@@ -1,6 +1,6 @@
 # Replicate JavaScript client
 
-> SDK for [Replicate’s REST API](https://replicate.com/docs/reference/http)
+A JavaScript client for [Replicate](https://replicate.com/). It lets you run models from Node.js and the web (coming soon!), and various other things on Replicate.
 
 ## Usage
 
