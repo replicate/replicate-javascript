@@ -1,6 +1,4 @@
-This is a design document for figuring out the design of the future JavaScript client for Replicate’s HTTP API. Let’s design the API here, before we write any code. README-driven development!
-
-# `replicate`
+# Replicate JavaScript client
 
 > SDK for [Replicate’s REST API](https://replicate.com/docs/reference/http)
 
