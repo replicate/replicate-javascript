@@ -8,7 +8,7 @@ Install with `npm install replicate`
 
 Set your API token as `REPLICATE_API_TOKEN` in your environment.
 
-To run a prediction and return its 
+To run a prediction and return its output:
 
 ```jsx
 import replicate from "@replicate/client";
