@@ -1,3 +1,5 @@
-import Client from "./lib/client.js";
-const replicate = new Client({});
+import ReplicateClient from "./lib/ReplicateClient.js";
+
+const replicate = new ReplicateClient({});
+
 export default replicate;
