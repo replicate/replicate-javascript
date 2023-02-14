@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "node index.js && NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
