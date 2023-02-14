@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,8 @@
   "homepage": "https://github.com/replicate/replicate-js#readme",
   "dependencies": {
     "node-fetch": "^3.3.0"
+  },
+  "devDependencies": {
+    "jest": "^29.4.2"
   }
 }
