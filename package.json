@@ -9,7 +9,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node index.js && NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "REPLICATE_API_TOKEN=not-a-real-token node index.js && NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
     "node-fetch": "^3.3.0"
