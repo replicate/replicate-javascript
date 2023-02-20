@@ -15,12 +15,9 @@ To run a prediction and return its output:
 ```js
 import replicate from "replicate";
 
-// Set your model's input parameters here
-const input = {
+const prediction = await replicate.version("<MODEL VERSION>").predict({
   prompt: "painting of a cat by andy warhol",
-};
-
-const prediction = await replicate.predict("<MODEL VERSION>", input);
+});
 
 console.log(prediction.output);
 // "https://replicate.delivery/pbxt/lGWovsQZ7jZuNtPvofMth1rSeCcVn5xes8dWWdWZ64MlTi7gA/out-0.png"
@@ -32,17 +29,33 @@ running, you can pass in an `onUpdate` callback function:
 ```js
 import replicate from "replicate";
 
-// Set your model's input parameters here
-const input = {
-  prompt: "painting of a cat by andy warhol",
-};
-
-await replicate.predict("<MODEL VERSION>", input, {
-  onUpdate: (prediction) => {
-    console.log(prediction.output);
+await replicate.version("<MODEL VERSION>").predict(
+  {
+    prompt: "painting of a cat by andy warhol",
   },
-});
+  {
+    onUpdate: (prediction) => {
+      console.log(prediction.output);
+    },
+  }
+);
 ```
+
+If you'd prefer to control your own polling you can use the low-level
+`createPrediction()` method:
+
+```js
+import replicate from "replicate";
+
+const prediction = await replicate.version("<MODEL VERSION>").createPrediction({
+  prompt: "painting of a cat by andy warhol",
+});
+
+console.log(prediction.status); // "starting"
+```
+
+From there, you can fetch the current status of the prediction using
+`await prediction.load()` or `await replicate.prediction(prediction.id).load()`.
 
 ## License
 
