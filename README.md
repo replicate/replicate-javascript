@@ -69,6 +69,12 @@ console.log(prediction.status); // "starting"
 From there, you can fetch the current status of the prediction using
 `await prediction.load()` or `await replicate.prediction(prediction.id).load()`.
 
+## Contributing
+
+While we'd love to accept contributions to this library, please open an issue
+before starting any new work so we can discuss the approach we'd like to take
+before you invest too much in writing code.
+
 ## License
 
 [Apache 2.0](LICENSE)
