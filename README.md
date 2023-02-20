@@ -4,6 +4,12 @@ A JavaScript client for [Replicate](https://replicate.com/). It lets you run
 models from Node.js and the web (coming soon!), and do various other things with
 Replicate.
 
+## Status
+
+**This is an early alpha. The implementation might change between versions
+without warning. Please use at your own risk and pin to a specific version if
+you're relying on this for anything important!**
+
 ## Usage
 
 Install with `npm install replicate`
