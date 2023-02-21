@@ -8,6 +8,9 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "type": "module",
+  "files": [
+    "lib/**/!(*.test.js)"
+  ],
   "scripts": {
     "test": "REPLICATE_API_TOKEN=not-a-real-token node index.js && NODE_OPTIONS=--experimental-vm-modules jest"
   },
