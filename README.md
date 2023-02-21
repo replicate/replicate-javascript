@@ -15,12 +15,14 @@ To run a prediction and return its output:
 ```js
 import replicate from "replicate";
 
-const prediction = await replicate.version("<MODEL VERSION>").predict({
-  prompt: "painting of a cat by andy warhol",
-});
+const prediction = await replicate
+  .version("db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf")
+  .predict({
+    prompt: "painting of a cat by andy warhol",
+  });
 
 console.log(prediction.output);
-// "https://replicate.delivery/pbxt/lGWovsQZ7jZuNtPvofMth1rSeCcVn5xes8dWWdWZ64MlTi7gA/out-0.png"
+// "https://replicate.delivery/pbxt/oeJLu7D1Y7UWESpzerfINqgwZgONSCubSjSw0msf8i4AP2BCB/out-0.png"
 ```
 
 If you want to do something like updating progress while the prediction is
@@ -29,16 +31,18 @@ running, you can pass in an `onUpdate` callback function:
 ```js
 import replicate from "replicate";
 
-await replicate.version("<MODEL VERSION>").predict(
-  {
-    prompt: "painting of a cat by andy warhol",
-  },
-  {
-    onUpdate: (prediction) => {
-      console.log(prediction.output);
+await replicate
+  .version("db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf")
+  .predict(
+    {
+      prompt: "painting of a cat by andy warhol",
     },
-  }
-);
+    {
+      onUpdate: (prediction) => {
+        console.log(prediction.output);
+      },
+    }
+  );
 ```
 
 If you'd prefer to control your own polling you can use the low-level
@@ -47,9 +51,11 @@ If you'd prefer to control your own polling you can use the low-level
 ```js
 import replicate from "replicate";
 
-const prediction = await replicate.version("<MODEL VERSION>").createPrediction({
-  prompt: "painting of a cat by andy warhol",
-});
+const prediction = await replicate
+  .version("db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf")
+  .createPrediction({
+    prompt: "painting of a cat by andy warhol",
+  });
 
 console.log(prediction.status); // "starting"
 ```
