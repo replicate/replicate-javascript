@@ -22,7 +22,9 @@ To run a prediction and return its output:
 import replicate from "replicate";
 
 const prediction = await replicate
-  .version("db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf")
+  .model(
+    "stability-ai/stable-diffusion@db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
+  )
   .predict({
     prompt: "painting of a cat by andy warhol",
   });
@@ -38,7 +40,9 @@ running, you can pass in an `onUpdate` callback function:
 import replicate from "replicate";
 
 await replicate
-  .version("db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf")
+  .model(
+    "stability-ai/stable-diffusion@db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
+  )
   .predict(
     {
       prompt: "painting of a cat by andy warhol",
@@ -58,7 +62,9 @@ If you'd prefer to control your own polling you can use the low-level
 import replicate from "replicate";
 
 const prediction = await replicate
-  .version("db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf")
+  .model(
+    "stability-ai/stable-diffusion@db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
+  )
   .createPrediction({
     prompt: "painting of a cat by andy warhol",
   });
