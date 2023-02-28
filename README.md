@@ -14,6 +14,8 @@ Install with `npm install replicate`
 
 Set your API token as an environment variable called `REPLICATE_API_TOKEN`.
 
+### Making preedictions
+
 To run a prediction and return its output:
 
 ```js
@@ -72,6 +74,32 @@ console.log(prediction.status); // "starting"
 
 From there, you can fetch the current status of the prediction using
 `await prediction.load()` or `await replicate.prediction(prediction.id).load()`.
+
+#### Webhooks
+
+You can also provide webhook configuration to have Replicate send POST requests
+to your service when certain events occur:
+
+```js
+import replicate from "replicate";
+
+await replicate
+  .model(
+    "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
+  )
+  .createPrediction(
+    {
+      prompt: "painting of a cat by andy warhol",
+    },
+    {
+      // See https://replicate.com/docs/reference/http#create-prediction--webhook
+      webhook: "https://your.host/webhook",
+
+      // See https://replicate.com/docs/reference/http#create-prediction--webhook_events_filter
+      webhookEventsFilter: ["output", "completed"],
+    }
+  );
+```
 
 ## Contributing
 
