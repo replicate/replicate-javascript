@@ -26,11 +26,11 @@ const prediction = await replicate
     "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
   )
   .predict({
-    prompt: "painting of a cat by andy warhol",
+    prompt: "an astronaut riding on a horse",
   });
 
 console.log(prediction.output);
-// "https://replicate.delivery/pbxt/oeJLu7D1Y7UWESpzerfINqgwZgONSCubSjSw0msf8i4AP2BCB/out-0.png"
+// "https://replicate.delivery/pbxt/nSREat5H54rxGJo1kk2xLLG2fpr0NBE0HBD5L0jszLoy8oSIA/out-0.png"
 ```
 
 If you want to do something like updating progress while the prediction is
@@ -45,7 +45,7 @@ await replicate
   )
   .predict(
     {
-      prompt: "painting of a cat by andy warhol",
+      prompt: "an astronaut riding on a horse",
     },
     {
       onUpdate: (prediction) => {
@@ -66,7 +66,7 @@ const prediction = await replicate
     "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
   )
   .createPrediction({
-    prompt: "painting of a cat by andy warhol",
+    prompt: "an astronaut riding on a horse",
   });
 
 console.log(prediction.status); // "starting"
@@ -89,7 +89,7 @@ await replicate
   )
   .createPrediction(
     {
-      prompt: "painting of a cat by andy warhol",
+      prompt: "an astronaut riding on a horse",
     },
     {
       // See https://replicate.com/docs/reference/http#create-prediction--webhook
