@@ -1,8 +1,6 @@
-# Replicate JavaScript client
+# Replicate Node.js client
 
-A JavaScript client for [Replicate](https://replicate.com/). It lets you run
-models from Node.js and the web (coming soon!), and do various other things with
-Replicate.
+A Node.js client for [Replicate](https://replicate.com/)
 
 ## Status
 
