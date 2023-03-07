@@ -26,7 +26,9 @@ const prediction = await replicate
     "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
   )
   .predict({
-    prompt: "an astronaut riding on a horse",
+    input: {
+      prompt: "an astronaut riding on a horse",
+    },
   });
 
 console.log(prediction.output);
@@ -45,7 +47,9 @@ await replicate
   )
   .predict(
     {
-      prompt: "an astronaut riding on a horse",
+      input: {
+        prompt: "an astronaut riding on a horse",
+      },
     },
     {
       onUpdate: (prediction) => {
@@ -66,7 +70,9 @@ const prediction = await replicate
     "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf"
   )
   .createPrediction({
-    prompt: "an astronaut riding on a horse",
+    input: {
+      prompt: "an astronaut riding on a horse",
+    },
   });
 
 console.log(prediction.status); // "starting"
@@ -89,7 +95,9 @@ await replicate
   )
   .createPrediction(
     {
-      prompt: "an astronaut riding on a horse",
+      input: {
+        prompt: "an astronaut riding on a horse",
+      },
     },
     {
       // See https://replicate.com/docs/reference/http#create-prediction--webhook
