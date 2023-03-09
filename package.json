@@ -15,10 +15,10 @@
     "test": "REPLICATE_API_TOKEN=not-a-real-token node index.js && NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
-    "camelcase-keys": "^8.0.2",
-    "node-fetch": "^3.3.0"
+    "camelcase-keys": "^8.0.2"
   },
   "devDependencies": {
-    "jest": "^29.4.2"
+    "jest": "^29.4.2",
+    "jest-fetch-mock": "^3.0.3"
   }
 }
