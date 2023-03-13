@@ -1,4 +1,4 @@
-## Contributing
+# Contributing
 
 **This is an early alpha. The implementation might change between versions
 without warning. Please use at your own risk and pin to a specific version if
