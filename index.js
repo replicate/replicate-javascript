@@ -3,6 +3,7 @@ const axios = require('axios');
 const collections = require('./lib/collections');
 const models = require('./lib/models');
 const predictions = require('./lib/predictions');
+const packageJSON = require('./package.json');
 
 /**
  * Replicate API client library
@@ -28,12 +29,13 @@ class Replicate {
    *
    * @param {object} options - Configuration options for the client
    * @param {string} options.auth - Required. API access token
-   * @param {string} options.userAgent - Required. Identifier of your app
+   * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    */
   constructor(options) {
     this.auth = options.auth;
-    this.userAgent = options.userAgent;
+    this.userAgent =
+      options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
     this.instance = axios.create({
       baseURL: this.baseUrl,
