@@ -3,7 +3,7 @@ type Identifier = `${string}/${string}:${string}`;
 declare module "replicate" {
   export interface ReplicateOptions {
     auth: string;
-    userAgent: string;
+    userAgent?: string;
     baseUrl?: string;
   }
 
