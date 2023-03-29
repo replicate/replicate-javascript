@@ -38,6 +38,7 @@ class Replicate {
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
     this.instance = axios.create({
+      ...options.axiosConfig,
       baseURL: this.baseUrl,
       headers: {
         Authorization: `Token ${this.auth}`,

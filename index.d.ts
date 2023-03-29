@@ -1,3 +1,5 @@
+import type { AxiosRequestConfig } from "axios";
+
 type Identifier = `${string}/${string}:${string}`;
 
 declare module "replicate" {
@@ -5,6 +7,7 @@ declare module "replicate" {
     auth: string;
     userAgent: string;
     baseUrl?: string;
+    axiosConfig?: Partial<Omit<AxiosRequestConfig, "url" | "method">>;
   }
 
   export interface Collection {

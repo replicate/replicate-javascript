@@ -12,6 +12,16 @@ describe('Replicate client', () => {
     expect(clientWithoutBaseUrl.baseUrl).toBe('https://api.replicate.com/v1');
   });
 
+  test('Constructor passes through axios options', async () => {
+    const adapter = jest.fn(() => Promise.resolve({}));
+    const clientWithAxiosOptions = new Replicate({
+      axiosConfig: { adapter },
+    });
+
+    await clientWithAxiosOptions.collections.get('text-to-image');
+    expect(adapter).toHaveBeenCalled();
+  });
+
   describe('collections.get', () => {
     test('Calls the correct API route', async () => {
       client.request = jest.fn();
