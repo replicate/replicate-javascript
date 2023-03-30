@@ -80,7 +80,7 @@ class Replicate {
    */
   async run(identifier, options) {
     const pattern =
-      /^(?<owner>[a-zA-Z0-9-]+?)\/(?<name>[a-zA-Z0-9-]+?):(?<version>[0-9a-fA-F]+)$/;
+      /^(?<owner>[a-zA-Z0-9-_]+?)\/(?<name>[a-zA-Z0-9-_]+?):(?<version>[0-9a-fA-F]+)$/;
     const match = identifier.match(pattern);
 
     if (!match) {
