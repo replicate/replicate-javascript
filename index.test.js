@@ -60,6 +60,30 @@ describe('Replicate client', () => {
       });
     });
 
+    test('Calls the correct API route with the correct payload, webhook URL and webhook filters', async () => {
+      client.request = jest.fn();
+      const input = { text: 'Hello, world!' };
+      await client.predictions.create({
+        version:
+          '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
+        input,
+        webhook: 'http://test.host/webhook',
+        webhook_events_filter: ['output', 'completed'],
+      });
+      expect(client.request).toHaveBeenCalledWith('/predictions', {
+        method: 'POST',
+        data: {
+          version:
+            '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
+          input: {
+            text: 'Hello, world!',
+          },
+          webhook: 'http://test.host/webhook',
+          webhook_events_filter: ['output', 'completed'],
+        },
+      });
+    });
+
     // Add more tests for error handling, edge cases, etc.
   });
 

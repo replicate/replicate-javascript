@@ -182,11 +182,12 @@ const response = await replicate.collections.get(collection_slug);
 const response = await replicate.predictions.create(options);
 ```
 
-| name                        | type   | description                                                               |
-| --------------------------- | ------ | ------------------------------------------------------------------------- |
-| `options.version`           | string | **Required**. The model version                                           |
-| `options.input`             | object | **Required**. An object with the models inputs                            |
-| `options.webhook_completed` | string | A URL which will receive a POST request upon completion of the prediction |
+| name                            | type     | description                                                                                                                      |
+| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `options.version`               | string   | **Required**. The model version                                                                                                  |
+| `options.input`                 | object   | **Required**. An object with the models inputs                                                                                   |
+| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                          |
+| `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
 
 ```jsonc
 {
