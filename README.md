@@ -1,13 +1,13 @@
-# Replicate JavaScript client
+# Replicate Node.js client
 
-SDK for [Replicate’s REST API](https://replicate.com/docs/reference/http).
+A Node.js client for [Replicate](https://replicate.com). It lets you run models from your Node.js code, and do various other things on Replicate.
 
 ## Installation
 
-This is not on npm yet, but you can install it from GitHub:
+Install it from npm:
 
 ```bash
-npm install replicate/replicate-javascript
+npm install replicate
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ const input = { text: "Hello, world!" };
 const output = await replicate.run(model, { input });
 ```
 
-You can also run a model without awaiting the result:
+You can also run a model in the backround:
 
 ```js
 let prediction = await replicate.predictions.create({
@@ -54,13 +54,6 @@ Or wait for the prediction to finish:
 ```js
 prediction = await replicate.wait(prediction);
 ```
-
-## Features
-
-- [x] async API
-- [x] Type annotations
-- [x] Tests
-- [x] Pagination
 
 ## API
 
