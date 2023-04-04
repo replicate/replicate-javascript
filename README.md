@@ -26,18 +26,18 @@ const replicate = new Replicate({
 Run a model and await the result:
 
 ```js
-const model = "owner/model:version-id";
-const input = { text: "Hello, world!" };
+const model = "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
+const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
 const output = await replicate.run(model, { input });
+// ['https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt8xjquFk9EX5LP0fF68NTIWlgBMUpguQA/out-0.png']
 ```
 
 You can also run a model in the backround:
 
 ```js
 let prediction = await replicate.predictions.create({
-  version: "<MODEL VERSION>",
+  version: "27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
   input: {
-    // your model inputs need to be set here
     prompt: "painting of a cat by andy warhol",
   },
 });
