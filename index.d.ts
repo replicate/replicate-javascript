@@ -1,4 +1,5 @@
 type Identifier = `${string}/${string}:${string}`;
+type WebhookEventType = "start" | "output" | "logs" | "completed";
 
 declare module "replicate" {
   export interface ReplicateOptions {
@@ -36,7 +37,8 @@ declare module "replicate" {
     version: string;
     input: any;
     output: any;
-    webhook_completed: string;
+    webhook?: string;
+    webhook_events_filter?: WebhookEventType[];
     created: string;
     updated: string;
   }
@@ -64,7 +66,8 @@ declare module "replicate" {
   export interface PredictionsCreateOptions {
     version: string;
     input: any;
-    webhook_completed?: string;
+    webhook?: string;
+    webhook_events_filter?: WebhookEventType[];
   }
 
   export interface PredictionsGetOptions {
@@ -79,7 +82,8 @@ declare module "replicate" {
       options: {
         input: object;
         wait?: boolean | { interval?: number; maxAttempts?: number };
-        webhook_completed?: string;
+        webhook?: string;
+        webhook_events_filter?: WebhookEventType[];
       }
     ): Promise<object>;
     request(route: string, parameters: any): Promise<any>;
