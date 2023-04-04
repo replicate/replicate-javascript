@@ -53,6 +53,8 @@ Or wait for the prediction to finish:
 
 ```js
 prediction = await replicate.wait(prediction);
+console.log(prediction.output)
+// ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
 ## API
