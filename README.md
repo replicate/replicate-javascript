@@ -1,6 +1,6 @@
 # Replicate Node.js client
 
-A Node.js client for [Replicate](https://replicate.com). It lets you run models from your Node.js code, and do various other things on Replicate.
+A Node.js client for [Replicate](https://replicate.com). It lets you run models from your Node.js code, and everything else you can do with [the HTTP API](https://replicate.com/docs/reference/http).
 
 ## Installation
 
