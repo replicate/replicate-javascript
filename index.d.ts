@@ -113,5 +113,21 @@ declare module 'replicate' {
       get(prediction_id: string): Promise<Prediction>;
       list(): Promise<Page<Prediction>>;
     };
+
+    trainings: {
+      create(
+        model_owner: string,
+        model_name: string,
+        version_id: string,
+        options: {
+          destination: string;
+          input: any;
+          webhook?: string;
+          webhook_events_filter?: WebhookEventType[];
+        }
+      ): Promise<Training>;
+      get(options: TrainingsGetOptions): Promise<Training>;
+      cancel(options: TrainingsGetOptions): Promise<Training>;
+    };
   }
 }
