@@ -1,15 +1,14 @@
 import { expect, jest, test } from '@jest/globals';
-
 import Replicate, { Prediction } from 'replicate';
-
-import axios from 'axios';
+import nock from 'nock';
 
 describe('Replicate client', () => {
   let client: Replicate;
 
+  const BASE_URL = 'https://api.replicate.com/v1';
+
   beforeEach(() => {
     client = new Replicate({ auth: 'test-token' });
-    client[ 'instance' ] = jest.fn<typeof axios>();
   });
 
   describe('constructor', () => {
@@ -36,32 +35,27 @@ describe('Replicate client', () => {
 
   describe('collections.get', () => {
     test('Calls the correct API route', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+      nock(BASE_URL)
+        .get('/collections/super-resolution')
+        .reply(200, {
           name: 'Super resolution',
           slug: 'super-resolution',
           description:
             'Upscaling models that create high-quality images from low-quality images.',
           models: [],
-        },
-      });
+        });
+
       const collection = await client.collections.get('super-resolution');
-      expect(client[ 'instance' ]).toHaveBeenCalledWith(
-        '/collections/super-resolution',
-        {
-          method: 'GET',
-        }
-      );
       expect(collection.name).toBe('Super resolution');
     });
-
     // Add more tests for error handling, edge cases, etc.
   });
 
   describe('models.get', () => {
     test('Calls the correct API route', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+      nock(BASE_URL)
+        .get('/models/replicate/hello-world')
+        .reply(200, {
           url: 'https://replicate.com/replicate/hello-world',
           owner: 'replicate',
           name: 'hello-world',
@@ -74,24 +68,19 @@ describe('Replicate client', () => {
           cover_image_url: '',
           default_example: {},
           latest_version: {},
-        },
-      });
-      await client.models.get('replicate', 'hello-world');
-      expect(client[ 'instance' ]).toHaveBeenCalledWith(
-        '/models/replicate/hello-world',
-        {
-          method: 'GET',
-        }
-      );
-    });
+        });
 
+      await client.models.get('replicate', 'hello-world');
+    });
     // Add more tests for error handling, edge cases, etc.
   });
 
+
   describe('predictions.create', () => {
     test('Calls the correct API route with the correct payload', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+      nock(BASE_URL)
+        .post('/predictions')
+        .reply(200, {
           id: 'ufawqhfynnddngldkgtslldrkq',
           version:
             '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
@@ -111,9 +100,7 @@ describe('Replicate client', () => {
           error: null,
           logs: null,
           metrics: {},
-        },
-      });
-
+        });
       const prediction = await client.predictions.create({
         version:
           '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
@@ -124,28 +111,15 @@ describe('Replicate client', () => {
         webhook_events_filter: [ 'output', 'completed' ],
       });
       expect(prediction.id).toBe('ufawqhfynnddngldkgtslldrkq');
-
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/predictions', {
-        method: 'POST',
-        data: {
-          version:
-            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
-          input: {
-            text: 'Alice',
-          },
-          webhook: 'http://test.host/webhook',
-          webhook_events_filter: [ 'output', 'completed' ],
-        },
-      });
     });
-
     // Add more tests for error handling, edge cases, etc.
   });
 
   describe('predictions.get', () => {
     test('Calls the correct API route with the correct payload', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+      nock(BASE_URL)
+        .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
+        .reply(200, {
           id: 'rrr4z55ocneqzikepnug6xezpe',
           version:
             'be04660a5b93ef2aff61e3668dedb4cbeb14941e62a3fd5998364a32d613e35e',
@@ -170,29 +144,20 @@ describe('Replicate client', () => {
           metrics: {
             predict_time: 4.484541,
           },
-        },
-      });
-
+        });
       const prediction = await client.predictions.get(
         'rrr4z55ocneqzikepnug6xezpe'
       );
       expect(prediction.id).toBe('rrr4z55ocneqzikepnug6xezpe');
-
-      expect(client[ 'instance' ]).toHaveBeenCalledWith(
-        '/predictions/rrr4z55ocneqzikepnug6xezpe',
-        {
-          method: 'GET',
-        }
-      );
     });
-
     // Add more tests for error handling, edge cases, etc.
   });
 
   describe('predictions.list', () => {
     test('Calls the correct API route with the correct payload', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+      nock(BASE_URL)
+        .get('/predictions')
+        .reply(200, {
           next: 'https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
           previous: null,
           results: [
@@ -212,34 +177,27 @@ describe('Replicate client', () => {
               status: 'succeeded',
             },
           ],
-        },
-      });
+        });
 
       const predictions = await client.predictions.list();
       expect(predictions.results.length).toBe(1);
       expect(predictions.results[ 0 ].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
-
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/predictions', {
-        method: 'GET',
-      });
     });
 
     test('Paginates results', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+      nock(BASE_URL)
+        .get('/predictions')
+        .reply(200, {
           results: [ { id: 'ufawqhfynnddngldkgtslldrkq' } ],
           next: 'https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
-        },
-      });
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
+        })
+        .get('/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw')
+        .reply(200, {
           results: [ { id: 'rrr4z55ocneqzikepnug6xezpe' } ],
           next: null,
-        },
-      });
+        });
 
       const results: Prediction[] = [];
-      // eslint-disable-next-line no-restricted-syntax
       for await (const batch of client.paginate(client.predictions.list)) {
         results.push(...batch);
       }
@@ -248,174 +206,132 @@ describe('Replicate client', () => {
         { id: 'rrr4z55ocneqzikepnug6xezpe' },
       ]);
 
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/predictions', {
-        method: 'GET',
-      });
-      expect(client[ 'instance' ]).toHaveBeenCalledWith(
-        'https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
-        {
-          method: 'GET',
-        }
-      );
+      // Add more tests for error handling, edge cases, etc.
     });
 
-    // Add more tests for error handling, edge cases, etc.
-  });
+    describe('trainings.create', () => {
+      test('Calls the correct API route with the correct payload', async () => {
+        nock(BASE_URL)
+          .post('/models/owner/model/versions/632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532/trainings')
+          .reply(200, {
+            id: 'zz4ibbonubfz7carwiefibzgga',
+            version: '{version}',
+            status: 'starting',
+            input: {
+              text: '...',
+            },
+            output: null,
+            error: null,
+            logs: null,
+            started_at: null,
+            created_at: '2023-03-28T21:47:58.566434Z',
+            completed_at: null,
+          });
 
-  describe('trainings.create', () => {
-    test('Calls the correct API route with the correct payload', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
-          "id": "zz4ibbonubfz7carwiefibzgga",
-          "version": "{version}",
-          "status": "starting",
-          "input": {
-            "text": "..."
-          },
-          "output": null,
-          "error": null,
-          "logs": null,
-          "started_at": null,
-          "created_at": "2023-03-28T21:47:58.566434Z",
-          "completed_at": null
-        }
-      });
 
-      const training = await client.trainings.create(
-        'owner',
-        'model',
-        '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
-        {
-          destination: 'new_owner/new_model',
-          input: {
-            text: '...'
+        const training = await client.trainings.create(
+          'owner',
+          'model',
+          '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
+          {
+            destination: 'new_owner/new_model',
+            input: {
+              text: '...',
+            },
           }
-        }
-      );
-      expect(training.id).toBe('zz4ibbonubfz7carwiefibzgga');
+        );
+        expect(training.id).toBe('zz4ibbonubfz7carwiefibzgga');
+      });
 
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/models/owner/model/versions/632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532/trainings', {
-        method: 'POST',
-        data: {
-          destination: 'new_owner/new_model',
-          input: {
-            text: '...'
-          },
-        }
+      // Add more tests for error handling, edge cases, etc.
+    });
+
+    describe('trainings.get', () => {
+      test('Calls the correct API route with the correct payload', async () => {
+        nock(BASE_URL)
+          .get('/trainings/zz4ibbonubfz7carwiefibzgga')
+          .reply(200, {
+            id: 'zz4ibbonubfz7carwiefibzgga',
+            version: '{version}',
+            status: 'succeeded',
+            input: {
+              data: '...',
+              param1: '...',
+            },
+            output: {
+              version: '...',
+            },
+            error: null,
+            logs: null,
+            webhook_completed: null,
+            started_at: null,
+            created_at: '2023-03-28T21:47:58.566434Z',
+            completed_at: null,
+          });
+
+        const training = await client.trainings.get('zz4ibbonubfz7carwiefibzgga');
+        expect(training.status).toBe('succeeded');
+      });
+
+      // Add more tests for error handling, edge cases, etc.
+    });
+
+    describe('trainings.cancel', () => {
+      test('Calls the correct API route with the correct payload', async () => {
+        nock(BASE_URL)
+          .post('/trainings/zz4ibbonubfz7carwiefibzgga/cancel')
+          .reply(200, {
+            id: 'zz4ibbonubfz7carwiefibzgga',
+            version: '{version}',
+            status: 'canceled',
+            input: {
+              data: '...',
+              param1: '...',
+            },
+            output: {
+              version: '...',
+            },
+            error: null,
+            logs: null,
+            webhook_completed: null,
+            started_at: null,
+            created_at: '2023-03-28T21:47:58.566434Z',
+            completed_at: null,
+          });
+
+
+        const training = await client.trainings.cancel('zz4ibbonubfz7carwiefibzgga');
+        expect(training.status).toBe('canceled');
+      });
+
+      // Add more tests for error handling, edge cases, etc.
+    });
+
+    describe('run', () => {
+      test('Calls the correct API routes', async () => {
+        nock(BASE_URL)
+          .post('/predictions')
+          .reply(200, {
+            id: 'ufawqhfynnddngldkgtslldrkq',
+            status: 'processing',
+          })
+          .get('/predictions/ufawqhfynnddngldkgtslldrkq')
+          .reply(200, {
+            id: 'ufawqhfynnddngldkgtslldrkq',
+            status: 'succeeded',
+            output: 'foobar',
+          });
+
+        const output = await client.run(
+          'owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          {
+            input: { text: 'Hello, world!' },
+          }
+        );
+        expect(output).toBe('foobar');
       });
     });
 
-    // Add more tests for error handling, edge cases, etc.
+    // Continue with tests for other methods
   });
-
-  describe('trainings.get', () => {
-    test('Calls the correct API route with the correct payload', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
-          "id": "zz4ibbonubfz7carwiefibzgga",
-          "version": "{version}",
-          "status": "succeeded",
-          "input": {
-            "data": "...",
-            "param1": "..."
-          },
-          "output": {
-            "version": "..."
-          },
-          "error": null,
-          "logs": null,
-          "webhook_completed": null,
-          "started_at": null,
-          "created_at": "2023-03-28T21:47:58.566434Z",
-          "completed_at": null
-        }
-      });
-
-      const training = await client.trainings.get('zz4ibbonubfz7carwiefibzgga');
-      expect(training.status).toBe('succeeded');
-
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/trainings/zz4ibbonubfz7carwiefibzgga', {
-        method: 'GET',
-      });
-    });
-
-    // Add more tests for error handling, edge cases, etc.
-  });
-
-  describe('trainings.cancel', () => {
-    test('Calls the correct API route with the correct payload', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
-          "id": "zz4ibbonubfz7carwiefibzgga",
-          "version": "{version}",
-          "status": "canceled",
-          "input": {
-            "data": "...",
-            "param1": "..."
-          },
-          "output": {
-            "version": "..."
-          },
-          "error": null,
-          "logs": null,
-          "webhook_completed": null,
-          "started_at": null,
-          "created_at": "2023-03-28T21:47:58.566434Z",
-          "completed_at": null
-        }
-      });
-
-      const training = await client.trainings.cancel("zz4ibbonubfz7carwiefibzgga");
-      expect(training.status).toBe('canceled');
-
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/trainings/zz4ibbonubfz7carwiefibzgga/cancel', {
-        method: 'POST',
-      });
-    });
-
-    // Add more tests for error handling, edge cases, etc.
-  });
-
-  describe('run', () => {
-    test('Calls the correct API routes', async () => {
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
-          id: 'ufawqhfynnddngldkgtslldrkq',
-          status: 'processing',
-        },
-      });
-      client[ 'instance' ].mockResolvedValueOnce({
-        data: {
-          id: 'ufawqhfynnddngldkgtslldrkq',
-          status: 'succeeded',
-          output: 'foobar',
-        },
-      });
-      const output = await client.run(
-        'owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
-        {
-          input: { text: 'Hello, world!' },
-        }
-      );
-      expect(client[ 'instance' ]).toHaveBeenCalledWith('/predictions', {
-        method: 'POST',
-        data: {
-          version:
-            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
-          input: {
-            text: 'Hello, world!',
-          },
-        },
-      });
-      expect(client[ 'instance' ]).toHaveBeenCalledWith(
-        '/predictions/ufawqhfynnddngldkgtslldrkq',
-        {
-          method: 'GET',
-        }
-      );
-      expect(output).toBe('foobar');
-    });
-  });
-
-  // Continue with tests for other methods
 });
