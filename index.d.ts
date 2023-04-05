@@ -9,12 +9,10 @@ declare module 'replicate' {
   }
 
   export interface Collection {
-    id: string;
     name: string;
     slug: string;
     description: string;
-    created: string;
-    updated: string;
+    models: Model[];
   }
 
   export interface Model {
@@ -73,7 +71,7 @@ declare module 'replicate' {
       }
     ): Promise<object>;
     request(route: string, parameters: any): Promise<any>;
-    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[T]>;
+    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
     wait(
       prediction: Prediction,
       options: {
