@@ -120,7 +120,7 @@ declare module 'replicate' {
         model_name: string,
         version_id: string,
         options: {
-          destination: string;
+          destination: `${string}/${string}`;
           input: any;
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
