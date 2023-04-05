@@ -1,13 +1,13 @@
-type Identifier = `${string}/${string}:${string}`;
-type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
-
-interface Page<T> {
-  previous?: string;
-  next?: string;
-  results: T[];
-}
-
 declare module 'replicate' {
+  type Identifier = `${string}/${string}:${string}`;
+  type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
+
+  interface Page<T> {
+    previous?: string;
+    next?: string;
+    results: T[];
+  }
+
   export interface Collection {
     id: string;
     name: string;
