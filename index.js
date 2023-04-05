@@ -3,6 +3,7 @@ const axios = require('axios');
 const collections = require('./lib/collections');
 const models = require('./lib/models');
 const predictions = require('./lib/predictions');
+const trainings = require('./lib/trainings');
 const packageJSON = require('./package.json');
 
 /**
@@ -62,6 +63,12 @@ class Replicate {
       create: predictions.create.bind(this),
       get: predictions.get.bind(this),
       list: predictions.list.bind(this),
+    };
+
+    this.trainings = {
+      create: trainings.create.bind(this),
+      get: trainings.get.bind(this),
+      cancel: trainings.cancel.bind(this),
     };
   }
 
