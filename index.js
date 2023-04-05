@@ -1,5 +1,3 @@
-const fetch = require('cross-fetch');
-
 const collections = require('./lib/collections');
 const models = require('./lib/models');
 const predictions = require('./lib/predictions');
@@ -32,12 +30,14 @@ class Replicate {
    * @param {string} options.auth - Required. API access token
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
+   * @param {Function} [options.fetch] - Defaults to native fetch
    */
   constructor(options) {
     this.auth = options.auth;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
+    this.fetch = fetch;
 
     this.collections = {
       get: collections.get.bind(this),
@@ -133,7 +133,7 @@ class Replicate {
       'User-Agent': userAgent,
     };
 
-    const response = await fetch(url, {
+    const response = await this.fetch(url, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,

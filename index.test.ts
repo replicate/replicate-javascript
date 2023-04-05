@@ -1,6 +1,8 @@
+
 import { expect, jest, test } from '@jest/globals';
 import Replicate, { Prediction } from 'replicate';
 import nock from 'nock';
+import fetch from 'cross-fetch';
 
 describe('Replicate client', () => {
   let client: Replicate;
@@ -9,6 +11,7 @@ describe('Replicate client', () => {
 
   beforeEach(() => {
     client = new Replicate({ auth: 'test-token' });
+    client.fetch = fetch;
   });
 
   describe('constructor', () => {
