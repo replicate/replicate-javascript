@@ -1,46 +1,59 @@
-type Identifier = `${string}/${string}:${string}`;
-type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
-
-interface Page<T> {
-  previous?: string;
-  next?: string;
-  results: T[];
-}
-
 declare module 'replicate' {
+  type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+  type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
+
+  interface Page<T> {
+    previous?: string;
+    next?: string;
+    results: T[];
+  }
+
   export interface Collection {
-    id: string;
     name: string;
     slug: string;
     description: string;
-    created: string;
-    updated: string;
+    models: Model[];
   }
 
   export interface Model {
-    id: string;
-    name: string;
+    url: string;
     owner: string;
-    created: string;
-    updated: string;
+    name: string;
+    description: string;
+    visibility: 'public' | 'private';
+    github_url: string;
+    paper_url: string;
+    license_url: string;
+    run_count: number;
+    cover_image_url: string;
+    default_example?: Prediction;
+    latest_version?: ModelVersion;
   }
 
   export interface ModelVersion {
     id: string;
-    model: string;
-    created: string;
-    updated: string;
+    created_at: string;
+    cog_version: string;
+    openapi_schema: object;
   }
 
   export interface Prediction {
     id: string;
+    status: Status;
     version: string;
-    input: any;
+    input: object;
     output: any;
+    source: 'api' | 'web';
+    error?: any;
+    logs?: string;
+    metrics?: {
+      predicti_time?: number;
+    }
     webhook?: string;
     webhook_events_filter?: WebhookEventType[];
-    created: string;
-    updated: string;
+    created_at: string;
+    updated_at: string;
+    completed_at?: string;
   }
 
   export default class Replicate {
@@ -56,7 +69,7 @@ declare module 'replicate' {
     private instance: any;
 
     run(
-      identifier: Identifier,
+      identifier: `${string}/${string}:${string}`,
       options: {
         input: object;
         wait?: boolean | { interval?: number; maxAttempts?: number };
@@ -65,7 +78,7 @@ declare module 'replicate' {
       }
     ): Promise<object>;
     request(route: string, parameters: any): Promise<any>;
-    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[T]>;
+    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
     wait(
       prediction: Prediction,
       options: {
@@ -93,7 +106,7 @@ declare module 'replicate' {
     predictions: {
       create(options: {
         version: string;
-        input: any;
+        input: object;
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
       }): Promise<Prediction>;
