@@ -16,11 +16,18 @@ declare module 'replicate' {
   }
 
   export interface Model {
-    id: string;
-    name: string;
+    url: string;
     owner: string;
-    created: string;
-    updated: string;
+    name: string;
+    description: string;
+    visibility: 'public' | 'private';
+    github_url: string;
+    paper_url: string;
+    license_url: string;
+    run_count: number;
+    cover_image_url: string;
+    default_example?: Prediction;
+    latest_version?: ModelVersion;
   }
 
   export interface ModelVersion {
