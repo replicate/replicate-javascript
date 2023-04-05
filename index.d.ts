@@ -101,7 +101,7 @@ declare module 'replicate' {
     predictions: {
       create(options: {
         version: string;
-        input: any;
+        input: object;
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
       }): Promise<Prediction>;
