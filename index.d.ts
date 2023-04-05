@@ -1,5 +1,6 @@
 declare module 'replicate' {
   type Identifier = `${string}/${string}:${string}`;
+  type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
   type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
   interface Page<T> {
@@ -34,13 +35,21 @@ declare module 'replicate' {
 
   export interface Prediction {
     id: string;
+    status: Status;
     version: string;
-    input: any;
+    input: object;
     output: any;
+    source: 'api' | 'web';
+    error?: any;
+    logs?: string;
+    metrics?: {
+      predicti_time?: number;
+    }
     webhook?: string;
     webhook_events_filter?: WebhookEventType[];
-    created: string;
-    updated: string;
+    created_at: string;
+    updated_at: string;
+    completed_at?: string;
   }
 
   export default class Replicate {
