@@ -1,5 +1,4 @@
 declare module 'replicate' {
-  type Identifier = `${string}/${string}:${string}`;
   type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
   type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
@@ -65,7 +64,7 @@ declare module 'replicate' {
     private instance: any;
 
     run(
-      identifier: Identifier,
+      identifier: `${string}/${string}:${string}`,
       options: {
         input: object;
         wait?: boolean | { interval?: number; maxAttempts?: number };
