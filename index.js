@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 const collections = require('./lib/collections');
 const models = require('./lib/models');
 const predictions = require('./lib/predictions');
@@ -32,20 +30,14 @@ class Replicate {
    * @param {string} options.auth - Required. API access token
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
+   * @param {Function} [options.fetch] - Defaults to native fetch
    */
   constructor(options) {
     this.auth = options.auth;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
-    this.instance = axios.create({
-      baseURL: this.baseUrl,
-      headers: {
-        Authorization: `Token ${this.auth}`,
-        'User-Agent': this.userAgent,
-        'Content-Type': 'application/json',
-      },
-    });
+    this.fetch = fetch;
 
     this.collections = {
       get: collections.get.bind(this),
@@ -115,12 +107,43 @@ class Replicate {
    * Make a request to the Replicate API.
    *
    * @param {string} route - REST API endpoint path
-   * @param {object} parameters - URL, query, and request body parameters for the given route
+   * @param {object} parameters - Request parameters
+   * @param {string} [parameters.method] - HTTP method. Defaults to GET
+   * @param {object} [parameters.params] - Query parameters
+   * @param {object} [parameters.data] - Body parameters
    * @returns {Promise<object>} - Resolves with the API response data
    */
   async request(route, parameters) {
-    const response = await this.instance(route, parameters);
-    return response.data;
+    const { auth, baseUrl, userAgent } = this;
+
+    const url = new URL(
+      route.startsWith('/') ? route.slice(1) : route,
+      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+    );
+
+    const { method = 'GET', params = {}, data } = parameters;
+
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+
+    const headers = {
+      Authorization: `Token ${auth}`,
+      'Content-Type': 'application/json',
+      'User-Agent': userAgent,
+    };
+
+    const response = await this.fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 
   /**

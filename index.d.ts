@@ -66,7 +66,7 @@ declare module 'replicate' {
     auth: string;
     userAgent?: string;
     baseUrl?: string;
-    private instance: any;
+    fetch: Function;
 
     run(
       identifier: `${string}/${string}:${string}`,
