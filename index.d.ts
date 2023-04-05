@@ -1,13 +1,13 @@
 type Identifier = `${string}/${string}:${string}`;
-type WebhookEventType = "start" | "output" | "logs" | "completed";
+type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
-declare module "replicate" {
-  export interface ReplicateOptions {
-    auth: string;
-    userAgent?: string;
-    baseUrl?: string;
-  }
+interface Page<T> {
+  previous?: string;
+  next?: string;
+  results: T[];
+}
 
+declare module 'replicate' {
   export interface Collection {
     id: string;
     name: string;
@@ -43,39 +43,17 @@ declare module "replicate" {
     updated: string;
   }
 
-  export interface CollectionsGetOptions {
-    collection_slug: string;
-  }
+  export default class Replicate {
+    constructor(options: {
+      auth: string;
+      userAgent?: string;
+      baseUrl?: string;
+    });
 
-  export interface ModelsGetOptions {
-    model_owner: string;
-    model_name: string;
-  }
-
-  export interface ModelsVersionsListOptions {
-    model_owner: string;
-    model_name: string;
-  }
-
-  export interface ModelsVersionsGetOptions {
-    model_owner: string;
-    model_name: string;
-    id: string;
-  }
-
-  export interface PredictionsCreateOptions {
-    version: string;
-    input: any;
-    webhook?: string;
-    webhook_events_filter?: WebhookEventType[];
-  }
-
-  export interface PredictionsGetOptions {
-    predictionId: string;
-  }
-
-  export class Replicate {
-    constructor(options: ReplicateOptions);
+    auth: string;
+    userAgent?: string;
+    baseUrl?: string;
+    private instance: any;
 
     run(
       identifier: Identifier,
@@ -87,7 +65,7 @@ declare module "replicate" {
       }
     ): Promise<object>;
     request(route: string, parameters: any): Promise<any>;
-    paginate<T>(endpoint: () => Promise<T>): AsyncGenerator<T[]>;
+    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[T]>;
     wait(
       prediction: Prediction,
       options: {
@@ -97,23 +75,30 @@ declare module "replicate" {
     ): Promise<Prediction>;
 
     collections: {
-      get(options: CollectionsGetOptions): Promise<Collection>;
+      get(collection_slug: string): Promise<Collection>;
     };
 
     models: {
-      get(options: ModelsGetOptions): Promise<Model>;
+      get(model_owner: string, model_name: string): Promise<Model>;
       versions: {
-        list(options: ModelsVersionsListOptions): Promise<ModelVersion[]>;
-        get(options: ModelsVersionsGetOptions): Promise<ModelVersion>;
+        list(model_owner: string, model_name: string): Promise<ModelVersion[]>;
+        get(
+          model_owner: string,
+          model_name: string,
+          version_id: string
+        ): Promise<ModelVersion>;
       };
     };
 
     predictions: {
-      create(options: PredictionsCreateOptions): Promise<Prediction>;
-      get(options: PredictionsGetOptions): Promise<Prediction>;
-      list(): Promise<Prediction[]>;
+      create(options: {
+        version: string;
+        input: any;
+        webhook?: string;
+        webhook_events_filter?: WebhookEventType[];
+      }): Promise<Prediction>;
+      get(prediction_id: string): Promise<Prediction>;
+      list(): Promise<Page<Prediction>>;
     };
   }
-
-  export default Replicate;
 }
