@@ -32,9 +32,9 @@ declare module 'replicate' {
 
   export interface ModelVersion {
     id: string;
-    model: string;
-    created: string;
-    updated: string;
+    created_at: string;
+    cog_version: string;
+    openapi_schema: object;
   }
 
   export interface Prediction {
