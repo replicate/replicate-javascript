@@ -1,5 +1,5 @@
 type Identifier = `${string}/${string}:${string}`;
-type WebhookEventType = "start" | "output" | "logs" | "completed";
+type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
 interface Page<T> {
   previous?: string;
@@ -7,7 +7,7 @@ interface Page<T> {
   results: T[];
 }
 
-declare module "replicate" {
+declare module 'replicate' {
   export interface Collection {
     id: string;
     name: string;
@@ -65,7 +65,7 @@ declare module "replicate" {
       }
     ): Promise<object>;
     request(route: string, parameters: any): Promise<any>;
-    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
+    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[T]>;
     wait(
       prediction: Prediction,
       options: {
