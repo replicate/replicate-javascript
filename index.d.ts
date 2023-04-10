@@ -56,6 +56,8 @@ declare module 'replicate' {
     completed_at?: string;
   }
 
+  export type Training = Prediction;
+
   export default class Replicate {
     constructor(options: {
       auth: string;
@@ -126,8 +128,8 @@ declare module 'replicate' {
           webhook_events_filter?: WebhookEventType[];
         }
       ): Promise<Training>;
-      get(options: TrainingsGetOptions): Promise<Training>;
-      cancel(options: TrainingsGetOptions): Promise<Training>;
+      get(training_id: string): Promise<Training>;
+      cancel(training_id: string): Promise<Training>;
     };
   }
 }
