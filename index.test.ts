@@ -1,6 +1,5 @@
-
 import { expect, jest, test } from '@jest/globals';
-import Replicate, { Prediction } from 'replicate';
+import Replicate, { Prediction } from '.';
 import nock from 'nock';
 import fetch from 'cross-fetch';
 
@@ -10,8 +9,7 @@ describe('Replicate client', () => {
   const BASE_URL = 'https://api.replicate.com/v1';
 
   beforeEach(() => {
-    client = new Replicate({ auth: 'test-token' });
-    client.fetch = fetch;
+    client = new Replicate({ auth: 'test-token', fetch });
   });
 
   describe('constructor', () => {
@@ -38,15 +36,13 @@ describe('Replicate client', () => {
 
   describe('collections.get', () => {
     test('Calls the correct API route', async () => {
-      nock(BASE_URL)
-        .get('/collections/super-resolution')
-        .reply(200, {
-          name: 'Super resolution',
-          slug: 'super-resolution',
-          description:
-            'Upscaling models that create high-quality images from low-quality images.',
-          models: [],
-        });
+      nock(BASE_URL).get('/collections/super-resolution').reply(200, {
+        name: 'Super resolution',
+        slug: 'super-resolution',
+        description:
+          'Upscaling models that create high-quality images from low-quality images.',
+        models: [],
+      });
 
       const collection = await client.collections.get('super-resolution');
       expect(collection.name).toBe('Super resolution');
@@ -56,28 +52,25 @@ describe('Replicate client', () => {
 
   describe('models.get', () => {
     test('Calls the correct API route', async () => {
-      nock(BASE_URL)
-        .get('/models/replicate/hello-world')
-        .reply(200, {
-          url: 'https://replicate.com/replicate/hello-world',
-          owner: 'replicate',
-          name: 'hello-world',
-          description: 'A tiny model that says hello',
-          visibility: 'public',
-          github_url: 'https://github.com/replicate/cog-examples',
-          paper_url: null,
-          license_url: null,
-          run_count: 12345,
-          cover_image_url: '',
-          default_example: {},
-          latest_version: {},
-        });
+      nock(BASE_URL).get('/models/replicate/hello-world').reply(200, {
+        url: 'https://replicate.com/replicate/hello-world',
+        owner: 'replicate',
+        name: 'hello-world',
+        description: 'A tiny model that says hello',
+        visibility: 'public',
+        github_url: 'https://github.com/replicate/cog-examples',
+        paper_url: null,
+        license_url: null,
+        run_count: 12345,
+        cover_image_url: '',
+        default_example: {},
+        latest_version: {},
+      });
 
       await client.models.get('replicate', 'hello-world');
     });
     // Add more tests for error handling, edge cases, etc.
   });
-
 
   describe('predictions.create', () => {
     test('Calls the correct API route with the correct payload', async () => {
@@ -111,7 +104,7 @@ describe('Replicate client', () => {
           text: 'Alice',
         },
         webhook: 'http://test.host/webhook',
-        webhook_events_filter: [ 'output', 'completed' ],
+        webhook_events_filter: ['output', 'completed'],
       });
       expect(prediction.id).toBe('ufawqhfynnddngldkgtslldrkq');
     });
@@ -184,24 +177,28 @@ describe('Replicate client', () => {
 
       const predictions = await client.predictions.list();
       expect(predictions.results.length).toBe(1);
-      expect(predictions.results[ 0 ].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
+      expect(predictions.results[0].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
     });
 
     test('Paginates results', async () => {
       nock(BASE_URL)
         .get('/predictions')
         .reply(200, {
-          results: [ { id: 'ufawqhfynnddngldkgtslldrkq' } ],
+          results: [{ id: 'ufawqhfynnddngldkgtslldrkq' }],
           next: 'https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
         })
-        .get('/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw')
+        .get(
+          '/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw'
+        )
         .reply(200, {
-          results: [ { id: 'rrr4z55ocneqzikepnug6xezpe' } ],
+          results: [{ id: 'rrr4z55ocneqzikepnug6xezpe' }],
           next: null,
         });
 
       const results: Prediction[] = [];
-      for await (const batch of client.paginate(client.predictions.list)) {
+      for await (const batch of client.paginate(
+        client.predictions.list.bind(client.predictions)
+      )) {
         results.push(...batch);
       }
       expect(results).toEqual([
@@ -215,7 +212,9 @@ describe('Replicate client', () => {
     describe('trainings.create', () => {
       test('Calls the correct API route with the correct payload', async () => {
         nock(BASE_URL)
-          .post('/models/owner/model/versions/632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532/trainings')
+          .post(
+            '/models/owner/model/versions/632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532/trainings'
+          )
           .reply(200, {
             id: 'zz4ibbonubfz7carwiefibzgga',
             version: '{version}',
@@ -230,7 +229,6 @@ describe('Replicate client', () => {
             created_at: '2023-03-28T21:47:58.566434Z',
             completed_at: null,
           });
-
 
         const training = await client.trainings.create(
           'owner',
@@ -272,7 +270,9 @@ describe('Replicate client', () => {
             completed_at: null,
           });
 
-        const training = await client.trainings.get('zz4ibbonubfz7carwiefibzgga');
+        const training = await client.trainings.get(
+          'zz4ibbonubfz7carwiefibzgga'
+        );
         expect(training.status).toBe('succeeded');
       });
 
@@ -302,8 +302,9 @@ describe('Replicate client', () => {
             completed_at: null,
           });
 
-
-        const training = await client.trainings.cancel('zz4ibbonubfz7carwiefibzgga');
+        const training = await client.trainings.cancel(
+          'zz4ibbonubfz7carwiefibzgga'
+        );
         expect(training.status).toBe('canceled');
       });
 

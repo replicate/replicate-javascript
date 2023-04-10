@@ -26,8 +26,11 @@ const replicate = new Replicate({
 Run a model and await the result:
 
 ```js
-const model = "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
-const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
+const model =
+  "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
+const input = {
+  prompt: "a 19th century portrait of a raccoon gentleman wearing a suit",
+};
 const output = await replicate.run(model, { input });
 // ['https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt8xjquFk9EX5LP0fF68NTIWlgBMUpguQA/out-0.png']
 ```
@@ -53,7 +56,7 @@ Or wait for the prediction to finish:
 
 ```js
 prediction = await replicate.wait(prediction);
-console.log(prediction.output)
+console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
@@ -280,12 +283,14 @@ which you can use in a for loop or iterate over manually.
 
 ```js
 // iterate over paginated results in a for loop
-for await (const page of replicate.paginate(replicate.predictions.list)) {
+for await (const page of replicate.paginate(
+  replicate.predictions.list.bind(replicate)
+)) {
   /* do something with page of results */
 }
 
 // iterate over paginated results one at a time
-let paginator = replicate.paginate(replicate.predictions.list);
+let paginator = replicate.paginate(replicate.predictions.list.bind(replicate));
 const page1 = await paginator.next();
 const page2 = await paginator.next();
 // etc.
