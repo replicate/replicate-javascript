@@ -128,8 +128,8 @@ declare module 'replicate' {
           webhook_events_filter?: WebhookEventType[];
         }
       ): Promise<Training>;
-      get(options: TrainingsGetOptions): Promise<Training>;
-      cancel(options: TrainingsGetOptions): Promise<Training>;
+      get(training_id: string): Promise<Training>;
+      cancel(training_id: string): Promise<Training>;
     };
   }
 }
