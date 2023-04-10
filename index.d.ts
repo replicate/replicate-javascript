@@ -56,6 +56,8 @@ declare module 'replicate' {
     completed_at?: string;
   }
 
+  export type Training = Prediction;
+
   export default class Replicate {
     constructor(options: {
       auth: string;
