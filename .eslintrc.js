@@ -13,6 +13,7 @@ module.exports = {
   overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
+    project: './tsconfig.json',
   },
   plugins: ['jest', 'jsdoc'],
   rules: {
