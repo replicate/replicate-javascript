@@ -112,6 +112,7 @@ class Replicate {
    * @param {object} [parameters.params] - Query parameters
    * @param {object} [parameters.data] - Body parameters
    * @returns {Promise<object>} - Resolves with the API response data
+   * @throws {Error} If the request failed
    */
   async request(route, parameters) {
     const { auth, baseUrl, userAgent } = this;
