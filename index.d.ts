@@ -47,7 +47,7 @@ declare module 'replicate' {
     error?: any;
     logs?: string;
     metrics?: {
-      predicti_time?: number;
+      predict_time?: number;
     }
     webhook?: string;
     webhook_events_filter?: WebhookEventType[];
