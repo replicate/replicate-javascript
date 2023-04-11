@@ -12,7 +12,6 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@tsconfig/recommended": "^1.0.2",
     "@types/jest": "^29.5.0",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "cross-fetch": "^3.1.5",

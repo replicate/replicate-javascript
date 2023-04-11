@@ -1,3 +1,9 @@
 {
-  "extends": "@tsconfig/recommended/tsconfig.json"
+  "compilerOptions": {
+      "esModuleInterop": true
+  },
+  "exclude": [
+      "node_modules",
+      "**/node_modules/*"
+  ]
 }

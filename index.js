@@ -70,7 +70,7 @@ class Replicate {
    * @param {string} identifier - Required. The model version identifier in the format "{owner}/{name}:{version}"
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
-   * @param {boolean|object} [options.wait] - Whether to wait for the prediction to finish. Defaults to false
+   * @param {object} [options.wait] - Whether to wait for the prediction to finish. Defaults to false
    * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 250
    * @param {number} [options.wait.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
@@ -83,7 +83,7 @@ class Replicate {
       /^(?<owner>[a-zA-Z0-9-_]+?)\/(?<name>[a-zA-Z0-9-_]+?):(?<version>[0-9a-fA-F]+)$/;
     const match = identifier.match(pattern);
 
-    if (!match) {
+    if (!match || !match.groups) {
       throw new Error(
         'Invalid version. It must be in the format "owner/name:version"'
       );
