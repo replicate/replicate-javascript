@@ -83,7 +83,7 @@ class Replicate {
       /^(?<owner>[a-zA-Z0-9-_]+?)\/(?<name>[a-zA-Z0-9-_]+?):(?<version>[0-9a-fA-F]+)$/;
     const match = identifier.match(pattern);
 
-    if (!match) {
+    if (!match || !match.groups) {
       throw new Error(
         'Invalid version. It must be in the format "owner/name:version"'
       );
