@@ -61,6 +61,7 @@ class Replicate {
       create: trainings.create.bind(this),
       get: trainings.get.bind(this),
       cancel: trainings.cancel.bind(this),
+      list: trainings.list.bind(this),
     };
   }
 
