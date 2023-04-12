@@ -113,6 +113,7 @@ declare module 'replicate' {
         webhook_events_filter?: WebhookEventType[];
       }): Promise<Prediction>;
       get(prediction_id: string): Promise<Prediction>;
+      cancel(prediction_id: string): Promise<Prediction>;
       list(): Promise<Page<Prediction>>;
     };
 

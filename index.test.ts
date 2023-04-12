@@ -150,6 +150,41 @@ describe('Replicate client', () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
+  describe('predictions.cancel', () => {
+    test('Calls the correct API route with the correct payload', async () => {
+      nock(BASE_URL)
+        .post('/predictions/ufawqhfynnddngldkgtslldrkq/cancel')
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          version:
+            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          urls: {
+            get: 'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq',
+            cancel:
+              'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel',
+          },
+          created_at: '2022-04-26T22:13:06.224088Z',
+          started_at: '2022-04-26T22:13:06.224088Z',
+          completed_at: '2022-04-26T22:14:06.224088Z',
+          status: 'canceled',
+          input: {
+            text: 'Alice',
+          },
+          output: null,
+          error: null,
+          logs: null,
+          metrics: {},
+        });
+
+      const prediction = await client.predictions.cancel(
+        'ufawqhfynnddngldkgtslldrkq'
+      );
+      expect(prediction.status).toBe('canceled');
+    });
+
+    // Add more tests for error handling, edge cases, etc.
+  });
+
   describe('predictions.list', () => {
     test('Calls the correct API route with the correct payload', async () => {
       nock(BASE_URL)

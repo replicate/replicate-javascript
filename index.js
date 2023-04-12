@@ -54,6 +54,7 @@ class Replicate {
     this.predictions = {
       create: predictions.create.bind(this),
       get: predictions.get.bind(this),
+      cancel: predictions.cancel.bind(this),
       list: predictions.list.bind(this),
     };
 
