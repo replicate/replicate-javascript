@@ -19,13 +19,13 @@ declare module 'replicate' {
     url: string;
     owner: string;
     name: string;
-    description: string;
+    description?: string;
     visibility: 'public' | 'private';
-    github_url: string;
-    paper_url: string;
-    license_url: string;
+    github_url?: string;
+    paper_url?: string;
+    license_url?: string;
     run_count: number;
-    cover_image_url: string;
+    cover_image_url?: string;
     default_example?: Prediction;
     latest_version?: ModelVersion;
   }
@@ -42,7 +42,7 @@ declare module 'replicate' {
     status: Status;
     version: string;
     input: object;
-    output: any;
+    output?: any;
     source: 'api' | 'web';
     error?: any;
     logs?: string;
