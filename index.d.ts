@@ -130,6 +130,7 @@ declare module 'replicate' {
       ): Promise<Training>;
       get(training_id: string): Promise<Training>;
       cancel(training_id: string): Promise<Training>;
+      list(): Promise<Page<Training>>;
     };
   }
 }
