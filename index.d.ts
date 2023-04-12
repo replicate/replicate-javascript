@@ -42,7 +42,7 @@ declare module 'replicate' {
     status: Status;
     version: string;
     input: object;
-    output: any;
+    output?: any;
     source: 'api' | 'web';
     error?: any;
     logs?: string;
