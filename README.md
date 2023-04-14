@@ -32,7 +32,7 @@ const output = await replicate.run(model, { input });
 // ['https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt8xjquFk9EX5LP0fF68NTIWlgBMUpguQA/out-0.png']
 ```
 
-You can also run a model in the backround:
+You can also run a model in the background:
 
 ```js
 let prediction = await replicate.predictions.create({
