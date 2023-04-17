@@ -392,6 +392,23 @@ describe('Replicate client', () => {
       expect(output).toBe('foobar');
     });
 
+    test('Does not throw an error for identifier containing hyphen and full stop', async () => {
+      nock(BASE_URL)
+        .post('/predictions')
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'processing',
+        })
+        .get('/predictions/ufawqhfynnddngldkgtslldrkq')
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'succeeded',
+          output: 'foobar',
+        });
+
+      await expect(client.run('a/b-1.0:abc123', { input: { text: 'Hello, world!' } })).resolves.not.toThrow();
+    });
+
     test('Throws an error for invalid identifiers', async () => {
       const options = { input: { text: 'Hello, world!' } }
 
