@@ -80,10 +80,18 @@ class Replicate {
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(identifier, options) {
-    const pattern =
-      /^(?<owner>[a-zA-Z0-9-_]+?)\/(?<name>[a-zA-Z0-9-_]+?):(?<version>[0-9a-fA-F]+)$/;
-    const match = identifier.match(pattern);
+    // Define a pattern for owner and model names that allows
+    // letters, digits, and certain special characters.
+    // Example: "user123", "abc__123", "user.name"
+    const namePattern = /[a-zA-Z0-9]+(?:(?:[._]|__|[-]*)[a-zA-Z0-9]+)*/;
 
+    // Define a pattern for "owner/name:version" format with named capturing groups.
+    // Example: "user123/repo_a:1a2b3c"
+    const pattern = new RegExp(
+      `^(?<owner>${namePattern.source})/(?<name>${namePattern.source}):(?<version>[0-9a-fA-F]+)$`
+    );
+
+    const match = identifier.match(pattern);
     if (!match || !match.groups) {
       throw new Error(
         'Invalid version. It must be in the format "owner/name:version"'
