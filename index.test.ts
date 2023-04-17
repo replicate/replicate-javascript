@@ -391,6 +391,20 @@ describe('Replicate client', () => {
       );
       expect(output).toBe('foobar');
     });
+
+    test('Throws an error for invalid identifiers', async () => {
+      const options = { input: { text: 'Hello, world!' } }
+
+      await expect(client.run('owner/model:invalid', options)).rejects.toThrow();
+
+      // @ts-expect-error
+      await expect(client.run('owner:abc123', options)).rejects.toThrow();
+
+      await expect(client.run('/model:abc123', options)).rejects.toThrow();
+
+      // @ts-expect-error
+      await expect(client.run(':abc123', options)).rejects.toThrow();
+    });
   });
 
   // Continue with tests for other methods
