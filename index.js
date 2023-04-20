@@ -37,7 +37,7 @@ class Replicate {
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
-    this.fetch = options.fetch || fetch;
+    this.fetch = options.fetch || globalThis.fetch;
 
     this.collections = {
       get: collections.get.bind(this),
