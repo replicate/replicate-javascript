@@ -30,7 +30,7 @@ class Replicate {
    * @param {string} options.auth - Required. API access token
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
-   * @param {Function} [options.fetch] - Defaults to native fetch
+   * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
    */
   constructor(options) {
     this.auth = options.auth;
