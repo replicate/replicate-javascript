@@ -1,6 +1,14 @@
 # Replicate Node.js client
 
-A Node.js client for [Replicate](https://replicate.com). It lets you run models from your Node.js code, and everything else you can do with [the HTTP API](https://replicate.com/docs/reference/http).
+A Node.js client for [Replicate](https://replicate.com).
+It lets you run models from your Node.js code,
+and everything else you can do with
+[Replicate's HTTP API](https://replicate.com/docs/reference/http).
+
+> **Warning**
+> This library can't interact with Replicate's API directly from a browser.
+> For more information about how to build a web application
+> check out our ["Build a website with Next.js"](https://replicate.com/docs/get-started/nextjs) guide.
 
 ## Installation
 
@@ -71,6 +79,32 @@ const replicate = new Replicate(options);
 | `options.userAgent` | string   | Identifier of your app. Defaults to `replicate-javascript/${packageJSON.version}` |
 | `options.baseUrl`   | string   | Defaults to https://api.replicate.com/v1                                          |
 | `options.fetch`     | function | Fetch function to use. Defaults to `globalThis.fetch`                             |
+
+The client makes requests to Replicate's API using
+[fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
+By default, the `globalThis.fetch` function is used,
+which is available on [Node.js 18](https://nodejs.org/en/blog/announcements/v18-release-announce#fetch-experimental) and later,
+as well as
+[Cloudflare Workers](https://developers.cloudflare.com/workers/runtime-apis/fetch/),
+[Vercel Edge Functions](https://vercel.com/docs/concepts/functions/edge-functions),
+and other environments.
+
+On earlier versions of Node.js
+and other environments where global fetch isn't available,
+you can install a fetch function from an external package like
+[cross-fetch](https://www.npmjs.com/package/cross-fetch)
+and pass it to the `fetch` option in the constructor.
+
+```js
+import Replicate from "replicate";
+import fetch from 'cross-fetch';
+
+const replicate = new Replicate({
+  // get your token from https://replicate.com/account
+  auth: process.env.REPLICATE_API_TOKEN,
+  fetch: fetch
+});
+```
 
 ### `replicate.models.get`
 
