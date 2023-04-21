@@ -304,6 +304,99 @@ const response = await replicate.predictions.list();
 }
 ```
 
+### `replicate.trainings.create`
+
+```js
+const response = await replicate.trainings.create(options);
+```
+
+| name                            | type     | description                                                                                                                      |
+| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `options.version`               | string   | **Required**. The model version                                                                                                  |
+| `options.destination`           | string   | **Required**. The destination for the trained version in the form `{username}/{model_name}`                                      |
+| `options.input`                 | object   | **Required**. An object with the models inputs                                                                                   |
+| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the training has new output                                                            |
+| `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
+
+```jsonc
+{
+  "id": "zz4ibbonubfz7carwiefibzgga",
+  "version": "{version}",
+  "status": "starting",
+  "input": {
+    "text": "..."
+  },
+  "output": null,
+  "error": null,
+  "logs": null,
+  "started_at": null,
+  "created_at": "2023-03-28T21:47:58.566434Z",
+  "completed_at": null
+}
+```
+
+### `replicate.trainings.get`
+
+```js
+const response = await replicate.trainings.get(training_id);
+```
+
+| name          | type   | description                   |
+| ------------- | ------ | ----------------------------- |
+| `training_id` | number | **Required**. The training id |
+
+```jsonc
+{
+  "id": "zz4ibbonubfz7carwiefibzgga",
+  "version": "{version}",
+  "status": "succeeded",
+  "input": {
+    "data": "..."
+    "param1": "..."
+  },
+  "output": {
+    "version": "..."
+  },
+  "error": null,
+  "logs": null,
+  "webhook_completed": null,
+  "started_at": null,
+  "created_at": "2023-03-28T21:47:58.566434Z",
+  "completed_at": null
+}
+```
+
+### `replicate.trainings.list`
+
+```js
+const response = await replicate.trainings.list();
+```
+
+`replicate.trainings.list()` takes no arguments.
+
+```jsonc
+{
+  "previous": null,
+  "next": "https://api.replicate.com/v1/trainings?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw",
+  "results": [
+    {
+      "id": "jpzd7hm5gfcapbfyt4mqytarku",
+      "version": "b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05",
+      "urls": {
+        "get": "https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku",
+        "cancel": "https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku/cancel"
+      },
+      "created_at": "2022-04-26T20:00:40.658234Z",
+      "started_at": "2022-04-26T20:00:84.583803Z",
+      "completed_at": "2022-04-26T20:02:27.648305Z",
+      "source": "web",
+      "status": "succeeded"
+    }
+    /* ... */
+  ]
+}
+```
+
 ### `replicate.paginate`
 
 Pass another method as an argument to iterate over results
