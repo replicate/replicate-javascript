@@ -65,11 +65,12 @@ console.log(prediction.output)
 const replicate = new Replicate(options);
 ```
 
-| name                | type   | description                                                                       |
-| ------------------- | ------ | --------------------------------------------------------------------------------- |
-| `options.auth`      | string | **Required**. API access token                                                    |
-| `options.userAgent` | string | Identifier of your app. Defaults to `replicate-javascript/${packageJSON.version}` |
-| `options.baseUrl`   | string | Defaults to https://api.replicate.com/v1                                          |
+| name                | type     | description                                                                       |
+| ------------------- | -------- | --------------------------------------------------------------------------------- |
+| `options.auth`      | string   | **Required**. API access token                                                    |
+| `options.userAgent` | string   | Identifier of your app. Defaults to `replicate-javascript/${packageJSON.version}` |
+| `options.baseUrl`   | string   | Defaults to https://api.replicate.com/v1                                          |
+| `options.fetch`     | function | Fetch function to use. Defaults to `globalThis.fetch`                             |
 
 ### `replicate.models.get`
 
