@@ -1,6 +1,14 @@
 # Replicate Node.js client
 
-A Node.js client for [Replicate](https://replicate.com). It lets you run models from your Node.js code, and everything else you can do with [the HTTP API](https://replicate.com/docs/reference/http).
+A Node.js client for [Replicate](https://replicate.com).
+It lets you run models from your Node.js code,
+and everything else you can do with
+[Replicate's HTTP API](https://replicate.com/docs/reference/http).
+
+> **Warning**
+> This library can't interact with Replicate's API directly from a browser.
+> For more information about how to build a web application
+> check out our ["Build a website with Next.js"](https://replicate.com/docs/get-started/nextjs) guide.
 
 ## Installation
 
