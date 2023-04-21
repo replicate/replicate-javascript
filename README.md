@@ -313,7 +313,7 @@ const response = await replicate.trainings.create(options);
 | name                            | type     | description                                                                                                                      |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `options.version`               | string   | **Required**. The model version                                                                                                  |
-| `options.destination`           | string   | **Required**. The destination for the trained version in the form "{username}/{model_name}"                                      |
+| `options.destination`           | string   | **Required**. The destination for the trained version in the form `{username}/{model_name}`                                      |
 | `options.input`                 | object   | **Required**. An object with the models inputs                                                                                   |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the training has new output                                                            |
 | `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
