@@ -34,8 +34,7 @@ const replicate = new Replicate({
 Run a model and await the result:
 
 ```js
-const model =
-  "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
+const model = "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
 const input = {
   prompt: "a 19th century portrait of a raccoon gentleman wearing a suit",
 };
@@ -66,6 +65,29 @@ Or wait for the prediction to finish:
 prediction = await replicate.wait(prediction);
 console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
+```
+
+To run a model that takes a file input,
+convert its data into a base64-encoded data URI:
+
+```js
+import { promises as fs } from "fs";
+
+// Read the file into a buffer
+const data = await fs.readFile("path/to/image.png", "utf-8");
+// Convert the buffer into a base64-encoded string
+const base64 = data.toString("base64");
+// Set MIME type for PNG image
+const mimeType = "image/png";
+// Create the data URI
+const dataURI = `data:${mimeType};base64,${base64}`;
+
+const model = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
+const input = {
+  image: dataURI,
+};
+const output = await replicate.run(model, { input });
+// ['https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png']
 ```
 
 ## API
@@ -175,11 +197,7 @@ const response = await replicate.models.versions.list(model_owner, model_name);
 ### `replicate.models.versions.get`
 
 ```js
-const response = await replicate.models.versions.get(
-  model_owner,
-  model_name,
-  version_id
-);
+const response = await replicate.models.versions.get(model_owner, model_name, version_id);
 ```
 
 | name          | type   | description                                                             |
@@ -218,7 +236,7 @@ const response = await replicate.predictions.create(options);
 | name                            | type     | description                                                                                                                      |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `options.version`               | string   | **Required**. The model version                                                                                                  |
-| `options.input`                 | object   | **Required**. An object with the models inputs                                                                                   |
+| `options.input`                 | object   | **Required**. An object with the model's inputs                                                                                  |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                          |
 | `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
 
@@ -317,7 +335,7 @@ const response = await replicate.trainings.create(options);
 | ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `options.version`               | string   | **Required**. The model version                                                                                                  |
 | `options.destination`           | string   | **Required**. The destination for the trained version in the form `{username}/{model_name}`                                      |
-| `options.input`                 | object   | **Required**. An object with the models inputs                                                                                   |
+| `options.input`                 | object   | **Required**. An object with the model's inputs                                                                                  |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the training has new output                                                            |
 | `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
 
