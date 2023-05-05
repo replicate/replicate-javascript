@@ -51,6 +51,34 @@ describe('Replicate client', () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
+  describe('collections.list', () => {
+    test('Calls the correct API route', async () => {
+      nock(BASE_URL).get('/collections').reply(200, {
+        results: [
+          {
+            name: 'Super resolution',
+            slug: 'super-resolution',
+            description:
+              'Upscaling models that create high-quality images from low-quality images.',
+            models: [],
+          },
+          {
+            name: 'Image classification',
+            slug: 'image-classification',
+            description: 'Models that classify images.',
+            models: [],
+          }
+        ],
+        next: null,
+        previous: null,
+      });
+
+      const collections = await client.collections.list();
+      expect(collections.results.length).toBe(2);
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
   describe('models.get', () => {
     test('Calls the correct API route', async () => {
       nock(BASE_URL).get('/models/replicate/hello-world').reply(200, {

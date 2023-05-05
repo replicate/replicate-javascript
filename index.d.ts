@@ -12,7 +12,7 @@ declare module 'replicate' {
     name: string;
     slug: string;
     description: string;
-    models: Model[];
+    models?: Model[];
   }
 
   export interface Model {
@@ -90,6 +90,7 @@ declare module 'replicate' {
     ): Promise<Prediction>;
 
     collections: {
+      list(): Promise<Page<Collection>>;
       get(collection_slug: string): Promise<Collection>;
     };
 
