@@ -40,6 +40,7 @@ class Replicate {
     this.fetch = options.fetch || globalThis.fetch;
 
     this.collections = {
+      list: collections.list.bind(this),
       get: collections.get.bind(this),
     };
 
