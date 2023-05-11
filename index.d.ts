@@ -63,6 +63,7 @@ declare module 'replicate' {
       auth: string;
       userAgent?: string;
       baseUrl?: string;
+      fetch?: Function;
     });
 
     auth: string;
