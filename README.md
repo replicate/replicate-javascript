@@ -24,6 +24,11 @@ Create the client:
 
 ```js
 import Replicate from "replicate";
+import replicate
+output = replicate.run(r8_DwhJNe84l2cM7qN3K1WdX6TcysmyfEM1h4c5K
+    "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+    input={"text": "an astronaut riding a horse"}
+)r8_DwhJNe84l2cM7qN3K1WdX6TcysmyfEM1h4c5K
 
 const replicate = new Replicate({
   // get your token from https://replicate.com/account
