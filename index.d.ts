@@ -142,8 +142,8 @@ declare module 'replicate' {
         create(
           deployment_name: string,
           deployment_owner: string,
-          input: object,
           options: {
+            input: object,
             webhook?: string;
             webhook_events_filter?: WebhookEventType[];
             wait?: boolean | { interval?: number; maxAttempts?: number };
