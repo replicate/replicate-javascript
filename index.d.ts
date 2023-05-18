@@ -139,12 +139,14 @@ declare module 'replicate' {
 
     deployments: {
       predictions: {
-        create(options: {
-          deployment_owner: string;
-          deployment_name: string;
-          input: object;
-          webhook?: string;
-          webhook_events_filter?: WebhookEventType[];
+        create(
+          deployment_name: string,
+          deployment_owner: string,
+          input: object,
+          options: {
+            webhook?: string;
+            webhook_events_filter?: WebhookEventType[];
+            wait?: boolean | { interval?: number; maxAttempts?: number };
         }): Promise<Prediction>;
       }
     }
