@@ -33,6 +33,10 @@ class Replicate {
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
    */
   constructor(options) {
+    if (!options.auth) {
+      throw new Error('Missing required parameter: auth');
+    }
+
     this.auth = options.auth;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;

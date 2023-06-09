@@ -33,6 +33,22 @@ describe('Replicate client', () => {
       });
       expect(clientWithCustomUserAgent.userAgent).toBe('my-app/1.2.3');
     });
+
+    test('Throws error if no auth token is provided', () => {
+      const expected = 'Missing required parameter: auth'
+
+      expect(() => {
+        new Replicate({ auth: undefined });
+      }).toThrow(expected);
+
+      expect(() => {
+        new Replicate({ auth: null });
+      }).toThrow(expected);
+
+      expect(() => {
+        new Replicate({ auth: "" });
+      }).toThrow(expected);
+    });
   });
 
   describe('collections.list', () => {
