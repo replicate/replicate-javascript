@@ -415,9 +415,9 @@ const response = await replicate.trainings.get(training_id);
   "error": null,
   "logs": null,
   "webhook_completed": null,
-  "started_at": null,
+  "started_at": "2023-03-28T21:48:02.402755Z",
   "created_at": "2023-03-28T21:47:58.566434Z",
-  "completed_at": null
+  "completed_at": "2023-03-28T02:49:48.492023Z"
 }
 ```
 
@@ -446,9 +446,9 @@ const response = await replicate.trainings.cancel(training_id);
   "error": null,
   "logs": null,
   "webhook_completed": null,
-  "started_at": "2023-03-28T21:47:58.566434Z",
+  "started_at": "2023-03-28T21:48:02.402755Z",
   "created_at": "2023-03-28T21:47:58.566434Z",
-  "completed_at": "2023-03-28T21:47:58.566434Z"
+  "completed_at": "2023-03-28T02:49:48.492023Z"
 }
 ```
 
