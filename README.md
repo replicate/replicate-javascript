@@ -248,9 +248,6 @@ const response = await replicate.predictions.create(options);
     "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
     "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
   },
-  "created_at": "2022-04-26T22:13:06.224088Z",
-  "started_at": null,
-  "completed_at": null,
   "status": "succeeded",
   "input": {
     "text": "Alice"
@@ -258,7 +255,10 @@ const response = await replicate.predictions.create(options);
   "output": null,
   "error": null,
   "logs": null,
-  "metrics": {}
+  "metrics": {},
+  "created_at": "2022-04-26T22:13:06.224088Z",
+  "started_at": null,
+  "completed_at": null
 }
 ```
 
@@ -280,9 +280,6 @@ const response = await replicate.predictions.get(prediction_id);
     "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
     "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
   },
-  "created_at": "2022-04-26T22:13:06.224088Z",
-  "started_at": null,
-  "completed_at": null,
   "status": "starting",
   "input": {
     "text": "Alice"
@@ -290,7 +287,10 @@ const response = await replicate.predictions.get(prediction_id);
   "output": null,
   "error": null,
   "logs": null,
-  "metrics": {}
+  "metrics": {},
+  "created_at": "2022-04-26T22:13:06.224088Z",
+  "started_at": null,
+  "completed_at": null
 }
 ```
 
@@ -312,9 +312,6 @@ const response = await replicate.predictions.cancel(prediction_id);
     "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
     "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
   },
-  "created_at": "2022-04-26T22:13:06.224088Z",
-  "started_at": "2022-04-26T22:13:06.224088Z",
-  "completed_at": "2022-04-26T22:13:06.224088Z",
   "status": "canceled",
   "input": {
     "text": "Alice"
@@ -322,7 +319,10 @@ const response = await replicate.predictions.cancel(prediction_id);
   "output": null,
   "error": null,
   "logs": null,
-  "metrics": {}
+  "metrics": {},
+  "created_at": "2022-04-26T22:13:06.224088Z",
+  "started_at": "2022-04-26T22:13:06.224088Z",
+  "completed_at": "2022-04-26T22:13:06.224088Z"
 }
 ```
 
@@ -346,11 +346,11 @@ const response = await replicate.predictions.list();
         "get": "https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku",
         "cancel": "https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku/cancel"
       },
+      "source": "web",
+      "status": "succeeded",
       "created_at": "2022-04-26T20:00:40.658234Z",
       "started_at": "2022-04-26T20:00:84.583803Z",
-      "completed_at": "2022-04-26T20:02:27.648305Z",
-      "source": "web",
-      "status": "succeeded"
+      "completed_at": "2022-04-26T20:02:27.648305Z"
     }
     /* ... */
   ]
@@ -472,11 +472,11 @@ const response = await replicate.trainings.list();
         "get": "https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku",
         "cancel": "https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku/cancel"
       },
+      "source": "web",
+      "status": "succeeded",
       "created_at": "2022-04-26T20:00:40.658234Z",
       "started_at": "2022-04-26T20:00:84.583803Z",
-      "completed_at": "2022-04-26T20:02:27.648305Z",
-      "source": "web",
-      "status": "succeeded"
+      "completed_at": "2022-04-26T20:02:27.648305Z"
     }
     /* ... */
   ]
