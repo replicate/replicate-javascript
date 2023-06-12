@@ -344,7 +344,7 @@ const response = await replicate.trainings.create(model_owner, model_name, versi
 ```jsonc
 {
   "id": "zz4ibbonubfz7carwiefibzgga",
-  "version": "{version}",
+  "version": "3ae0799123a1fe11f8c89fd99632f843fc5f7a761630160521c4253149754523",
   "status": "starting",
   "input": {
     "text": "..."
@@ -371,7 +371,7 @@ const response = await replicate.trainings.get(training_id);
 ```jsonc
 {
   "id": "zz4ibbonubfz7carwiefibzgga",
-  "version": "{version}",
+  "version": "3ae0799123a1fe11f8c89fd99632f843fc5f7a761630160521c4253149754523",
   "status": "succeeded",
   "input": {
     "data": "..."
@@ -402,7 +402,7 @@ const response = await replicate.trainings.cancel(training_id);
 ```jsonc
 {
   "id": "zz4ibbonubfz7carwiefibzgga",
-  "version": "{version}",
+  "version": "3ae0799123a1fe11f8c89fd99632f843fc5f7a761630160521c4253149754523",
   "status": "canceled",
   "input": {
     "data": "..."
