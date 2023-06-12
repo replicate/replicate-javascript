@@ -328,12 +328,14 @@ const response = await replicate.predictions.list();
 ### `replicate.trainings.create`
 
 ```js
-const response = await replicate.trainings.create(options);
+const response = await replicate.trainings.create(model_owner, model_name, version_id, options);
 ```
 
 | name                            | type     | description                                                                                                                      |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `options.version`               | string   | **Required**. The model version                                                                                                  |
+| `model_owner`                   | string   | **Required**. The name of the user or organization that owns the model.                                                          |
+| `model_name`                    | string   | **Required**. The name of the model.                                                                                             |
+| `version`                       | string   | **Required**. The model version                                                                                                  |
 | `options.destination`           | string   | **Required**. The destination for the trained version in the form `{username}/{model_name}`                                      |
 | `options.input`                 | object   | **Required**. An object with the model's inputs                                                                                  |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the training has new output                                                            |
