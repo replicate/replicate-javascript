@@ -389,6 +389,37 @@ const response = await replicate.trainings.get(training_id);
 }
 ```
 
+### `replicate.trainings.cancel`
+
+```js
+const response = await replicate.trainings.cancel(training_id);
+```
+
+| name          | type   | description                   |
+| ------------- | ------ | ----------------------------- |
+| `training_id` | number | **Required**. The training id |
+
+```jsonc
+{
+  "id": "zz4ibbonubfz7carwiefibzgga",
+  "version": "{version}",
+  "status": "canceled",
+  "input": {
+    "data": "..."
+    "param1": "..."
+  },
+  "output": {
+    "version": "..."
+  },
+  "error": null,
+  "logs": null,
+  "webhook_completed": null,
+  "started_at": "2023-03-28T21:47:58.566434Z",
+  "created_at": "2023-03-28T21:47:58.566434Z",
+  "completed_at": "2023-03-28T21:47:58.566434Z"
+}
+```
+
 ### `replicate.trainings.list`
 
 ```js
