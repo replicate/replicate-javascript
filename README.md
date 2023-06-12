@@ -248,9 +248,6 @@ const response = await replicate.predictions.create(options);
     "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
     "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
   },
-  "created_at": "2022-04-26T22:13:06.224088Z",
-  "started_at": null,
-  "completed_at": null,
   "status": "succeeded",
   "input": {
     "text": "Alice"
@@ -258,7 +255,10 @@ const response = await replicate.predictions.create(options);
   "output": null,
   "error": null,
   "logs": null,
-  "metrics": {}
+  "metrics": {},
+  "created_at": "2022-04-26T22:13:06.224088Z",
+  "started_at": null,
+  "completed_at": null
 }
 ```
 
@@ -280,9 +280,6 @@ const response = await replicate.predictions.get(prediction_id);
     "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
     "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
   },
-  "created_at": "2022-04-26T22:13:06.224088Z",
-  "started_at": null,
-  "completed_at": null,
   "status": "starting",
   "input": {
     "text": "Alice"
@@ -290,7 +287,42 @@ const response = await replicate.predictions.get(prediction_id);
   "output": null,
   "error": null,
   "logs": null,
-  "metrics": {}
+  "metrics": {},
+  "created_at": "2022-04-26T22:13:06.224088Z",
+  "started_at": null,
+  "completed_at": null
+}
+```
+
+### `replicate.predictions.cancel`
+
+```js
+const response = await replicate.predictions.cancel(prediction_id);
+```
+
+| name            | type   | description                     |
+| --------------- | ------ | ------------------------------- |
+| `prediction_id` | number | **Required**. The prediction id |
+
+```jsonc
+{
+  "id": "ufawqhfynnddngldkgtslldrkq",
+  "version": "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+  "urls": {
+    "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
+    "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
+  },
+  "status": "canceled",
+  "input": {
+    "text": "Alice"
+  },
+  "output": null,
+  "error": null,
+  "logs": null,
+  "metrics": {},
+  "created_at": "2022-04-26T22:13:06.224088Z",
+  "started_at": "2022-04-26T22:13:06.224088Z",
+  "completed_at": "2022-04-26T22:13:06.224088Z"
 }
 ```
 
@@ -314,11 +346,11 @@ const response = await replicate.predictions.list();
         "get": "https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku",
         "cancel": "https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku/cancel"
       },
+      "source": "web",
+      "status": "succeeded",
       "created_at": "2022-04-26T20:00:40.658234Z",
       "started_at": "2022-04-26T20:00:84.583803Z",
-      "completed_at": "2022-04-26T20:02:27.648305Z",
-      "source": "web",
-      "status": "succeeded"
+      "completed_at": "2022-04-26T20:02:27.648305Z"
     }
     /* ... */
   ]
@@ -328,12 +360,14 @@ const response = await replicate.predictions.list();
 ### `replicate.trainings.create`
 
 ```js
-const response = await replicate.trainings.create(options);
+const response = await replicate.trainings.create(model_owner, model_name, version_id, options);
 ```
 
 | name                            | type     | description                                                                                                                      |
 | ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `options.version`               | string   | **Required**. The model version                                                                                                  |
+| `model_owner`                   | string   | **Required**. The name of the user or organization that owns the model.                                                          |
+| `model_name`                    | string   | **Required**. The name of the model.                                                                                             |
+| `version`                       | string   | **Required**. The model version                                                                                                  |
 | `options.destination`           | string   | **Required**. The destination for the trained version in the form `{username}/{model_name}`                                      |
 | `options.input`                 | object   | **Required**. An object with the model's inputs                                                                                  |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the training has new output                                                            |
@@ -342,7 +376,7 @@ const response = await replicate.trainings.create(options);
 ```jsonc
 {
   "id": "zz4ibbonubfz7carwiefibzgga",
-  "version": "{version}",
+  "version": "3ae0799123a1fe11f8c89fd99632f843fc5f7a761630160521c4253149754523",
   "status": "starting",
   "input": {
     "text": "..."
@@ -369,7 +403,7 @@ const response = await replicate.trainings.get(training_id);
 ```jsonc
 {
   "id": "zz4ibbonubfz7carwiefibzgga",
-  "version": "{version}",
+  "version": "3ae0799123a1fe11f8c89fd99632f843fc5f7a761630160521c4253149754523",
   "status": "succeeded",
   "input": {
     "data": "..."
@@ -381,9 +415,40 @@ const response = await replicate.trainings.get(training_id);
   "error": null,
   "logs": null,
   "webhook_completed": null,
-  "started_at": null,
+  "started_at": "2023-03-28T21:48:02.402755Z",
   "created_at": "2023-03-28T21:47:58.566434Z",
-  "completed_at": null
+  "completed_at": "2023-03-28T02:49:48.492023Z"
+}
+```
+
+### `replicate.trainings.cancel`
+
+```js
+const response = await replicate.trainings.cancel(training_id);
+```
+
+| name          | type   | description                   |
+| ------------- | ------ | ----------------------------- |
+| `training_id` | number | **Required**. The training id |
+
+```jsonc
+{
+  "id": "zz4ibbonubfz7carwiefibzgga",
+  "version": "3ae0799123a1fe11f8c89fd99632f843fc5f7a761630160521c4253149754523",
+  "status": "canceled",
+  "input": {
+    "data": "..."
+    "param1": "..."
+  },
+  "output": {
+    "version": "..."
+  },
+  "error": null,
+  "logs": null,
+  "webhook_completed": null,
+  "started_at": "2023-03-28T21:48:02.402755Z",
+  "created_at": "2023-03-28T21:47:58.566434Z",
+  "completed_at": "2023-03-28T02:49:48.492023Z"
 }
 ```
 
@@ -407,11 +472,11 @@ const response = await replicate.trainings.list();
         "get": "https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku",
         "cancel": "https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku/cancel"
       },
+      "source": "web",
+      "status": "succeeded",
       "created_at": "2022-04-26T20:00:40.658234Z",
       "started_at": "2022-04-26T20:00:84.583803Z",
-      "completed_at": "2022-04-26T20:02:27.648305Z",
-      "source": "web",
-      "status": "succeeded"
+      "completed_at": "2022-04-26T20:02:27.648305Z"
     }
     /* ... */
   ]
