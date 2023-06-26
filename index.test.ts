@@ -1,7 +1,8 @@
 import { expect, jest, test } from '@jest/globals';
-import Replicate, { Prediction } from 'replicate';
 import nock from 'nock';
 import fetch from 'cross-fetch';
+
+import Replicate, { Prediction } from '.';
 
 describe('Replicate client', () => {
   let client: Replicate;
@@ -35,7 +36,7 @@ describe('Replicate client', () => {
     });
 
     test('Throws error if no auth token is provided', () => {
-      const expected = 'Missing required parameter: auth'
+      const expected = 'Missing required parameter: auth';
 
       expect(() => {
         new Replicate({ auth: undefined });
@@ -46,7 +47,7 @@ describe('Replicate client', () => {
       }).toThrow(expected);
 
       expect(() => {
-        new Replicate({ auth: "" });
+        new Replicate({ auth: '' });
       }).toThrow(expected);
     });
   });
@@ -121,12 +122,10 @@ describe('Replicate client', () => {
         .post('/predictions')
         .reply(200, {
           id: 'ufawqhfynnddngldkgtslldrkq',
-          version:
-            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          version: '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
           urls: {
             get: 'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq',
-            cancel:
-              'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel',
+            cancel: 'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel',
           },
           created_at: '2022-04-26T22:13:06.224088Z',
           started_at: null,
@@ -141,13 +140,12 @@ describe('Replicate client', () => {
           metrics: {},
         });
       const prediction = await client.predictions.create({
-        version:
-          '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+        version: '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
         input: {
           text: 'Alice',
         },
         webhook: 'http://test.host/webhook',
-        webhook_events_filter: [ 'output', 'completed' ],
+        webhook_events_filter: ['output', 'completed'],
       });
       expect(prediction.id).toBe('ufawqhfynnddngldkgtslldrkq');
     });
@@ -172,12 +170,10 @@ describe('Replicate client', () => {
         .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
         .reply(200, {
           id: 'rrr4z55ocneqzikepnug6xezpe',
-          version:
-            'be04660a5b93ef2aff61e3668dedb4cbeb14941e62a3fd5998364a32d613e35e',
+          version: 'be04660a5b93ef2aff61e3668dedb4cbeb14941e62a3fd5998364a32d613e35e',
           urls: {
             get: 'https://api.replicate.com/v1/predictions/rrr4z55ocneqzikepnug6xezpe',
-            cancel:
-              'https://api.replicate.com/v1/predictions/rrr4z55ocneqzikepnug6xezpe/cancel',
+            cancel: 'https://api.replicate.com/v1/predictions/rrr4z55ocneqzikepnug6xezpe/cancel',
           },
           created_at: '2022-09-13T22:54:18.578761Z',
           started_at: '2022-09-13T22:54:19.438525Z',
@@ -187,18 +183,14 @@ describe('Replicate client', () => {
           input: {
             prompt: 'oak tree with boletus growing on its branches',
           },
-          output: [
-            'https://replicate.com/api/models/stability-ai/stable-diffusion/files/9c3b6fe4-2d37-4571-a17a-83951b1cb120/out-0.png',
-          ],
+          output: ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/9c3b6fe4-2d37-4571-a17a-83951b1cb120/out-0.png'],
           error: null,
           logs: 'Using seed: 36941...',
           metrics: {
             predict_time: 4.484541,
           },
         });
-      const prediction = await client.predictions.get(
-        'rrr4z55ocneqzikepnug6xezpe'
-      );
+      const prediction = await client.predictions.get('rrr4z55ocneqzikepnug6xezpe');
       expect(prediction.id).toBe('rrr4z55ocneqzikepnug6xezpe');
     });
     // Add more tests for error handling, edge cases, etc.
@@ -210,12 +202,10 @@ describe('Replicate client', () => {
         .post('/predictions/ufawqhfynnddngldkgtslldrkq/cancel')
         .reply(200, {
           id: 'ufawqhfynnddngldkgtslldrkq',
-          version:
-            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          version: '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
           urls: {
             get: 'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq',
-            cancel:
-              'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel',
+            cancel: 'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel',
           },
           created_at: '2022-04-26T22:13:06.224088Z',
           started_at: '2022-04-26T22:13:06.224088Z',
@@ -230,9 +220,7 @@ describe('Replicate client', () => {
           metrics: {},
         });
 
-      const prediction = await client.predictions.cancel(
-        'ufawqhfynnddngldkgtslldrkq'
-      );
+      const prediction = await client.predictions.cancel('ufawqhfynnddngldkgtslldrkq');
       expect(prediction.status).toBe('canceled');
     });
 
@@ -249,12 +237,10 @@ describe('Replicate client', () => {
           results: [
             {
               id: 'jpzd7hm5gfcapbfyt4mqytarku',
-              version:
-                'b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05',
+              version: 'b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05',
               urls: {
                 get: 'https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku',
-                cancel:
-                  'https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku/cancel',
+                cancel: 'https://api.replicate.com/v1/predictions/jpzd7hm5gfcapbfyt4mqytarku/cancel',
               },
               created_at: '2022-04-26T20:00:40.658234Z',
               started_at: '2022-04-26T20:00:84.583803Z',
@@ -267,21 +253,19 @@ describe('Replicate client', () => {
 
       const predictions = await client.predictions.list();
       expect(predictions.results.length).toBe(1);
-      expect(predictions.results[ 0 ].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
+      expect(predictions.results[0].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
     });
 
     test('Paginates results', async () => {
       nock(BASE_URL)
         .get('/predictions')
         .reply(200, {
-          results: [ { id: 'ufawqhfynnddngldkgtslldrkq' } ],
+          results: [{ id: 'ufawqhfynnddngldkgtslldrkq' }],
           next: 'https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
         })
-        .get(
-          '/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw'
-        )
+        .get('/predictions?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw')
         .reply(200, {
-          results: [ { id: 'rrr4z55ocneqzikepnug6xezpe' } ],
+          results: [{ id: 'rrr4z55ocneqzikepnug6xezpe' }],
           next: null,
         });
 
@@ -289,10 +273,7 @@ describe('Replicate client', () => {
       for await (const batch of client.paginate(client.predictions.list)) {
         results.push(...batch);
       }
-      expect(results).toEqual([
-        { id: 'ufawqhfynnddngldkgtslldrkq' },
-        { id: 'rrr4z55ocneqzikepnug6xezpe' },
-      ]);
+      expect(results).toEqual([{ id: 'ufawqhfynnddngldkgtslldrkq' }, { id: 'rrr4z55ocneqzikepnug6xezpe' }]);
 
       // Add more tests for error handling, edge cases, etc.
     });
@@ -301,9 +282,7 @@ describe('Replicate client', () => {
   describe('trainings.create', () => {
     test('Calls the correct API route with the correct payload', async () => {
       nock(BASE_URL)
-        .post(
-          '/models/owner/model/versions/632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532/trainings'
-        )
+        .post('/models/owner/model/versions/632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532/trainings')
         .reply(200, {
           id: 'zz4ibbonubfz7carwiefibzgga',
           version: '{version}',
@@ -319,34 +298,24 @@ describe('Replicate client', () => {
           completed_at: null,
         });
 
-      const training = await client.trainings.create(
-        'owner',
-        'model',
-        '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
-        {
-          destination: 'new_owner/new_model',
-          input: {
-            text: '...',
-          },
-        }
-      );
+      const training = await client.trainings.create('owner', 'model', '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532', {
+        destination: 'new_owner/new_model',
+        input: {
+          text: '...',
+        },
+      });
       expect(training.id).toBe('zz4ibbonubfz7carwiefibzgga');
     });
 
     test('Throws an error if webhook is not a valid URL', async () => {
       await expect(
-        client.trainings.create(
-          'owner',
-          'model',
-          '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
-          {
-            destination: 'new_owner/new_model',
-            input: {
-              text: '...',
-            },
-            webhook: 'invalid-url',
-          }
-        )
+        client.trainings.create('owner', 'model', '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532', {
+          destination: 'new_owner/new_model',
+          input: {
+            text: '...',
+          },
+          webhook: 'invalid-url',
+        })
       ).rejects.toThrow('Invalid webhook URL');
     });
 
@@ -406,9 +375,7 @@ describe('Replicate client', () => {
           completed_at: null,
         });
 
-      const training = await client.trainings.cancel(
-        'zz4ibbonubfz7carwiefibzgga'
-      );
+      const training = await client.trainings.cancel('zz4ibbonubfz7carwiefibzgga');
       expect(training.status).toBe('canceled');
     });
 
@@ -425,12 +392,10 @@ describe('Replicate client', () => {
           results: [
             {
               id: 'jpzd7hm5gfcapbfyt4mqytarku',
-              version:
-                'b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05',
+              version: 'b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05',
               urls: {
                 get: 'https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku',
-                cancel:
-                  'https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku/cancel',
+                cancel: 'https://api.replicate.com/v1/trainings/jpzd7hm5gfcapbfyt4mqytarku/cancel',
               },
               created_at: '2022-04-26T20:00:40.658234Z',
               started_at: '2022-04-26T20:00:84.583803Z',
@@ -443,21 +408,19 @@ describe('Replicate client', () => {
 
       const trainings = await client.trainings.list();
       expect(trainings.results.length).toBe(1);
-      expect(trainings.results[ 0 ].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
+      expect(trainings.results[0].id).toBe('jpzd7hm5gfcapbfyt4mqytarku');
     });
 
     test('Paginates results', async () => {
       nock(BASE_URL)
         .get('/trainings')
         .reply(200, {
-          results: [ { id: 'ufawqhfynnddngldkgtslldrkq' } ],
+          results: [{ id: 'ufawqhfynnddngldkgtslldrkq' }],
           next: 'https://api.replicate.com/v1/trainings?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
         })
-        .get(
-          '/trainings?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw'
-        )
+        .get('/trainings?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw')
         .reply(200, {
-          results: [ { id: 'rrr4z55ocneqzikepnug6xezpe' } ],
+          results: [{ id: 'rrr4z55ocneqzikepnug6xezpe' }],
           next: null,
         });
 
@@ -465,10 +428,7 @@ describe('Replicate client', () => {
       for await (const batch of client.paginate(client.trainings.list)) {
         results.push(...batch);
       }
-      expect(results).toEqual([
-        { id: 'ufawqhfynnddngldkgtslldrkq' },
-        { id: 'rrr4z55ocneqzikepnug6xezpe' },
-      ]);
+      expect(results).toEqual([{ id: 'ufawqhfynnddngldkgtslldrkq' }, { id: 'rrr4z55ocneqzikepnug6xezpe' }]);
 
       // Add more tests for error handling, edge cases, etc.
     });
@@ -489,12 +449,9 @@ describe('Replicate client', () => {
           output: 'foobar',
         });
 
-      const output = await client.run(
-        'owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
-        {
-          input: { text: 'Hello, world!' },
-        }
-      );
+      const output = await client.run('owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa', {
+        input: { text: 'Hello, world!' },
+      });
       expect(output).toBe('foobar');
     });
 
@@ -516,7 +473,7 @@ describe('Replicate client', () => {
     });
 
     test('Throws an error for invalid identifiers', async () => {
-      const options = { input: { text: 'Hello, world!' } }
+      const options = { input: { text: 'Hello, world!' } };
 
       await expect(client.run('owner/model:invalid', options)).rejects.toThrow();
 
@@ -531,8 +488,7 @@ describe('Replicate client', () => {
 
     test('Throws an error if webhook URL is invalid', async () => {
       await expect(async () => {
-        await client.run(
-          'owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa', {
+        await client.run('owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa', {
           input: {
             text: 'Alice',
           },
