@@ -74,7 +74,7 @@ convert its data into a base64-encoded data URI:
 import { promises as fs } from "fs";
 
 // Read the file into a buffer
-const data = await fs.readFile("path/to/image.png", "utf-8");
+const data = await fs.readFile("path/to/image.png");
 // Convert the buffer into a base64-encoded string
 const base64 = data.toString("base64");
 // Set MIME type for PNG image
