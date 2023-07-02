@@ -9,8 +9,20 @@ interface Page<T> {
   results: T[];
 }
 
+/**
+ * Generic to find out if an object type has any required keys
+ */
+type NonOptionalKeys<Obj> = {
+  [K in keyof Obj]: {} extends Pick<Obj, K> ? undefined : K;
+}[keyof Obj];
+
+/**
+ * Make the parameters optional if there is no required parameter
+ */
+export type ArgumentsTypesForRoute<Route extends string, Parameters extends Record<string, unknown>> = NonOptionalKeys<Parameters> extends undefined ? [Route, Parameters?] : [Route, Parameters];
+
 interface RequestInterface {
-  <Route extends keyof Endpoints>(route: Route, parameters?: Endpoints[Route]['parameters']): Promise<Endpoints[Route]['response']>;
+  <Route extends keyof Endpoints>(...options: ArgumentsTypesForRoute<Route, Endpoints[Route]['parameters']>): Promise<Endpoints[Route]['response']>;
 }
 
 export interface Collection {
