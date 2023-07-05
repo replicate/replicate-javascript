@@ -149,7 +149,9 @@ class Replicate {
       'User-Agent': userAgent,
     };
 
-    const response = await this.fetch(url, {
+    // Fixes bug in Cloudflare Workers
+    const fetch = this.fetch;
+    const response = await fetch(url, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
