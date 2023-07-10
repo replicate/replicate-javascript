@@ -131,6 +131,20 @@ const replicate = new Replicate({
 });
 ```
 
+You can override the `fetch` property to add custom behavior to client requests,
+such as injecting headers or adding log statements.
+
+```js
+client.fetch = (url, options) => {
+  const headers = new Headers(options && options.headers);
+  headers.append("X-Custom-Header", "some value");
+
+  console.log("fetch", { url, ...options, headers });
+
+  return fetch(url, { ...options, headers });
+};
+```
+
 ### `replicate.models.get`
 
 ```js
