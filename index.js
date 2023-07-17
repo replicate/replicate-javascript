@@ -78,7 +78,7 @@ class Replicate {
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
    * @param {object} [options.wait] - Whether to wait for the prediction to finish. Defaults to false
-   * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 250
+   * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 1000
    * @param {number} [options.wait.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
@@ -192,7 +192,7 @@ class Replicate {
    * @async
    * @param {object} prediction - Prediction object
    * @param {object} options - Options
-   * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 250
+   * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 1000
    * @param {number} [options.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
    * @throws {Error} If the prediction doesn't complete within the maximum number of attempts
    * @throws {Error} If the prediction failed
@@ -218,7 +218,7 @@ class Replicate {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     let attempts = 0;
-    const interval = options.interval || 250;
+    const interval = options.interval || 1000;
     const maxAttempts = options.maxAttempts || null;
 
     while (
