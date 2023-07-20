@@ -23,5 +23,6 @@ module.exports = {
     'max-len': 'off',
     'operator-linebreak': 'off',
     'jsdoc/require-param-description': 'off',
+    'jsdoc/tag-lines': ['error', 'any', { startLines: 1 }],
   },
 };
