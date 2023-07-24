@@ -1,7 +1,10 @@
+const ApiError = require('./lib/error');
+
 const collections = require('./lib/collections');
 const models = require('./lib/models');
 const predictions = require('./lib/predictions');
 const trainings = require('./lib/trainings');
+
 const packageJSON = require('./package.json');
 
 /**
@@ -127,7 +130,7 @@ class Replicate {
    * @param {object} [parameters.params] - Query parameters
    * @param {object} [parameters.data] - Body parameters
    * @returns {Promise<object>} - Resolves with the API response data
-   * @throws {Error} If the request failed
+   * @throws {ApiError} If the request failed
    */
   async request(route, parameters) {
     const { auth, baseUrl, userAgent } = this;
@@ -149,14 +152,22 @@ class Replicate {
       'User-Agent': userAgent,
     };
 
-    const response = await this.fetch(url, {
+    const options = {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
-    });
+    };
+
+    const response = await this.fetch(url, options);
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      const request = new Request(url, options);
+      const responseText = await response.text();
+      throw new ApiError(
+        `Request to ${url} failed with status ${response.status} ${response.statusText}: ${responseText}.`,
+        request,
+        response,
+      );
     }
 
     return response.json();
@@ -173,7 +184,7 @@ class Replicate {
    * @param {Function} endpoint - Function that returns a promise for the next page of results
    * @yields {object[]} Each page of results
    */
-  async *paginate(endpoint) {
+  async * paginate(endpoint) {
     const response = await endpoint();
     yield response.results;
     if (response.next) {

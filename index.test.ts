@@ -163,6 +163,29 @@ describe('Replicate client', () => {
         });
       }).rejects.toThrow('Invalid webhook URL');
     });
+
+    test('Throws an error with details failing response is JSON', async () => {
+      nock(BASE_URL)
+        .post('/predictions')
+        .reply(400, {
+          status: 400,
+          detail: "Invalid input",
+        }, { "Content-Type": "application/json" })
+
+      try {
+        expect.assertions(2);
+
+        await client.predictions.create({
+          version: '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          input: {
+            text: null,
+          },
+        });
+      } catch (error) {
+        expect(error.response.status).toBe(400);
+        expect(error.message).toContain("Invalid input")
+      }
+    })
     // Add more tests for error handling, edge cases, etc.
   });
 
