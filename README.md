@@ -373,6 +373,14 @@ const response = await replicate.predictions.list();
 
 ### `replicate.trainings.create`
 
+Use the training API to fine-tune language models
+to make them better at a particular task.
+To see what **language models** currently support fine-tuning,
+check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
+
+If you're looking to fine-tune **image models**,
+check out Replicate's [guide to fine-tuning image models](https://replicate.com/docs/guides/fine-tune-an-image-model).
+
 ```js
 const response = await replicate.trainings.create(model_owner, model_name, version_id, options);
 ```
@@ -403,6 +411,10 @@ const response = await replicate.trainings.create(model_owner, model_name, versi
   "completed_at": null
 }
 ```
+
+> **Warning**
+> If you try to fine-tune a model that doesn't support training,
+> you'll get a `400 Bad Request` response from the server.
 
 ### `replicate.trainings.get`
 
