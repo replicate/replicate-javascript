@@ -291,7 +291,7 @@ with a URL that you can use to construct an
 
 ```js
 if (prediction && prediction.urls && prediction.urls.stream) {
-  const source = new EventSource(prediction.urls.stream);
+  const source = new EventSource(prediction.urls.stream, { withCredentials: true });
 
   source.addEventListener("output", (e) => {
     console.log("output", e.data);
