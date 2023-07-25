@@ -80,15 +80,17 @@ class Replicate {
    * @param {string} identifier - Required. The model version identifier in the format "{owner}/{name}:{version}"
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
-   * @param {object} [options.wait] - Whether to wait for the prediction to finish. Defaults to false
+   * @param {object} [options.wait] - Options for waiting for the prediction to finish
    * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 250
-   * @param {number} [options.wait.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {number} [options.wait.max_attempts] - Maximum number of polling attempts. Defaults to no limit
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(identifier, options) {
+    const { wait, ...data } = options;
+
     // Define a pattern for owner and model names that allows
     // letters, digits, and certain special characters.
     // Example: "user123", "abc__123", "user.name"
@@ -108,11 +110,13 @@ class Replicate {
     }
 
     const { version } = match.groups;
-    const prediction = await this.predictions.create({
-      wait: true,
-      ...options,
+
+    let prediction = await this.predictions.create({
+      ...data,
       version,
     });
+
+    prediction = await this.wait(prediction, wait || {});
 
     if (prediction.status === 'failed') {
       throw new Error(`Prediction failed: ${prediction.error}`);
