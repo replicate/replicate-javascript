@@ -2,10 +2,9 @@ declare module 'replicate' {
   type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
   type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
-  interface Page<T> {
-    previous?: string;
-    next?: string;
-    results: T[];
+  export interface ApiError extends Error {
+    request: Request;
+    response: Response;
   }
 
   export interface Collection {
@@ -57,6 +56,12 @@ declare module 'replicate' {
   }
 
   export type Training = Prediction;
+
+  interface Page<T> {
+    previous?: string;
+    next?: string;
+    results: T[];
+  }
 
   export default class Replicate {
     constructor(options: {
