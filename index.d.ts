@@ -53,6 +53,11 @@ declare module 'replicate' {
     created_at: string;
     updated_at: string;
     completed_at?: string;
+    urls: {
+      get: string;
+      cancel: string;
+      stream?: string;
+    };
   }
 
   export type Training = Prediction;
@@ -123,6 +128,7 @@ declare module 'replicate' {
       create(options: {
         version: string;
         input: object;
+        stream?: boolean;
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
       }): Promise<Prediction>;
