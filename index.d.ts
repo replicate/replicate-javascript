@@ -85,7 +85,14 @@ declare module 'replicate' {
         webhook_events_filter?: WebhookEventType[];
       }
     ): Promise<object>;
-    request(route: string, parameters: any): Promise<any>;
+
+    request(route: string | URL, options: {
+      method?: string;
+      headers?: object | Headers;
+      params?: object;
+      data?: object;
+    }): Promise<Response>;
+
     paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
     wait(
       prediction: Prediction,

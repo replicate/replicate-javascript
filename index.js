@@ -125,43 +125,53 @@ class Replicate {
    * Make a request to the Replicate API.
    *
    * @param {string} route - REST API endpoint path
-   * @param {object} parameters - Request parameters
-   * @param {string} [parameters.method] - HTTP method. Defaults to GET
-   * @param {object} [parameters.params] - Query parameters
-   * @param {object} [parameters.data] - Body parameters
-   * @returns {Promise<object>} - Resolves with the API response data
+   * @param {object} options - Request parameters
+   * @param {string} [options.method] - HTTP method. Defaults to GET
+   * @param {object} [options.params] - Query parameters
+   * @param {object|Headers} [options.headers] - HTTP headers
+   * @param {object} [options.data] - Body parameters
+   * @returns {Promise<Response>} - Resolves with the response object
    * @throws {ApiError} If the request failed
    */
-  async request(route, parameters) {
+  async request(route, options) {
     const { auth, baseUrl, userAgent } = this;
 
-    const url = new URL(
-      route.startsWith('/') ? route.slice(1) : route,
-      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
-    );
+    let url;
+    if (route instanceof URL) {
+      url = route;
+    } else {
+      url = new URL(
+        route.startsWith('/') ? route.slice(1) : route,
+        baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+      );
+    }
 
-    const { method = 'GET', params = {}, data } = parameters;
+    const { method = 'GET', params = {}, data } = options;
 
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
 
-    const headers = {
-      Authorization: `Token ${auth}`,
-      'Content-Type': 'application/json',
-      'User-Agent': userAgent,
-    };
+    const headers = new Headers();
+    headers.append('Authorization', `Token ${auth}`);
+    headers.append('Content-Type', 'application/json');
+    headers.append('User-Agent', userAgent);
+    if (options.headers) {
+      options.headers.forEach((value, key) => {
+        headers.append(key, value);
+      });
+    }
 
-    const options = {
+    const init = {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
     };
 
-    const response = await this.fetch(url, options);
+    const response = await this.fetch(url, init);
 
     if (!response.ok) {
-      const request = new Request(url, options);
+      const request = new Request(url, init);
       const responseText = await response.text();
       throw new ApiError(
         `Request to ${url} failed with status ${response.status} ${response.statusText}: ${responseText}.`,
@@ -170,7 +180,7 @@ class Replicate {
       );
     }
 
-    return response.json();
+    return response;
   }
 
   /**
@@ -188,7 +198,7 @@ class Replicate {
     const response = await endpoint();
     yield response.results;
     if (response.next) {
-      const nextPage = () => this.request(response.next, { method: 'GET' });
+      const nextPage = () => this.request(response.next, { method: 'GET' }).then((r) => r.json());
       yield* this.paginate(nextPage);
     }
   }
