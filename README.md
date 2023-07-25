@@ -251,6 +251,7 @@ const response = await replicate.predictions.create(options);
 | ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `options.version`               | string   | **Required**. The model version                                                                                                  |
 | `options.input`                 | object   | **Required**. An object with the model's inputs                                                                                  |
+| `options.stream`                | boolean  | Requests a URL for streaming output output                                                                                       |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                          |
 | `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
 
@@ -258,10 +259,6 @@ const response = await replicate.predictions.create(options);
 {
   "id": "ufawqhfynnddngldkgtslldrkq",
   "version": "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-  "urls": {
-    "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
-    "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel"
-  },
   "status": "succeeded",
   "input": {
     "text": "Alice"
@@ -272,9 +269,55 @@ const response = await replicate.predictions.create(options);
   "metrics": {},
   "created_at": "2022-04-26T22:13:06.224088Z",
   "started_at": null,
-  "completed_at": null
+  "completed_at": null,
+  "urls": {
+    "get": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
+    "cancel": "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel",
+    "stream": "https://streaming.api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq" // Present only if `options.stream` is `true`
+  }
 }
 ```
+
+#### Streaming
+
+Specify the `stream` option when creating a prediction
+to request a URL to receive streaming output using
+[server-sent events (SSE)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events).
+
+If the requested model version supports streaming,
+then the returned prediction will have a `stream` entry in its `urls` property
+with a URL that you can use to construct an
+[`EventSource`](https://developer.mozilla.org/en-US/docs/Web/API/EventSource).
+
+```js
+if (prediction && prediction.urls && prediction.urls.stream) {
+  const source = new EventSource(prediction.urls.stream, { withCredentials: true });
+
+  source.addEventListener("output", (e) => {
+    console.log("output", e.data);
+  });
+
+  source.addEventListener("error"), (e) => {
+    console.error("error", JSON.parse(e.data));
+  });
+
+  source.addEventListener("done"), (e) => {
+    source.close();
+    console.log("done", JSON.parse(e.data));
+  });
+}
+```
+
+A prediction's event stream consists of the following event types:
+
+| event    | format     | description                                    |
+| -------- | ---------- | ---------------------------------------------- |
+| `output` | plain text | Emitted when the prediction returns new output |
+| `error`  | JSON       | Emitted when the prediction returns an error   |
+| `done`   | JSON       | Emitted when the prediction finishes           |
+
+A `done` event is emitted when a prediction finishes successfully,
+is cancelled, or produces an error.
 
 ### `replicate.predictions.get`
 

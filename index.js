@@ -80,15 +80,17 @@ class Replicate {
    * @param {string} identifier - Required. The model version identifier in the format "{owner}/{name}:{version}"
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
-   * @param {object} [options.wait] - Whether to wait for the prediction to finish. Defaults to false
+   * @param {object} [options.wait] - Options for waiting for the prediction to finish
    * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 250
-   * @param {number} [options.wait.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {number} [options.wait.max_attempts] - Maximum number of polling attempts. Defaults to no limit
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(identifier, options) {
+    const { wait, ...data } = options;
+
     // Define a pattern for owner and model names that allows
     // letters, digits, and certain special characters.
     // Example: "user123", "abc__123", "user.name"
@@ -108,11 +110,13 @@ class Replicate {
     }
 
     const { version } = match.groups;
-    const prediction = await this.predictions.create({
-      wait: true,
-      ...options,
+
+    let prediction = await this.predictions.create({
+      ...data,
       version,
     });
+
+    prediction = await this.wait(prediction, wait || {});
 
     if (prediction.status === 'failed') {
       throw new Error(`Prediction failed: ${prediction.error}`);
@@ -125,43 +129,53 @@ class Replicate {
    * Make a request to the Replicate API.
    *
    * @param {string} route - REST API endpoint path
-   * @param {object} parameters - Request parameters
-   * @param {string} [parameters.method] - HTTP method. Defaults to GET
-   * @param {object} [parameters.params] - Query parameters
-   * @param {object} [parameters.data] - Body parameters
-   * @returns {Promise<object>} - Resolves with the API response data
+   * @param {object} options - Request parameters
+   * @param {string} [options.method] - HTTP method. Defaults to GET
+   * @param {object} [options.params] - Query parameters
+   * @param {object|Headers} [options.headers] - HTTP headers
+   * @param {object} [options.data] - Body parameters
+   * @returns {Promise<Response>} - Resolves with the response object
    * @throws {ApiError} If the request failed
    */
-  async request(route, parameters) {
+  async request(route, options) {
     const { auth, baseUrl, userAgent } = this;
 
-    const url = new URL(
-      route.startsWith('/') ? route.slice(1) : route,
-      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
-    );
+    let url;
+    if (route instanceof URL) {
+      url = route;
+    } else {
+      url = new URL(
+        route.startsWith('/') ? route.slice(1) : route,
+        baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+      );
+    }
 
-    const { method = 'GET', params = {}, data } = parameters;
+    const { method = 'GET', params = {}, data } = options;
 
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
 
-    const headers = {
-      Authorization: `Token ${auth}`,
-      'Content-Type': 'application/json',
-      'User-Agent': userAgent,
-    };
+    const headers = new Headers();
+    headers.append('Authorization', `Token ${auth}`);
+    headers.append('Content-Type', 'application/json');
+    headers.append('User-Agent', userAgent);
+    if (options.headers) {
+      options.headers.forEach((value, key) => {
+        headers.append(key, value);
+      });
+    }
 
-    const options = {
+    const init = {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
     };
 
-    const response = await this.fetch(url, options);
+    const response = await this.fetch(url, init);
 
     if (!response.ok) {
-      const request = new Request(url, options);
+      const request = new Request(url, init);
       const responseText = await response.text();
       throw new ApiError(
         `Request to ${url} failed with status ${response.status} ${response.statusText}: ${responseText}.`,
@@ -170,7 +184,7 @@ class Replicate {
       );
     }
 
-    return response.json();
+    return response;
   }
 
   /**
@@ -188,7 +202,7 @@ class Replicate {
     const response = await endpoint();
     yield response.results;
     if (response.next) {
-      const nextPage = () => this.request(response.next, { method: 'GET' });
+      const nextPage = () => this.request(response.next, { method: 'GET' }).then((r) => r.json());
       yield* this.paginate(nextPage);
     }
   }
@@ -204,7 +218,7 @@ class Replicate {
    * @param {object} prediction - Prediction object
    * @param {object} options - Options
    * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 250
-   * @param {number} [options.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {number} [options.max_attempts] - Maximum number of polling attempts. Defaults to no limit
    * @throws {Error} If the prediction doesn't complete within the maximum number of attempts
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} Resolves with the completed prediction object
@@ -230,7 +244,7 @@ class Replicate {
 
     let attempts = 0;
     const interval = options.interval || 250;
-    const maxAttempts = options.maxAttempts || null;
+    const max_attempts = options.max_attempts || null;
 
     while (
       updatedPrediction.status !== 'succeeded' &&
@@ -238,9 +252,9 @@ class Replicate {
       updatedPrediction.status !== 'canceled'
     ) {
       attempts += 1;
-      if (maxAttempts && attempts > maxAttempts) {
+      if (max_attempts && attempts > max_attempts) {
         throw new Error(
-          `Prediction ${id} did not finish after ${maxAttempts} attempts`
+          `Prediction ${id} did not finish after ${max_attempts} attempts`
         );
       }
 

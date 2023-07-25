@@ -152,6 +152,24 @@ describe('Replicate client', () => {
       expect(prediction.id).toBe('ufawqhfynnddngldkgtslldrkq');
     });
 
+    test('Passes stream parameter to API endpoint', async () => {
+      nock(BASE_URL)
+        .post('/predictions')
+        .reply(201, (_uri, body) => {
+          expect(body[ 'stream' ]).toBe(true);
+          return body
+        })
+
+      await client.predictions.create({
+        version:
+          '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+        input: {
+          prompt: 'Tell me a story',
+        },
+        stream: true
+      });
+    });
+
     test('Throws an error if webhook URL is invalid', async () => {
       await expect(async () => {
         await client.predictions.create({
@@ -506,7 +524,7 @@ describe('Replicate client', () => {
           status: 'processing',
         })
         .get('/predictions/ufawqhfynnddngldkgtslldrkq')
-        .reply(200, {
+        .reply(201, {
           id: 'ufawqhfynnddngldkgtslldrkq',
           status: 'succeeded',
           output: 'foobar',

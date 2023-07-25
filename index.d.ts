@@ -53,6 +53,11 @@ declare module 'replicate' {
     created_at: string;
     updated_at: string;
     completed_at?: string;
+    urls: {
+      get: string;
+      cancel: string;
+      stream?: string;
+    };
   }
 
   export type Training = Prediction;
@@ -80,18 +85,26 @@ declare module 'replicate' {
       identifier: `${string}/${string}:${string}`,
       options: {
         input: object;
-        wait?: boolean | { interval?: number; maxAttempts?: number };
+        wait?: { interval?: number; max_attempts?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
       }
     ): Promise<object>;
-    request(route: string, parameters: any): Promise<any>;
+
+    request(route: string | URL, options: {
+      method?: string;
+      headers?: object | Headers;
+      params?: object;
+      data?: object;
+    }): Promise<Response>;
+
     paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
+
     wait(
       prediction: Prediction,
       options: {
         interval?: number;
-        maxAttempts?: number;
+        max_attempts?: number;
       }
     ): Promise<Prediction>;
 
@@ -116,6 +129,7 @@ declare module 'replicate' {
       create(options: {
         version: string;
         input: object;
+        stream?: boolean;
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
       }): Promise<Prediction>;
