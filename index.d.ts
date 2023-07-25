@@ -85,7 +85,7 @@ declare module 'replicate' {
       identifier: `${string}/${string}:${string}`,
       options: {
         input: object;
-        wait?: boolean | { interval?: number; maxAttempts?: number };
+        wait?: { interval?: number; max_attempts?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
       }
@@ -99,11 +99,12 @@ declare module 'replicate' {
     }): Promise<Response>;
 
     paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
+
     wait(
       prediction: Prediction,
       options: {
         interval?: number;
-        maxAttempts?: number;
+        max_attempts?: number;
       }
     ): Promise<Prediction>;
 

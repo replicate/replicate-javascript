@@ -218,7 +218,7 @@ class Replicate {
    * @param {object} prediction - Prediction object
    * @param {object} options - Options
    * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 250
-   * @param {number} [options.maxAttempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {number} [options.max_attempts] - Maximum number of polling attempts. Defaults to no limit
    * @throws {Error} If the prediction doesn't complete within the maximum number of attempts
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} Resolves with the completed prediction object
@@ -244,7 +244,7 @@ class Replicate {
 
     let attempts = 0;
     const interval = options.interval || 250;
-    const maxAttempts = options.maxAttempts || null;
+    const max_attempts = options.max_attempts || null;
 
     while (
       updatedPrediction.status !== 'succeeded' &&
@@ -252,9 +252,9 @@ class Replicate {
       updatedPrediction.status !== 'canceled'
     ) {
       attempts += 1;
-      if (maxAttempts && attempts > maxAttempts) {
+      if (max_attempts && attempts > max_attempts) {
         throw new Error(
-          `Prediction ${id} did not finish after ${maxAttempts} attempts`
+          `Prediction ${id} did not finish after ${max_attempts} attempts`
         );
       }
 
