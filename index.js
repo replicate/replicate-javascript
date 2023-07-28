@@ -86,10 +86,11 @@ class Replicate {
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
+   * @param {Function} [progress] - Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed.
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
-  async run(identifier, options) {
+  async run(identifier, options, progress) {
     const { wait, ...data } = options;
 
     // Define a pattern for owner and model names that allows
@@ -117,16 +118,31 @@ class Replicate {
       version,
     });
 
+    // Call progress callback with the initial prediction object
+    if (progress) {
+      progress(prediction);
+    }
+
     const { signal } = options;
 
-    prediction = await this.wait(prediction, wait || {}, async ({ id }) => {
+    prediction = await this.wait(prediction, wait || {}, async (updatedPrediction) => {
+      // Call progress callback with the updated prediction object
+      if (progress) {
+        progress(updatedPrediction);
+      }
+
       if (signal && signal.aborted) {
-        await this.predictions.cancel(id);
+        await this.predictions.cancel(updatedPrediction.id);
         return true; // stop polling
       }
 
       return false; // continue polling
     });
+
+    // Call progress callback with the completed prediction object
+    if (progress) {
+      progress(prediction);
+    }
 
     if (prediction.status === 'failed') {
       throw new Error(`Prediction failed: ${prediction.error}`);
@@ -252,8 +268,6 @@ class Replicate {
       return prediction;
     }
 
-    let updatedPrediction = await this.predictions.get(id);
-
     // eslint-disable-next-line no-promise-executor-return
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -261,11 +275,18 @@ class Replicate {
     const interval = options.interval || 250;
     const max_attempts = options.max_attempts || null;
 
+    let updatedPrediction = await this.predictions.get(id);
+
     while (
       updatedPrediction.status !== 'succeeded' &&
       updatedPrediction.status !== 'failed' &&
       updatedPrediction.status !== 'canceled'
     ) {
+      /* eslint-disable no-await-in-loop */
+      if (stop && await stop(updatedPrediction) === true) {
+        break;
+      }
+
       attempts += 1;
       if (max_attempts && attempts > max_attempts) {
         throw new Error(
@@ -273,12 +294,8 @@ class Replicate {
         );
       }
 
-      /* eslint-disable no-await-in-loop */
       await sleep(interval);
       updatedPrediction = await this.predictions.get(prediction.id);
-      if (stop && await stop(updatedPrediction) === true) {
-        break;
-      }
       /* eslint-enable no-await-in-loop */
     }
 

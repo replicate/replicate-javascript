@@ -89,7 +89,8 @@ declare module 'replicate' {
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
-      }
+      },
+      progress?: (Prediction) => void
     ): Promise<object>;
 
     request(route: string | URL, options: {
