@@ -297,11 +297,11 @@ if (prediction && prediction.urls && prediction.urls.stream) {
     console.log("output", e.data);
   });
 
-  source.addEventListener("error"), (e) => {
+  source.addEventListener("error", (e) => {
     console.error("error", JSON.parse(e.data));
   });
 
-  source.addEventListener("done"), (e) => {
+  source.addEventListener("done", (e) => {
     source.close();
     console.log("done", JSON.parse(e.data));
   });
