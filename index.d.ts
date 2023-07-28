@@ -88,6 +88,7 @@ declare module 'replicate' {
         wait?: { interval?: number; max_attempts?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
+        signal?: AbortSignal;
       }
     ): Promise<object>;
 
@@ -105,7 +106,8 @@ declare module 'replicate' {
       options: {
         interval?: number;
         max_attempts?: number;
-      }
+      },
+      stop?: (Prediction) => Promise<boolean>
     ): Promise<Prediction>;
 
     collections: {

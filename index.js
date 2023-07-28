@@ -85,6 +85,7 @@ class Replicate {
    * @param {number} [options.wait.max_attempts] - Maximum number of polling attempts. Defaults to no limit
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
+   * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
@@ -116,7 +117,16 @@ class Replicate {
       version,
     });
 
-    prediction = await this.wait(prediction, wait || {});
+    const { signal } = options;
+
+    prediction = await this.wait(prediction, wait || {}, async ({ id }) => {
+      if (signal && signal.aborted) {
+        await this.predictions.cancel(id);
+        return true; // stop polling
+      }
+
+      return false; // continue polling
+    });
 
     if (prediction.status === 'failed') {
       throw new Error(`Prediction failed: ${prediction.error}`);
@@ -150,7 +160,11 @@ class Replicate {
       );
     }
 
-    const { method = 'GET', params = {}, data } = options;
+    const {
+      method = 'GET',
+      params = {},
+      data,
+    } = options;
 
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
@@ -219,11 +233,12 @@ class Replicate {
    * @param {object} options - Options
    * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 250
    * @param {number} [options.max_attempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {Function} [stop] - Async callback function that is called after each polling attempt. Receives the prediction object as an argument. Return false to cancel polling.
    * @throws {Error} If the prediction doesn't complete within the maximum number of attempts
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} Resolves with the completed prediction object
    */
-  async wait(prediction, options) {
+  async wait(prediction, options, stop) {
     const { id } = prediction;
     if (!id) {
       throw new Error('Invalid prediction');
@@ -261,6 +276,9 @@ class Replicate {
       /* eslint-disable no-await-in-loop */
       await sleep(interval);
       updatedPrediction = await this.predictions.get(prediction.id);
+      if (stop && await stop(updatedPrediction) === true) {
+        break;
+      }
       /* eslint-enable no-await-in-loop */
     }
 
