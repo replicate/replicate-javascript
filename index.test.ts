@@ -581,6 +581,44 @@ describe('Replicate client', () => {
         });
       }).rejects.toThrow('Invalid webhook URL');
     });
+
+    test('Aborts the operation when abort signal is invoked', async () => {
+      const controller = new AbortController();
+      const { signal } = controller;
+
+      const scope = nock(BASE_URL)
+        .post('/predictions', (body) => {
+          controller.abort();
+          return body;
+        })
+        .reply(201, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'processing',
+        })
+        .persist()
+        .get('/predictions/ufawqhfynnddngldkgtslldrkq')
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'processing',
+        })
+        .post('/predictions/ufawqhfynnddngldkgtslldrkq/cancel')
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'canceled',
+        });;
+
+      await client.run(
+        'owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+        {
+          input: { text: 'Hello, world!' },
+          signal,
+        }
+      )
+
+      expect(signal.aborted).toBe(true);
+
+      scope.done();
+    });
   });
 
   // Continue with tests for other methods
