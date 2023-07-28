@@ -219,11 +219,12 @@ class Replicate {
    * @param {object} options - Options
    * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 250
    * @param {number} [options.max_attempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {Function} [stop] - Async callback function that is called after each polling attempt. Receives the prediction object as an argument. Return false to cancel polling.
    * @throws {Error} If the prediction doesn't complete within the maximum number of attempts
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} Resolves with the completed prediction object
    */
-  async wait(prediction, options) {
+  async wait(prediction, options, stop) {
     const { id } = prediction;
     if (!id) {
       throw new Error('Invalid prediction');
@@ -261,6 +262,9 @@ class Replicate {
       /* eslint-disable no-await-in-loop */
       await sleep(interval);
       updatedPrediction = await this.predictions.get(prediction.id);
+      if (stop && await stop(updatedPrediction) === true) {
+        break;
+      }
       /* eslint-enable no-await-in-loop */
     }
 
