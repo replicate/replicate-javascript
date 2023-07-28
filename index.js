@@ -252,8 +252,6 @@ class Replicate {
       return prediction;
     }
 
-    let updatedPrediction = await this.predictions.get(id);
-
     // eslint-disable-next-line no-promise-executor-return
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -261,11 +259,18 @@ class Replicate {
     const interval = options.interval || 250;
     const max_attempts = options.max_attempts || null;
 
+    let updatedPrediction = await this.predictions.get(id);
+
     while (
       updatedPrediction.status !== 'succeeded' &&
       updatedPrediction.status !== 'failed' &&
       updatedPrediction.status !== 'canceled'
     ) {
+      /* eslint-disable no-await-in-loop */
+      if (stop && await stop(updatedPrediction) === true) {
+        break;
+      }
+
       attempts += 1;
       if (max_attempts && attempts > max_attempts) {
         throw new Error(
@@ -273,12 +278,8 @@ class Replicate {
         );
       }
 
-      /* eslint-disable no-await-in-loop */
       await sleep(interval);
       updatedPrediction = await this.predictions.get(prediction.id);
-      if (stop && await stop(updatedPrediction) === true) {
-        break;
-      }
       /* eslint-enable no-await-in-loop */
     }
 
