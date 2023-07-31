@@ -1,5 +1,5 @@
 import { expect, jest, test } from '@jest/globals';
-import Replicate, { Prediction } from 'replicate';
+import Replicate, { ApiError, Prediction } from 'replicate';
 import nock from 'nock';
 import fetch from 'cross-fetch';
 
@@ -36,14 +36,6 @@ describe('Replicate client', () => {
 
     test('Throws error if no auth token is provided', () => {
       const expected = 'Missing required parameter: auth'
-
-      expect(() => {
-        new Replicate({ auth: undefined });
-      }).toThrow(expected);
-
-      expect(() => {
-        new Replicate({ auth: null });
-      }).toThrow(expected);
 
       expect(() => {
         new Replicate({ auth: "" });
@@ -156,7 +148,7 @@ describe('Replicate client', () => {
       nock(BASE_URL)
         .post('/predictions')
         .reply(201, (_uri, body) => {
-          expect(body[ 'stream' ]).toBe(true);
+          expect((body as any).stream).toBe(true);
           return body
         })
 
@@ -200,8 +192,8 @@ describe('Replicate client', () => {
           },
         });
       } catch (error) {
-        expect(error.response.status).toBe(400);
-        expect(error.message).toContain("Invalid input")
+        expect((error as ApiError).response.status).toBe(400);
+        expect((error as ApiError).message).toContain("Invalid input")
       }
     })
     // Add more tests for error handling, edge cases, etc.

@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-      "esModuleInterop": true
+    "esModuleInterop": true,
+    "noEmit": true,
+    "strict": true
   },
   "exclude": [
-      "node_modules",
-      "**/node_modules/*"
+    "**/node_modules"
   ]
 }
