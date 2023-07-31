@@ -90,7 +90,7 @@ declare module 'replicate' {
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
       },
-      progress?: (Prediction) => void
+      progress?: (prediction: Prediction) => void
     ): Promise<object>;
 
     request(route: string | URL, options: {
@@ -108,7 +108,7 @@ declare module 'replicate' {
         interval?: number;
         max_attempts?: number;
       },
-      stop?: (Prediction) => Promise<boolean>
+      stop?: (prediction: Prediction) => Promise<boolean>
     ): Promise<Prediction>;
 
     collections: {
