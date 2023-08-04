@@ -85,7 +85,7 @@ declare module 'replicate' {
       identifier: `${string}/${string}:${string}`,
       options: {
         input: object;
-        wait?: { interval?: number; max_attempts?: number };
+        wait?: { interval?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
@@ -106,7 +106,6 @@ declare module 'replicate' {
       prediction: Prediction,
       options: {
         interval?: number;
-        max_attempts?: number;
       },
       stop?: (prediction: Prediction) => Promise<boolean>
     ): Promise<Prediction>;
