@@ -81,8 +81,7 @@ class Replicate {
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
    * @param {object} [options.wait] - Options for waiting for the prediction to finish
-   * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 250
-   * @param {number} [options.wait.max_attempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 500
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
@@ -247,8 +246,7 @@ class Replicate {
    * @async
    * @param {object} prediction - Prediction object
    * @param {object} options - Options
-   * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 250
-   * @param {number} [options.max_attempts] - Maximum number of polling attempts. Defaults to no limit
+   * @param {number} [options.interval] - Polling interval in milliseconds. Defaults to 500
    * @param {Function} [stop] - Async callback function that is called after each polling attempt. Receives the prediction object as an argument. Return false to cancel polling.
    * @throws {Error} If the prediction doesn't complete within the maximum number of attempts
    * @throws {Error} If the prediction failed
@@ -271,9 +269,7 @@ class Replicate {
     // eslint-disable-next-line no-promise-executor-return
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    let attempts = 0;
-    const interval = options.interval || 250;
-    const max_attempts = options.max_attempts || null;
+    const interval = options.interval || 500;
 
     let updatedPrediction = await this.predictions.get(id);
 
@@ -285,13 +281,6 @@ class Replicate {
       /* eslint-disable no-await-in-loop */
       if (stop && await stop(updatedPrediction) === true) {
         break;
-      }
-
-      attempts += 1;
-      if (max_attempts && attempts > max_attempts) {
-        throw new Error(
-          `Prediction ${id} did not finish after ${max_attempts} attempts`
-        );
       }
 
       await sleep(interval);
