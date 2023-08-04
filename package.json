@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "engines": {
-    "node": ">=16.6.0",
+    "node": ">=18.0.0",
     "npm": ">=7.19.0",
     "git": ">=2.11.0",
     "yarn": ">=1.7.0"
