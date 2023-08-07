@@ -196,7 +196,44 @@ describe('Replicate client', () => {
         expect((error as ApiError).message).toContain("Invalid input")
       }
     })
-    // Add more tests for error handling, edge cases, etc.
+
+    test('Automatically retries on 429', async () => {
+      nock(BASE_URL)
+        .post('/predictions')
+        .reply(429, {
+          detail: "Too many requests",
+        }, { "Content-Type": "application/json", "Retry-After": "1" })
+        .post('/predictions')
+        .reply(201, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+        });
+      const prediction = await client.predictions.create({
+        version:
+          '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+        input: {
+          text: 'Alice',
+        },
+      });
+      expect(prediction.id).toBe('ufawqhfynnddngldkgtslldrkq');
+    });
+
+    test('Does not automatically retry on 500', async () => {
+      nock(BASE_URL)
+        .post('/predictions')
+        .reply(500, {
+          detail: "Internal server error",
+        }, { "Content-Type": "application/json" });
+
+      await expect(
+        client.predictions.create({
+          version:
+            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          input: {
+            text: 'Alice',
+          },
+        })
+      ).rejects.toThrow(`Request to https://api.replicate.com/v1/predictions failed with status 500 Internal Server Error: {"detail":"Internal server error"}.`)
+    });
   });
 
   describe('predictions.get', () => {
@@ -234,7 +271,40 @@ describe('Replicate client', () => {
       );
       expect(prediction.id).toBe('rrr4z55ocneqzikepnug6xezpe');
     });
-    // Add more tests for error handling, edge cases, etc.
+
+    test('Automatically retries on 429', async () => {
+      nock(BASE_URL)
+        .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
+        .reply(429, {
+          detail: "Too many requests",
+        }, { "Content-Type": "application/json", "Retry-After": "1" })
+        .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
+        .reply(200, {
+          id: 'rrr4z55ocneqzikepnug6xezpe',
+        });
+
+      const prediction = await client.predictions.get(
+        'rrr4z55ocneqzikepnug6xezpe'
+      );
+      expect(prediction.id).toBe('rrr4z55ocneqzikepnug6xezpe');
+    });
+
+    test('Automatically retries on 500', async () => {
+      nock(BASE_URL)
+        .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
+        .reply(500, {
+          detail: "Internal server error",
+        }, { "Content-Type": "application/json" })
+        .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
+        .reply(200, {
+          id: 'rrr4z55ocneqzikepnug6xezpe',
+        });
+
+      const prediction = await client.predictions.get(
+        'rrr4z55ocneqzikepnug6xezpe'
+      );
+      expect(prediction.id).toBe('rrr4z55ocneqzikepnug6xezpe');
+    });
   });
 
   describe('predictions.cancel', () => {

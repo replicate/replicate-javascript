@@ -1,4 +1,5 @@
 const ApiError = require('./lib/error');
+const { withAutomaticRetries } = require('./lib/util');
 
 const collections = require('./lib/collections');
 const models = require('./lib/models');
@@ -201,7 +202,10 @@ class Replicate {
       body: data ? JSON.stringify(data) : undefined,
     };
 
-    const response = await this.fetch(url, init);
+    const shouldRetry = method === 'GET' ?
+      (response) => (response.status === 429 || response.status >= 500) :
+      (response) => (response.status === 429);
+    const response = await withAutomaticRetries(async () => this.fetch(url, init), { shouldRetry });
 
     if (!response.ok) {
       const request = new Request(url, init);
