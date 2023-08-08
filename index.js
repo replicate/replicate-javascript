@@ -37,10 +37,6 @@ class Replicate {
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
    */
   constructor(options) {
-    if (!options.auth) {
-      throw new Error('Missing required parameter: auth');
-    }
-
     this.auth = options.auth;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
@@ -165,6 +161,10 @@ class Replicate {
    */
   async request(route, options) {
     const { auth, baseUrl, userAgent } = this;
+
+    if (!auth) {
+      throw new Error('Not authenticated. Set `auth` option when initializing the Replicate client.');
+    }
 
     let url;
     if (route instanceof URL) {

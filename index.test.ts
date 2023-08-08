@@ -33,14 +33,6 @@ describe('Replicate client', () => {
       });
       expect(clientWithCustomUserAgent.userAgent).toBe('my-app/1.2.3');
     });
-
-    test('Throws error if no auth token is provided', () => {
-      const expected = 'Missing required parameter: auth'
-
-      expect(() => {
-        new Replicate({ auth: "" });
-      }).toThrow(expected);
-    });
   });
 
   describe('collections.list', () => {
@@ -666,6 +658,14 @@ describe('Replicate client', () => {
 
       // @ts-expect-error
       await expect(client.run(':abc123', options)).rejects.toThrow();
+    });
+
+    test('Throws an error if client was initialized without auth', async () => {
+      // @ts-expect-error
+      client = new Replicate({});
+
+      const expected = 'Not authenticated';
+      await expect(client.run('owner/model:5c7d5dc6', { input: { query: 'hello' } })).rejects.toThrow(expected);
     });
 
     test('Throws an error if webhook URL is invalid', async () => {
