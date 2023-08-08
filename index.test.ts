@@ -34,12 +34,17 @@ describe('Replicate client', () => {
       expect(clientWithCustomUserAgent.userAgent).toBe('my-app/1.2.3');
     });
 
-    test('Throws error if no auth token is provided', () => {
-      const expected = 'Missing required parameter: auth'
+    test('Does not throw error if auth token is not provided', () => {
+      expect(() => {
+        // @ts-expect-error
+        new Replicate();
+      }).not.toThrow();
+    });
 
+    test('Does not throw error if blank auth token is provided', () => {
       expect(() => {
         new Replicate({ auth: "" });
-      }).toThrow(expected);
+      }).not.toThrow();
     });
   });
 

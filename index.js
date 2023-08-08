@@ -36,11 +36,7 @@ class Replicate {
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
    */
-  constructor(options) {
-    if (!options.auth) {
-      throw new Error('Missing required parameter: auth');
-    }
-
+  constructor(options = {}) {
     this.auth = options.auth;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
@@ -187,7 +183,9 @@ class Replicate {
     });
 
     const headers = new Headers();
-    headers.append('Authorization', `Token ${auth}`);
+    if (auth) {
+      headers.append('Authorization', `Token ${auth}`);
+    }
     headers.append('Content-Type', 'application/json');
     headers.append('User-Agent', userAgent);
     if (options.headers) {
