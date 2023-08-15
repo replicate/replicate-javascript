@@ -271,7 +271,7 @@ class Replicate {
     // eslint-disable-next-line no-promise-executor-return
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const interval = options.interval || 500;
+    const interval = options?.interval || 500;
 
     let updatedPrediction = await this.predictions.get(id);
 
