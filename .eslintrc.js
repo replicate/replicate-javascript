@@ -22,6 +22,7 @@ module.exports = {
     'generator-star-spacing': 'off',
     'max-len': 'off',
     'operator-linebreak': 'off',
+    'object-curly-newline': 'off',
     'jsdoc/require-param-description': 'off',
     'jsdoc/tag-lines': ['error', 'any', { startLines: 1 }],
   },
