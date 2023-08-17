@@ -167,6 +167,17 @@ describe('Replicate client', () => {
       });
     });
 
+    test('Throws an error if version is invalid', async () => {
+      await expect(async () => {
+        await client.predictions.create({
+          version: 'owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          input: {
+            text: 'Alice',
+          },
+        });
+      }).rejects.toThrow('Invalid version');
+    });
+
     test('Throws an error if webhook URL is invalid', async () => {
       await expect(async () => {
         await client.predictions.create({
