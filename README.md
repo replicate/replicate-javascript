@@ -26,8 +26,7 @@ Create the client:
 import Replicate from "replicate";
 
 const replicate = new Replicate({
-  // get your token from https://replicate.com/account
-  auth: process.env.REPLICATE_API_TOKEN,
+  auth: "my api token", // defaults to process.env.REPLICATE_API_TOKEN
 });
 ```
 
@@ -124,18 +123,14 @@ and pass it to the `fetch` option in the constructor.
 import Replicate from "replicate";
 import fetch from "cross-fetch";
 
-const replicate = new Replicate({
-  // get your token from https://replicate.com/account
-  auth: process.env.REPLICATE_API_TOKEN,
-  fetch: fetch,
-});
+const replicate = new Replicate({ fetch });
 ```
 
 You can override the `fetch` property to add custom behavior to client requests,
 such as injecting headers or adding log statements.
 
 ```js
-client.fetch = (url, options) => {
+replicate.fetch = (url, options) => {
   const headers = new Headers(options && options.headers);
   headers.append("X-Custom-Header", "some value");
 
