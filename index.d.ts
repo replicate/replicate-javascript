@@ -51,7 +51,7 @@ declare module 'replicate' {
     webhook?: string;
     webhook_events_filter?: WebhookEventType[];
     created_at: string;
-    updated_at: string;
+    started_at?: string;
     completed_at?: string;
     urls: {
       get: string;
