@@ -51,9 +51,12 @@ describe('Replicate client', () => {
     });
 
     test('Does not throw error if auth token is not provided', () => {
+      process.env.REPLICATE_API_TOKEN = 'test-token';
+
       expect(() => {
-        // @ts-expect-error
-        new Replicate();
+        const clientWithImplicitAuth = new Replicate();
+
+        expect(clientWithImplicitAuth.auth).toBe('test-token');
       }).not.toThrow();
     });
 
