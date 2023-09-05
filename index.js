@@ -32,13 +32,13 @@ class Replicate {
    * Create a new Replicate API client instance.
    *
    * @param {object} options - Configuration options for the client
-   * @param {string} options.auth - Required. API access token
+   * @param {string} options.auth - API access token. Defaults to the `REPLICATE_API_TOKEN` environment variable.
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
    */
   constructor(options = {}) {
-    this.auth = options.auth;
+    this.auth = options.auth || process.env.REPLICATE_API_TOKEN;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
