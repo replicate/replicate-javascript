@@ -582,6 +582,43 @@ describe('Replicate client', () => {
     });
   });
 
+  describe('deployments.predictions.create', () => {
+    test('Calls the correct API route with the correct payload', async () => {
+      nock(BASE_URL)
+        .post('/deployments/replicate/greeter/predictions')
+        .reply(200, {
+          id: 'mfrgcyzzme2wkmbwgzrgmntcg',
+          version:
+            '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
+          urls: {
+            get: 'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq',
+            cancel:
+              'https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel',
+          },
+          created_at: '2022-09-10T09:44:22.165836Z',
+          started_at: null,
+          completed_at: null,
+          status: 'starting',
+          input: {
+            text: 'Alice',
+          },
+          output: null,
+          error: null,
+          logs: null,
+          metrics: {},
+        });
+      const prediction = await client.deployments.predictions.create("replicate", "greeter", {
+        input: {
+          text: 'Alice',
+        },
+        webhook: 'http://test.host/webhook',
+        webhook_events_filter: [ 'output', 'completed' ],
+      });
+      expect(prediction.id).toBe('mfrgcyzzme2wkmbwgzrgmntcg');
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
   describe('run', () => {
     test('Calls the correct API routes', async () => {
       let firstPollingRequest = true;

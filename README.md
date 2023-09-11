@@ -552,6 +552,23 @@ const response = await replicate.trainings.list();
 }
 ```
 
+### `replicate.deployments.predictions.create`
+
+```js
+const response = await replicate.deployments.predictions.create(deployment_owner, deployment_name, options);
+```
+
+| name                            | type     | description                                                                                                                      |
+| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `deployment_owner`              | string   | **Required**. The name of the user or organization that owns the deployment                                                      |
+| `deployment_name`               | string   | **Required**. The name of the deployment                                                                                         |
+| `options.input`                 | object   | **Required**. An object with the model's inputs                                                                                  |
+| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                          |
+| `options.webhook_events_filter` | string[] | You can change which events trigger webhook requests by specifying webhook events (`start` \| `output` \| `logs` \| `completed`) |
+
+Use `replicate.wait` to wait for a prediction to finish,
+or `replicate.predictions.cancel` to cancel a prediction before it finishes.
+
 ### `replicate.paginate`
 
 Pass another method as an argument to iterate over results

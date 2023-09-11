@@ -47,7 +47,7 @@ declare module 'replicate' {
     logs?: string;
     metrics?: {
       predict_time?: number;
-    }
+    };
     webhook?: string;
     webhook_events_filter?: WebhookEventType[];
     created_at: string;
@@ -155,6 +155,21 @@ declare module 'replicate' {
       get(training_id: string): Promise<Training>;
       cancel(training_id: string): Promise<Training>;
       list(): Promise<Page<Training>>;
+    };
+
+    deployments: {
+      predictions: {
+        create(
+          deployment_name: string,
+          deployment_owner: string,
+          options: {
+            input: object;
+            stream?: boolean;
+            webhook?: string;
+            webhook_events_filter?: WebhookEventType[];
+          }
+        ): Promise<Prediction>;
+      };
     };
   }
 }
