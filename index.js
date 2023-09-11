@@ -2,6 +2,7 @@ const ApiError = require('./lib/error');
 const { withAutomaticRetries } = require('./lib/util');
 
 const collections = require('./lib/collections');
+const deployments = require('./lib/deployments');
 const models = require('./lib/models');
 const predictions = require('./lib/predictions');
 const trainings = require('./lib/trainings');
@@ -68,6 +69,12 @@ class Replicate {
       get: trainings.get.bind(this),
       cancel: trainings.cancel.bind(this),
       list: trainings.list.bind(this),
+    };
+
+    this.deployments = {
+      predictions: {
+        create: deployments.predictions.create.bind(this),
+      }
     };
   }
 
