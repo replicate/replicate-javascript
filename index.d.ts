@@ -41,9 +41,9 @@ declare module 'replicate' {
     status: Status;
     version: string;
     input: object;
-    output?: any;
+    output?: string[];
     source: 'api' | 'web';
-    error?: any;
+    error?: unknown;
     logs?: string;
     metrics?: {
       predict_time?: number;
