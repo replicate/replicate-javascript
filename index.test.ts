@@ -3,14 +3,30 @@ import Replicate, { ApiError, Prediction } from 'replicate';
 import nock from 'nock';
 import fetch from 'cross-fetch';
 
-describe('Replicate client', () => {
-  let client: Replicate;
+let client: Replicate;
+const BASE_URL = 'https://api.replicate.com/v1';
 
-  const BASE_URL = 'https://api.replicate.com/v1';
+nock.disableNetConnect();
+
+describe('Replicate client', () => {
+  let unmatched: Object[] = [];
+  const handleNoMatch = (req: unknown, options: any, body: string) =>
+    unmatched.push({ req, options, body });
 
   beforeEach(() => {
     client = new Replicate({ auth: 'test-token' });
     client.fetch = fetch;
+
+    unmatched = [];
+    nock.emitter.on("no match", handleNoMatch);
+  });
+
+  afterEach(() => {
+    nock.emitter.off("no match", handleNoMatch);
+    expect(unmatched).toStrictEqual([]);
+
+    nock.abortPendingRequests();
+    nock.cleanAll();
   });
 
   describe('constructor', () => {
@@ -188,7 +204,7 @@ describe('Replicate client', () => {
         }, { "Content-Type": "application/json" })
 
       try {
-        expect.assertions(2);
+        expect.hasAssertions();
 
         await client.predictions.create({
           version: '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
