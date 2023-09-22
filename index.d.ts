@@ -160,8 +160,8 @@ declare module 'replicate' {
     deployments: {
       predictions: {
         create(
-          deployment_name: string,
           deployment_owner: string,
+          deployment_name: string,
           options: {
             input: object;
             stream?: boolean;
