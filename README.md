@@ -150,10 +150,6 @@ client.fetch = (url, options) => {
 Run a model and await the result. Unlike [`replicate.prediction.create`](#replicatepredictionscreate), this method returns only the prediction output rather than the entire prediction object.
 
 ```js
-const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
-const input = {
-  prompt: "a 19th century portrait of a raccoon gentleman wearing a suit",
-};
 const output = await replicate.run(identifier, options, progress);
 ```
 
@@ -171,6 +167,14 @@ const output = await replicate.run(identifier, options, progress);
 Throws `Error` if the prediction failed.
 
 Returns `Promise<object>` which resolves with the output of running the model.
+
+Example:
+
+```js
+const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
+const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
+const output = await replicate.run(model, { input });
+```
 
 ### `replicate.models.get`
 
