@@ -145,6 +145,33 @@ client.fetch = (url, options) => {
 };
 ```
 
+### `replicate.run`
+
+Run a model and await the result. Unlike [`replicate.prediction.create`](#replicatepredictionscreate), this method returns only the prediction output rather than the entire prediction object.
+
+```js
+const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
+const input = {
+  prompt: "a 19th century portrait of a raccoon gentleman wearing a suit",
+};
+const output = await replicate.run(identifier, options, progress);
+```
+
+| name                            | type     | description                                                                                                                                                                                                |
+| ------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `identifier`                    | string   | **Required**. The model version identifier in the format `{owner}/{name}:{version}`, for example `stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f`                      |
+| `options.input`                 | object   | **Required**. An object with the model inputs.                                                                                                                                                             |
+| `options.wait`                  | object   | Options for waiting for the prediction to finish                                                                                                                                                           |
+| `options.wait.interval`         | number   | Polling interval in milliseconds. Defaults to 500                                                                                                                                                          |
+| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                    |
+| `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed`                                                   |
+| `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                                                                    |
+| `progress`                      | function | Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed. |
+
+Throws `Error` if the prediction failed.
+
+Returns `Promise<object>` which resolves with the output of running the model.
+
 ### `replicate.models.get`
 
 ```js
