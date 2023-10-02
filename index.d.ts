@@ -69,8 +69,8 @@ declare module 'replicate' {
   }
 
   export default class Replicate {
-    constructor(options: {
-      auth: string;
+    constructor(options?: {
+      auth?: string;
       userAgent?: string;
       baseUrl?: string;
       fetch?: Function;
