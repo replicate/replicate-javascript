@@ -26,6 +26,7 @@ Create the client:
 import Replicate from "replicate";
 
 const replicate = new Replicate({
+  // get your token from https://replicate.com/account
   auth: "my api token", // defaults to process.env.REPLICATE_API_TOKEN
 });
 ```
