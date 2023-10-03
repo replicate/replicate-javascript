@@ -67,8 +67,8 @@ console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
-To run a model that takes a file input, host the file at a publicly accessible HTTPS URL, or
-convert the file data into a base64-encoded data URI:
+To run a model that takes a file input, pass a URL to a publicly accessible file. Or, for smaller files (<10MB), you can convert file data into a base64-encoded data URI and pass that directly:
+
 
 ```js
 import { promises as fs } from "fs";
