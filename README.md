@@ -67,8 +67,8 @@ console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
-To run a model that takes a file input,
-convert its data into a base64-encoded data URI:
+To run a model that takes a file input, host the file at a publicly accessible HTTPS URL, or
+convert the file data into a base64-encoded data URI:
 
 ```js
 import { promises as fs } from "fs";
@@ -174,6 +174,8 @@ const output = await replicate.run(model, { input });
 
 ### `replicate.models.get`
 
+Get metadata for a public model or a private model that you own.
+
 ```js
 const response = await replicate.models.get(model_owner, model_name);
 ```
@@ -200,6 +202,8 @@ const response = await replicate.models.get(model_owner, model_name);
 ```
 
 ### `replicate.models.versions.list`
+
+Get a list of all published versions of a model, including input and output schemas for each version.
 
 ```js
 const response = await replicate.models.versions.list(model_owner, model_name);
@@ -237,6 +241,8 @@ const response = await replicate.models.versions.list(model_owner, model_name);
 
 ### `replicate.models.versions.get`
 
+Get metatadata for a specific version of a model.
+
 ```js
 const response = await replicate.models.versions.get(model_owner, model_name, version_id);
 ```
@@ -260,6 +266,8 @@ const response = await replicate.models.versions.get(model_owner, model_name, ve
 
 ### `replicate.collections.get`
 
+Get a list of curated model collections. See [replicate.com/collections](https://replicate.com/collections).
+
 ```js
 const response = await replicate.collections.get(collection_slug);
 ```
@@ -269,6 +277,8 @@ const response = await replicate.collections.get(collection_slug);
 | `collection_slug` | string | **Required**. The slug of the collection. See http://replicate.com/collections |
 
 ### `replicate.predictions.create`
+
+Run a model with inputs you provide.
 
 ```js
 const response = await replicate.predictions.create(options);
@@ -380,6 +390,8 @@ const response = await replicate.predictions.get(prediction_id);
 
 ### `replicate.predictions.cancel`
 
+Stop a running prediction before it finishes.
+
 ```js
 const response = await replicate.predictions.cancel(prediction_id);
 ```
@@ -412,6 +424,8 @@ const response = await replicate.predictions.cancel(prediction_id);
 
 ### `replicate.predictions.list`
 
+Get a paginated list of all the predictions you've created.
+
 ```js
 const response = await replicate.predictions.list();
 ```
@@ -443,7 +457,7 @@ const response = await replicate.predictions.list();
 
 ### `replicate.trainings.create`
 
-Use the training API to fine-tune language models
+Use the [training API](https://replicate.com/docs/fine-tuning) to fine-tune language models
 to make them better at a particular task.
 To see what **language models** currently support fine-tuning,
 check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
@@ -488,6 +502,8 @@ const response = await replicate.trainings.create(model_owner, model_name, versi
 
 ### `replicate.trainings.get`
 
+Get metadata and status of a training.
+
 ```js
 const response = await replicate.trainings.get(training_id);
 ```
@@ -518,6 +534,8 @@ const response = await replicate.trainings.get(training_id);
 ```
 
 ### `replicate.trainings.cancel`
+
+Stop a running training job before it finishes.
 
 ```js
 const response = await replicate.trainings.cancel(training_id);
@@ -550,6 +568,8 @@ const response = await replicate.trainings.cancel(training_id);
 
 ### `replicate.trainings.list`
 
+Get a paginated list of all the trainings you've run.
+
 ```js
 const response = await replicate.trainings.list();
 ```
@@ -580,6 +600,10 @@ const response = await replicate.trainings.list();
 ```
 
 ### `replicate.deployments.predictions.create`
+
+Run a model using your own custom deployment.
+
+Deployments allow you to run a model with a private, fixed API endpoint. You can configure the version of the model, the hardware it runs on, and how it scales. See the [deployments guide](https://replicate.com/docs/deployments) to learn more and get started.
 
 ```js
 const response = await replicate.deployments.predictions.create(deployment_owner, deployment_name, options);
@@ -619,6 +643,8 @@ const page2 = await paginator.next();
 ```
 
 ### `replicate.request`
+
+Low-level request method used by other convenience methods.
 
 ```js
 const response = await replicate.request(route, parameters);
