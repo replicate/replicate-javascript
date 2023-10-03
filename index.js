@@ -51,6 +51,7 @@ class Replicate {
 
     this.models = {
       get: models.get.bind(this),
+      list: models.list.bind(this),
       versions: {
         list: models.versions.list.bind(this),
         get: models.versions.get.bind(this),

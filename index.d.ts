@@ -117,6 +117,7 @@ declare module 'replicate' {
 
     models: {
       get(model_owner: string, model_name: string): Promise<Model>;
+      list(): Promise<Page<Model>>;
       versions: {
         list(model_owner: string, model_name: string): Promise<ModelVersion[]>;
         get(

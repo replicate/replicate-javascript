@@ -1,5 +1,5 @@
 import { expect, jest, test } from '@jest/globals';
-import Replicate, { ApiError, Prediction } from 'replicate';
+import Replicate, { ApiError, Model, Prediction } from 'replicate';
 import nock from 'nock';
 import fetch from 'cross-fetch';
 
@@ -129,6 +129,30 @@ describe('Replicate client', () => {
       await client.models.get('replicate', 'hello-world');
     });
     // Add more tests for error handling, edge cases, etc.
+  });
+
+  describe('models.list', () => {
+    test('Paginates results', async () => {
+      nock(BASE_URL)
+        .get('/models')
+        .reply(200, {
+          results: [{ url: 'https://replicate.com/some-user/model-1' }],
+          next: 'https://api.replicate.com/v1/models?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
+        })
+        .get('/models?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw')
+        .reply(200, {
+          results: [{ url: 'https://replicate.com/some-user/model-2' }],
+          next: null,
+        });
+
+      const results: Model[] = [];
+      for await (const batch of client.paginate(client.models.list)) {
+        results.push(...batch);
+      }
+      expect(results).toEqual([{ url: 'https://replicate.com/some-user/model-1' }, { url: 'https://replicate.com/some-user/model-2' }]);
+
+      // Add more tests for error handling, edge cases, etc.
+    });
   });
 
   describe('predictions.create', () => {
