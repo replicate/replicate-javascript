@@ -644,7 +644,7 @@ const page2 = await paginator.next();
 
 ### `replicate.request`
 
-Low-level request method used by other convenience methods.
+Low-level method used by the Replicate client to interact with API endpoints.
 
 ```js
 const response = await replicate.request(route, parameters);
