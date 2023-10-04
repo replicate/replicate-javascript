@@ -201,6 +201,41 @@ const response = await replicate.models.get(model_owner, model_name);
 }
 ```
 
+### `replicate.models.list`
+
+Get a paginated list of all public models.
+
+```js
+const response = await replicate.models.list();
+```
+
+```jsonc
+{
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "url": "https://replicate.com/replicate/hello-world",
+      "owner": "replicate",
+      "name": "hello-world",
+      "description": "A tiny model that says hello",
+      "visibility": "public",
+      "github_url": "https://github.com/replicate/cog-examples",
+      "paper_url": null,
+      "license_url": null,
+      "run_count": 5681081,
+      "cover_image_url": "...",
+      "default_example": {
+        /* ... */
+      },
+      "latest_version": {
+        /* ... */
+      }
+    }
+  ]
+}
+```
+
 ### `replicate.models.versions.list`
 
 Get a list of all published versions of a model, including input and output schemas for each version.
