@@ -211,7 +211,8 @@ class Replicate {
     const shouldRetry = method === 'GET' ?
       (response) => (response.status === 429 || response.status >= 500) :
       (response) => (response.status === 429);
-    const response = await withAutomaticRetries(async () => this.fetch(url, init), { shouldRetry });
+    const _fetch = this.fetch;
+    const response = await withAutomaticRetries(async () => _fetch(url, init), { shouldRetry });
 
     if (!response.ok) {
       const request = new Request(url, init);
