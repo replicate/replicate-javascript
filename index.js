@@ -211,7 +211,11 @@ class Replicate {
     const shouldRetry = method === 'GET' ?
       (response) => (response.status === 429 || response.status >= 500) :
       (response) => (response.status === 429);
-    const response = await withAutomaticRetries(async () => this.fetch(url, init), { shouldRetry });
+
+    // Workaround to fix `TypeError: Illegal invocation` error in Cloudflare Workers
+    // https://github.com/replicate/replicate-javascript/issues/134
+    const _fetch = this.fetch; // eslint-disable-line no-underscore-dangle
+    const response = await withAutomaticRetries(async () => _fetch(url, init), { shouldRetry });
 
     if (!response.ok) {
       const request = new Request(url, init);
