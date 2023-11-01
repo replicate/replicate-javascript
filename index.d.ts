@@ -14,6 +14,11 @@ declare module 'replicate' {
     models?: Model[];
   }
 
+  export interface Hardware {
+    sku: string;
+    name: string
+  }
+
   export interface Model {
     url: string;
     owner: string;
@@ -115,6 +120,25 @@ declare module 'replicate' {
       get(collection_slug: string): Promise<Collection>;
     };
 
+    deployments: {
+      predictions: {
+        create(
+          deployment_owner: string,
+          deployment_name: string,
+          options: {
+            input: object;
+            stream?: boolean;
+            webhook?: string;
+            webhook_events_filter?: WebhookEventType[];
+          }
+        ): Promise<Prediction>;
+      };
+    };
+
+    hardware: {
+      list(): Promise<Hardware[]>
+    }
+
     models: {
       get(model_owner: string, model_name: string): Promise<Model>;
       list(): Promise<Page<Model>>;
@@ -156,21 +180,6 @@ declare module 'replicate' {
       get(training_id: string): Promise<Training>;
       cancel(training_id: string): Promise<Training>;
       list(): Promise<Page<Training>>;
-    };
-
-    deployments: {
-      predictions: {
-        create(
-          deployment_owner: string,
-          deployment_name: string,
-          options: {
-            input: object;
-            stream?: boolean;
-            webhook?: string;
-            webhook_events_filter?: WebhookEventType[];
-          }
-        ): Promise<Prediction>;
-      };
     };
   }
 }

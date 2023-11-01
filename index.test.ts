@@ -136,12 +136,12 @@ describe('Replicate client', () => {
       nock(BASE_URL)
         .get('/models')
         .reply(200, {
-          results: [{ url: 'https://replicate.com/some-user/model-1' }],
+          results: [ { url: 'https://replicate.com/some-user/model-1' } ],
           next: 'https://api.replicate.com/v1/models?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw',
         })
         .get('/models?cursor=cD0yMDIyLTAxLTIxKzIzJTNBMTglM0EyNC41MzAzNTclMkIwMCUzQTAw')
         .reply(200, {
-          results: [{ url: 'https://replicate.com/some-user/model-2' }],
+          results: [ { url: 'https://replicate.com/some-user/model-2' } ],
           next: null,
         });
 
@@ -149,7 +149,7 @@ describe('Replicate client', () => {
       for await (const batch of client.paginate(client.models.list)) {
         results.push(...batch);
       }
-      expect(results).toEqual([{ url: 'https://replicate.com/some-user/model-1' }, { url: 'https://replicate.com/some-user/model-2' }]);
+      expect(results).toEqual([ { url: 'https://replicate.com/some-user/model-1' }, { url: 'https://replicate.com/some-user/model-2' } ]);
 
       // Add more tests for error handling, edge cases, etc.
     });
@@ -658,6 +658,25 @@ describe('Replicate client', () => {
         webhook_events_filter: [ 'output', 'completed' ],
       });
       expect(prediction.id).toBe('mfrgcyzzme2wkmbwgzrgmntcg');
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
+  describe('hardware.list', () => {
+    test('Calls the correct API route', async () => {
+      nock(BASE_URL)
+        .get('/hardware')
+        .reply(200, [
+          { name: "CPU", sku: "cpu" },
+          { name: "Nvidia T4 GPU", sku: "gpu-t4" },
+          { name: "Nvidia A40 GPU", sku: "gpu-a40-small" },
+          { name: "Nvidia A40 (Large) GPU", sku: "gpu-a40-large" },
+        ]);
+
+      const hardware = await client.hardware.list();
+      expect(hardware.length).toBe(4);
+      expect(hardware[ 0 ].name).toBe('CPU');
+      expect(hardware[ 0 ].sku).toBe('cpu');
     });
     // Add more tests for error handling, edge cases, etc.
   });
