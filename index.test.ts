@@ -681,6 +681,35 @@ describe('Replicate client', () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
+  describe('models.create', () => {
+    test('Calls the correct API route with the correct payload', async () => {
+      nock(BASE_URL)
+        .post('/models')
+        .reply(200, {
+          owner: 'test-owner',
+          name: 'test-model',
+          visibility: 'public',
+          hardware: 'cpu',
+          description: 'A test model',
+        });
+
+      const model = await client.models.create(
+        'test-owner',
+        'test-model',
+        {
+          visibility: 'public',
+          hardware: 'cpu',
+          description: 'A test model',
+        });
+
+      expect(model.owner).toBe('test-owner');
+      expect(model.name).toBe('test-model');
+      expect(model.visibility).toBe('public');
+      // expect(model.hardware).toBe('test-hardware');
+      expect(model.description).toBe('A test model');
+    });
+  });
+
   describe('run', () => {
     test('Calls the correct API routes', async () => {
       let firstPollingRequest = true;

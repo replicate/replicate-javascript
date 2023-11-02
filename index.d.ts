@@ -1,5 +1,6 @@
 declare module 'replicate' {
   type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+  type Visibility = 'public' | 'private';
   type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
   export interface ApiError extends Error {
@@ -142,6 +143,18 @@ declare module 'replicate' {
     models: {
       get(model_owner: string, model_name: string): Promise<Model>;
       list(): Promise<Page<Model>>;
+      create(
+        model_owner: string,
+        model_name: string,
+        options: {
+          visibility: Visibility;
+          hardware: string;
+          description?: string;
+          github_url?: string;
+          paper_url?: string;
+          license_url?: string;
+          cover_image_url?: string;
+        }): Promise<Model>;
       versions: {
         list(model_owner: string, model_name: string): Promise<ModelVersion[]>;
         get(
