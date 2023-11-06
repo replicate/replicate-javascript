@@ -110,7 +110,7 @@ declare module 'replicate' {
 
     wait(
       prediction: Prediction,
-      options: {
+      options?: {
         interval?: number;
       },
       stop?: (prediction: Prediction) => Promise<boolean>
