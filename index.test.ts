@@ -705,7 +705,7 @@ describe('Replicate client', () => {
       expect(model.owner).toBe('test-owner');
       expect(model.name).toBe('test-model');
       expect(model.visibility).toBe('public');
-      // expect(model.hardware).toBe('test-hardware');
+      // expect(model.hardware).toBe('cpu');
       expect(model.description).toBe('A test model');
     });
   });
