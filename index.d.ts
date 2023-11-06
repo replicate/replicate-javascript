@@ -1,5 +1,6 @@
 declare module 'replicate' {
   type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+  type Visibility = 'public' | 'private';
   type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
 
   export interface ApiError extends Error {
@@ -12,6 +13,11 @@ declare module 'replicate' {
     slug: string;
     description: string;
     models?: Model[];
+  }
+
+  export interface Hardware {
+    sku: string;
+    name: string
   }
 
   export interface Model {
@@ -115,9 +121,40 @@ declare module 'replicate' {
       get(collection_slug: string): Promise<Collection>;
     };
 
+    deployments: {
+      predictions: {
+        create(
+          deployment_owner: string,
+          deployment_name: string,
+          options: {
+            input: object;
+            stream?: boolean;
+            webhook?: string;
+            webhook_events_filter?: WebhookEventType[];
+          }
+        ): Promise<Prediction>;
+      };
+    };
+
+    hardware: {
+      list(): Promise<Hardware[]>
+    }
+
     models: {
       get(model_owner: string, model_name: string): Promise<Model>;
       list(): Promise<Page<Model>>;
+      create(
+        model_owner: string,
+        model_name: string,
+        options: {
+          visibility: Visibility;
+          hardware: string;
+          description?: string;
+          github_url?: string;
+          paper_url?: string;
+          license_url?: string;
+          cover_image_url?: string;
+        }): Promise<Model>;
       versions: {
         list(model_owner: string, model_name: string): Promise<ModelVersion[]>;
         get(
@@ -156,21 +193,6 @@ declare module 'replicate' {
       get(training_id: string): Promise<Training>;
       cancel(training_id: string): Promise<Training>;
       list(): Promise<Page<Training>>;
-    };
-
-    deployments: {
-      predictions: {
-        create(
-          deployment_owner: string,
-          deployment_name: string,
-          options: {
-            input: object;
-            stream?: boolean;
-            webhook?: string;
-            webhook_events_filter?: WebhookEventType[];
-          }
-        ): Promise<Prediction>;
-      };
     };
   }
 }
