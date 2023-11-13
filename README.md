@@ -1,3 +1,7 @@
+> **Important**
+> [Help us make Replicate better by taking part in user research](https://forms.gle/qUVQ84mjiqzwzSb48)<br>
+> We'll give you $100 of Replicate credits for your time
+
 # Replicate Node.js client
 
 A Node.js client for [Replicate](https://replicate.com).
