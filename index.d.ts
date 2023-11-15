@@ -45,6 +45,7 @@ declare module 'replicate' {
   export interface Prediction {
     id: string;
     status: Status;
+    model: string;
     version: string;
     input: object;
     output?: any;
