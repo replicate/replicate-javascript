@@ -161,6 +161,7 @@ describe('Replicate client', () => {
         .post('/predictions')
         .reply(200, {
           id: 'ufawqhfynnddngldkgtslldrkq',
+          model: 'replicate/hello-world',
           version:
             '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
           urls: {
@@ -290,6 +291,7 @@ describe('Replicate client', () => {
         .get('/predictions/rrr4z55ocneqzikepnug6xezpe')
         .reply(200, {
           id: 'rrr4z55ocneqzikepnug6xezpe',
+          model: 'stability-ai/stable-diffusion',
           version:
             'be04660a5b93ef2aff61e3668dedb4cbeb14941e62a3fd5998364a32d613e35e',
           urls: {
@@ -361,6 +363,7 @@ describe('Replicate client', () => {
         .post('/predictions/ufawqhfynnddngldkgtslldrkq/cancel')
         .reply(200, {
           id: 'ufawqhfynnddngldkgtslldrkq',
+          model: 'replicate/hello-world',
           version:
             '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
           urls: {
@@ -400,6 +403,7 @@ describe('Replicate client', () => {
           results: [
             {
               id: 'jpzd7hm5gfcapbfyt4mqytarku',
+              model: 'stability-ai/stable-diffusion',
               version:
                 'b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05',
               urls: {
@@ -457,7 +461,7 @@ describe('Replicate client', () => {
         )
         .reply(200, {
           id: 'zz4ibbonubfz7carwiefibzgga',
-          version: '{version}',
+          version: '632231d0d49d34d5c4633bd838aee3d81d936e59a886fbf28524702003b4c532',
           status: 'starting',
           input: {
             text: '...',
@@ -576,6 +580,7 @@ describe('Replicate client', () => {
           results: [
             {
               id: 'jpzd7hm5gfcapbfyt4mqytarku',
+              model: 'stability-ai/sdxl',
               version:
                 'b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05',
               urls: {
@@ -631,6 +636,7 @@ describe('Replicate client', () => {
         .post('/deployments/replicate/greeter/predictions')
         .reply(200, {
           id: 'mfrgcyzzme2wkmbwgzrgmntcg',
+          model: 'replicate/hello-world',
           version:
             '5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa',
           urls: {
