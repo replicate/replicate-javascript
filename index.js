@@ -68,6 +68,9 @@ class Replicate {
         list: models.versions.list.bind(this),
         get: models.versions.get.bind(this),
       },
+      predictions: {
+        create: models.predictions.create.bind(this),
+      },
     };
 
     this.predictions = {
