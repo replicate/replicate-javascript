@@ -668,6 +668,38 @@ describe('Replicate client', () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
+  describe('models.predictions.create', () => {
+    test('Calls the correct API route with the correct payload', async () => {
+      nock(BASE_URL)
+        .post('/models/meta/llama-2-70b-chat/predictions')
+        .reply(200, {
+          id: "heat2o3bzn3ahtr6bjfftvbaci",
+          model: "replicate/lifeboat-70b",
+          version: "d-c6559c5791b50af57b69f4a73f8e021c",
+          input: {
+            prompt: "Please write a haiku about llamas."
+          },
+          logs: "",
+          error: null,
+          status: "starting",
+          created_at: "2023-11-27T13:35:45.99397566Z",
+          urls: {
+            cancel: "https://api.replicate.com/v1/predictions/heat2o3bzn3ahtr6bjfftvbaci/cancel",
+            get: "https://api.replicate.com/v1/predictions/heat2o3bzn3ahtr6bjfftvbaci"
+          }
+        });
+      const prediction = await client.models.predictions.create("meta", "llama-2-70b-chat", {
+        input: {
+          prompt: "Please write a haiku about llamas."
+        },
+        webhook: 'http://test.host/webhook',
+        webhook_events_filter: [ 'output', 'completed' ],
+      });
+      expect(prediction.id).toBe('heat2o3bzn3ahtr6bjfftvbaci');
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
   describe('hardware.list', () => {
     test('Calls the correct API route', async () => {
       nock(BASE_URL)
