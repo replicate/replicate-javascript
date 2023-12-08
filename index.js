@@ -110,10 +110,19 @@ class Replicate {
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
-    let prediction = await this.predictions.create({
-      ...data,
-      version: identifier.version,
-    });
+    let prediction;
+    if (identifier.version) {
+      prediction = await this.predictions.create({
+        ...data,
+        version: identifier.version,
+      });
+    } else {
+      prediction = await this.models.predictions.create(
+        identifier.owner,
+        identifier.name,
+        data
+      );
+    }
 
     // Call progress callback with the initial prediction object
     if (progress) {
