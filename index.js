@@ -1,15 +1,15 @@
-const ApiError = require('./lib/error');
-const ModelVersionIdentifier = require('./lib/identifier');
-const { withAutomaticRetries } = require('./lib/util');
+const ApiError = require("./lib/error");
+const ModelVersionIdentifier = require("./lib/identifier");
+const { withAutomaticRetries } = require("./lib/util");
 
-const collections = require('./lib/collections');
-const deployments = require('./lib/deployments');
-const hardware = require('./lib/hardware');
-const models = require('./lib/models');
-const predictions = require('./lib/predictions');
-const trainings = require('./lib/trainings');
+const collections = require("./lib/collections");
+const deployments = require("./lib/deployments");
+const hardware = require("./lib/hardware");
+const models = require("./lib/models");
+const predictions = require("./lib/predictions");
+const trainings = require("./lib/trainings");
 
-const packageJSON = require('./package.json');
+const packageJSON = require("./package.json");
 
 /**
  * Replicate API client library
@@ -43,7 +43,7 @@ class Replicate {
     this.auth = options.auth || process.env.REPLICATE_API_TOKEN;
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
-    this.baseUrl = options.baseUrl || 'https://api.replicate.com/v1';
+    this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
 
     this.collections = {
@@ -54,7 +54,7 @@ class Replicate {
     this.deployments = {
       predictions: {
         create: deployments.predictions.create.bind(this),
-      }
+      },
     };
 
     this.hardware = {
@@ -131,26 +131,30 @@ class Replicate {
 
     const { signal } = options;
 
-    prediction = await this.wait(prediction, wait || {}, async (updatedPrediction) => {
-      // Call progress callback with the updated prediction object
-      if (progress) {
-        progress(updatedPrediction);
-      }
+    prediction = await this.wait(
+      prediction,
+      wait || {},
+      async (updatedPrediction) => {
+        // Call progress callback with the updated prediction object
+        if (progress) {
+          progress(updatedPrediction);
+        }
 
-      if (signal && signal.aborted) {
-        await this.predictions.cancel(updatedPrediction.id);
-        return true; // stop polling
-      }
+        if (signal && signal.aborted) {
+          await this.predictions.cancel(updatedPrediction.id);
+          return true; // stop polling
+        }
 
-      return false; // continue polling
-    });
+        return false; // continue polling
+      }
+    );
 
     // Call progress callback with the completed prediction object
     if (progress) {
       progress(prediction);
     }
 
-    if (prediction.status === 'failed') {
+    if (prediction.status === "failed") {
       throw new Error(`Prediction failed: ${prediction.error}`);
     }
 
@@ -177,16 +181,12 @@ class Replicate {
       url = route;
     } else {
       url = new URL(
-        route.startsWith('/') ? route.slice(1) : route,
-        baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+        route.startsWith("/") ? route.slice(1) : route,
+        baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
       );
     }
 
-    const {
-      method = 'GET',
-      params = {},
-      data,
-    } = options;
+    const { method = "GET", params = {}, data } = options;
 
     for (const [key, value] of Object.entries(params)) {
       url.searchParams.append(key, value);
@@ -194,10 +194,10 @@ class Replicate {
 
     const headers = new Headers();
     if (auth) {
-      headers.append('Authorization', `Token ${auth}`);
+      headers.append("Authorization", `Token ${auth}`);
     }
-    headers.append('Content-Type', 'application/json');
-    headers.append('User-Agent', userAgent);
+    headers.append("Content-Type", "application/json");
+    headers.append("User-Agent", userAgent);
     if (options.headers) {
       for (const [key, value] of options.headers.entries()) {
         headers.append(key, value);
@@ -210,14 +210,17 @@ class Replicate {
       body: data ? JSON.stringify(data) : undefined,
     };
 
-    const shouldRetry = method === 'GET' ?
-      (response) => (response.status === 429 || response.status >= 500) :
-      (response) => (response.status === 429);
+    const shouldRetry =
+      method === "GET"
+        ? (response) => response.status === 429 || response.status >= 500
+        : (response) => response.status === 429;
 
     // Workaround to fix `TypeError: Illegal invocation` error in Cloudflare Workers
     // https://github.com/replicate/replicate-javascript/issues/134
     const _fetch = this.fetch; // eslint-disable-line no-underscore-dangle
-    const response = await withAutomaticRetries(async () => _fetch(url, init), { shouldRetry });
+    const response = await withAutomaticRetries(async () => _fetch(url, init), {
+      shouldRetry,
+    });
 
     if (!response.ok) {
       const request = new Request(url, init);
@@ -225,7 +228,7 @@ class Replicate {
       throw new ApiError(
         `Request to ${url} failed with status ${response.status} ${response.statusText}: ${responseText}.`,
         request,
-        response,
+        response
       );
     }
 
@@ -243,11 +246,12 @@ class Replicate {
    * @param {Function} endpoint - Function that returns a promise for the next page of results
    * @yields {object[]} Each page of results
    */
-  async * paginate(endpoint) {
+  async *paginate(endpoint) {
     const response = await endpoint();
     yield response.results;
     if (response.next) {
-      const nextPage = () => this.request(response.next, { method: 'GET' }).then((r) => r.json());
+      const nextPage = () =>
+        this.request(response.next, { method: "GET" }).then((r) => r.json());
       yield* this.paginate(nextPage);
     }
   }
@@ -271,13 +275,13 @@ class Replicate {
   async wait(prediction, options, stop) {
     const { id } = prediction;
     if (!id) {
-      throw new Error('Invalid prediction');
+      throw new Error("Invalid prediction");
     }
 
     if (
-      prediction.status === 'succeeded' ||
-      prediction.status === 'failed' ||
-      prediction.status === 'canceled'
+      prediction.status === "succeeded" ||
+      prediction.status === "failed" ||
+      prediction.status === "canceled"
     ) {
       return prediction;
     }
@@ -290,12 +294,12 @@ class Replicate {
     let updatedPrediction = await this.predictions.get(id);
 
     while (
-      updatedPrediction.status !== 'succeeded' &&
-      updatedPrediction.status !== 'failed' &&
-      updatedPrediction.status !== 'canceled'
+      updatedPrediction.status !== "succeeded" &&
+      updatedPrediction.status !== "failed" &&
+      updatedPrediction.status !== "canceled"
     ) {
       /* eslint-disable no-await-in-loop */
-      if (stop && await stop(updatedPrediction) === true) {
+      if (stop && (await stop(updatedPrediction)) === true) {
         break;
       }
 
@@ -304,7 +308,7 @@ class Replicate {
       /* eslint-enable no-await-in-loop */
     }
 
-    if (updatedPrediction.status === 'failed') {
+    if (updatedPrediction.status === "failed") {
       throw new Error(`Prediction failed: ${updatedPrediction.error}`);
     }
 
