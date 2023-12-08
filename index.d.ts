@@ -69,7 +69,7 @@ declare module 'replicate' {
 
   export type Training = Prediction;
 
-  interface Page<T> {
+  export interface Page<T> {
     previous?: string;
     next?: string;
     results: T[];
@@ -80,13 +80,13 @@ declare module 'replicate' {
       auth?: string;
       userAgent?: string;
       baseUrl?: string;
-      fetch?: Function;
+      fetch?: (input: Request | string, init?: RequestInit) => Promise<Response>
     });
 
     auth: string;
     userAgent?: string;
     baseUrl?: string;
-    fetch: Function;
+    fetch: (input: Request | string, init?: RequestInit) => Promise<Response>
 
     run(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
