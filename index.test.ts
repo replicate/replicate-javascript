@@ -750,7 +750,7 @@ describe('Replicate client', () => {
 
   describe('run', () => {
     test('Calls the correct API routes for a version', async () => {
-      let firstPollingRequest = true;
+      const firstPollingRequest = true;
 
       nock(BASE_URL)
         .post('/predictions')
@@ -809,7 +809,7 @@ describe('Replicate client', () => {
     });
 
     test('Calls the correct API routes for a model', async () => {
-      let firstPollingRequest = true;
+      const firstPollingRequest = true;
 
       nock(BASE_URL)
         .post('/models/replicate/hello-world/predictions')
