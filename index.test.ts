@@ -9,7 +9,7 @@ const BASE_URL = 'https://api.replicate.com/v1';
 nock.disableNetConnect();
 
 describe('Replicate client', () => {
-  let unmatched: Object[] = [];
+  let unmatched: any[] = [];
   const handleNoMatch = (req: unknown, options: any, body: string) =>
     unmatched.push({ req, options, body });
 

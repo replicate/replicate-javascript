@@ -188,9 +188,9 @@ class Replicate {
       data,
     } = options;
 
-    Object.entries(params).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(params)) {
       url.searchParams.append(key, value);
-    });
+    }
 
     const headers = new Headers();
     if (auth) {
@@ -199,9 +199,9 @@ class Replicate {
     headers.append('Content-Type', 'application/json');
     headers.append('User-Agent', userAgent);
     if (options.headers) {
-      options.headers.forEach((value, key) => {
+      for (const [key, value] of options.headers.entries()) {
         headers.append(key, value);
-      });
+      }
     }
 
     const init = {
