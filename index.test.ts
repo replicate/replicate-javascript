@@ -828,8 +828,6 @@ describe('Replicate client', () => {
     test('Throws an error for invalid identifiers', async () => {
       const options = { input: { text: 'Hello, world!' } }
 
-      await expect(client.run('owner/model:invalid', options)).rejects.toThrow();
-
       // @ts-expect-error
       await expect(client.run('owner:abc123', options)).rejects.toThrow();
 

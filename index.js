@@ -1,4 +1,5 @@
 const ApiError = require('./lib/error');
+const ModelVersionIdentifier = require('./lib/identifier');
 const { withAutomaticRetries } = require('./lib/util');
 
 const collections = require('./lib/collections');
@@ -91,7 +92,7 @@ class Replicate {
   /**
    * Run a model and wait for its output.
    *
-   * @param {string} identifier - Required. The model version identifier in the format "{owner}/{name}:{version}"
+   * @param {string} ref - Required. The model version identifier in the format "owner/name" or "owner/name:version"
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
    * @param {object} [options.wait] - Options for waiting for the prediction to finish
@@ -100,35 +101,18 @@ class Replicate {
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
    * @param {Function} [progress] - Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed.
+   * @throws {Error} If the reference is invalid
    * @throws {Error} If the prediction failed
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
-  async run(identifier, options, progress) {
+  async run(ref, options, progress) {
     const { wait, ...data } = options;
 
-    // Define a pattern for owner and model names that allows
-    // letters, digits, and certain special characters.
-    // Example: "user123", "abc__123", "user.name"
-    const namePattern = /[a-zA-Z0-9]+(?:(?:[._]|__|[-]*)[a-zA-Z0-9]+)*/;
-
-    // Define a pattern for "owner/name:version" format with named capturing groups.
-    // Example: "user123/repo_a:1a2b3c"
-    const pattern = new RegExp(
-      `^(?<owner>${namePattern.source})/(?<name>${namePattern.source}):(?<version>[0-9a-fA-F]+)$`
-    );
-
-    const match = identifier.match(pattern);
-    if (!match || !match.groups) {
-      throw new Error(
-        'Invalid version. It must be in the format "owner/name:version"'
-      );
-    }
-
-    const { version } = match.groups;
+    const identifier = ModelVersionIdentifier.parse(ref);
 
     let prediction = await this.predictions.create({
       ...data,
-      version,
+      version: identifier.version,
     });
 
     // Call progress callback with the initial prediction object
