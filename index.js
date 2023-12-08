@@ -1,5 +1,6 @@
 const ApiError = require("./lib/error");
 const ModelVersionIdentifier = require("./lib/identifier");
+const { Stream } = require("./lib/stream");
 const { withAutomaticRetries } = require("./lib/util");
 
 const collections = require("./lib/collections");
@@ -233,6 +234,47 @@ class Replicate {
     }
 
     return response;
+  }
+
+  /**
+   * Stream a model and wait for its output.
+   *
+   * @param {string} identifier - Required. The model version identifier in the format "{owner}/{name}:{version}"
+   * @param {object} options
+   * @param {object} options.input - Required. An object with the model inputs
+   * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
+   * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
+   * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
+   * @throws {Error} If the prediction failed
+   * @yields {ServerSentEvent} Each streamed event from the prediction
+   */
+  async *stream(ref, options) {
+    const { wait, ...data } = options;
+
+    const identifier = ModelVersionIdentifier.parse(ref);
+
+    let prediction;
+    if (identifier.version) {
+      prediction = await this.predictions.create({
+        ...data,
+        version: identifier.version,
+        stream: true,
+      });
+    } else {
+      prediction = await this.models.predictions.create(
+        identifier.owner,
+        identifier.name,
+        { ...data, stream: true }
+      );
+    }
+
+    if (prediction.urls && prediction.urls.stream) {
+      const { signal } = options;
+      const stream = new Stream(prediction.urls.stream, { signal });
+      yield* stream;
+    } else {
+      throw new Error("Prediction does not support streaming");
+    }
   }
 
   /**
