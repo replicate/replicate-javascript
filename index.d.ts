@@ -203,13 +203,15 @@ declare module "replicate" {
     };
 
     predictions: {
-      create(options: {
-        version: string;
-        input: object;
-        stream?: boolean;
-        webhook?: string;
-        webhook_events_filter?: WebhookEventType[];
-      }): Promise<Prediction>;
+      create(
+        options: {
+          version: string;
+          input: object;
+          stream?: boolean;
+          webhook?: string;
+          webhook_events_filter?: WebhookEventType[];
+        } & ({ version: string } | { model: string })
+      ): Promise<Prediction>;
       get(prediction_id: string): Promise<Prediction>;
       cancel(prediction_id: string): Promise<Prediction>;
       list(): Promise<Page<Prediction>>;
