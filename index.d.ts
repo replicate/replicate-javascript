@@ -1,7 +1,7 @@
-declare module 'replicate' {
-  type Status = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
-  type Visibility = 'public' | 'private';
-  type WebhookEventType = 'start' | 'output' | 'logs' | 'completed';
+declare module "replicate" {
+  type Status = "starting" | "processing" | "succeeded" | "failed" | "canceled";
+  type Visibility = "public" | "private";
+  type WebhookEventType = "start" | "output" | "logs" | "completed";
 
   export interface ApiError extends Error {
     request: Request;
@@ -17,7 +17,7 @@ declare module 'replicate' {
 
   export interface Hardware {
     sku: string;
-    name: string
+    name: string;
   }
 
   export interface Model {
@@ -25,7 +25,7 @@ declare module 'replicate' {
     owner: string;
     name: string;
     description?: string;
-    visibility: 'public' | 'private';
+    visibility: "public" | "private";
     github_url?: string;
     paper_url?: string;
     license_url?: string;
@@ -49,7 +49,7 @@ declare module 'replicate' {
     version: string;
     input: object;
     output?: any;
-    source: 'api' | 'web';
+    source: "api" | "web";
     error?: any;
     logs?: string;
     metrics?: {
@@ -80,13 +80,16 @@ declare module 'replicate' {
       auth?: string;
       userAgent?: string;
       baseUrl?: string;
-      fetch?: (input: Request | string, init?: RequestInit) => Promise<Response>
+      fetch?: (
+        input: Request | string,
+        init?: RequestInit
+      ) => Promise<Response>;
     });
 
     auth: string;
     userAgent?: string;
     baseUrl?: string;
-    fetch: (input: Request | string, init?: RequestInit) => Promise<Response>
+    fetch: (input: Request | string, init?: RequestInit) => Promise<Response>;
 
     run(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
@@ -100,14 +103,17 @@ declare module 'replicate' {
       progress?: (prediction: Prediction) => void
     ): Promise<object>;
 
-    request(route: string | URL, options: {
-      method?: string;
-      headers?: object | Headers;
-      params?: object;
-      data?: object;
-    }): Promise<Response>;
+    request(
+      route: string | URL,
+      options: {
+        method?: string;
+        headers?: object | Headers;
+        params?: object;
+        data?: object;
+      }
+    ): Promise<Response>;
 
-    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[ T ]>;
+    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[T]>;
 
     wait(
       prediction: Prediction,
@@ -138,8 +144,8 @@ declare module 'replicate' {
     };
 
     hardware: {
-      list(): Promise<Hardware[]>
-    }
+      list(): Promise<Hardware[]>;
+    };
 
     models: {
       get(model_owner: string, model_name: string): Promise<Model>;
@@ -155,7 +161,8 @@ declare module 'replicate' {
           paper_url?: string;
           license_url?: string;
           cover_image_url?: string;
-        }): Promise<Model>;
+        }
+      ): Promise<Model>;
       versions: {
         list(model_owner: string, model_name: string): Promise<ModelVersion[]>;
         get(
