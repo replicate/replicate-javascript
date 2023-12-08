@@ -749,7 +749,7 @@ describe('Replicate client', () => {
   });
 
   describe('run', () => {
-    test('Calls the correct API routes', async () => {
+    test('Calls the correct API routes for a version', async () => {
       let firstPollingRequest = true;
 
       nock(BASE_URL)
@@ -808,6 +808,65 @@ describe('Replicate client', () => {
       expect(progress).toHaveBeenCalledTimes(4);
     });
 
+    test('Calls the correct API routes for a model', async () => {
+      let firstPollingRequest = true;
+
+      nock(BASE_URL)
+        .post('/models/replicate/hello-world/predictions')
+        .reply(201, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'starting',
+        })
+        .get('/predictions/ufawqhfynnddngldkgtslldrkq')
+        .twice()
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'processing',
+        })
+        .get('/predictions/ufawqhfynnddngldkgtslldrkq')
+        .reply(200, {
+          id: 'ufawqhfynnddngldkgtslldrkq',
+          status: 'succeeded',
+          output: 'Goodbye!',
+        });
+
+      const progress = jest.fn();
+
+      const output = await client.run(
+        'replicate/hello-world',
+        {
+          input: { text: 'Hello, world!' },
+          wait: { interval: 1 }
+        },
+        progress
+      );
+
+      expect(output).toBe('Goodbye!');
+
+      expect(progress).toHaveBeenNthCalledWith(1, {
+        id: 'ufawqhfynnddngldkgtslldrkq',
+        status: 'starting',
+      });
+
+      expect(progress).toHaveBeenNthCalledWith(2, {
+        id: 'ufawqhfynnddngldkgtslldrkq',
+        status: 'processing',
+      });
+
+      expect(progress).toHaveBeenNthCalledWith(3, {
+        id: 'ufawqhfynnddngldkgtslldrkq',
+        status: 'processing',
+      });
+
+      expect(progress).toHaveBeenNthCalledWith(4, {
+        id: 'ufawqhfynnddngldkgtslldrkq',
+        status: 'succeeded',
+        output: 'Goodbye!',
+      });
+
+      expect(progress).toHaveBeenCalledTimes(4);
+    });
+
     test('Does not throw an error for identifier containing hyphen and full stop', async () => {
       nock(BASE_URL)
         .post('/predictions')
@@ -827,8 +886,6 @@ describe('Replicate client', () => {
 
     test('Throws an error for invalid identifiers', async () => {
       const options = { input: { text: 'Hello, world!' } }
-
-      await expect(client.run('owner/model:invalid', options)).rejects.toThrow();
 
       // @ts-expect-error
       await expect(client.run('owner:abc123', options)).rejects.toThrow();

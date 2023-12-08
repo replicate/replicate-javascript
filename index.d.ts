@@ -89,7 +89,7 @@ declare module 'replicate' {
     fetch: Function;
 
     run(
-      identifier: `${string}/${string}:${string}`,
+      identifier: `${string}/${string}` | `${string}/${string}:${string}`,
       options: {
         input: object;
         wait?: { interval?: number };
