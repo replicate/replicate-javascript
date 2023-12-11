@@ -700,7 +700,7 @@ describe("Replicate client", () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
-  describe("models.predictions.create", () => {
+  describe("predictions.create with model", () => {
     test("Calls the correct API route with the correct payload", async () => {
       nock(BASE_URL)
         .post("/models/meta/llama-2-70b-chat/predictions")
@@ -721,17 +721,14 @@ describe("Replicate client", () => {
             get: "https://api.replicate.com/v1/predictions/heat2o3bzn3ahtr6bjfftvbaci",
           },
         });
-      const prediction = await client.models.predictions.create(
-        "meta",
-        "llama-2-70b-chat",
-        {
-          input: {
-            prompt: "Please write a haiku about llamas.",
-          },
-          webhook: "http://test.host/webhook",
-          webhook_events_filter: ["output", "completed"],
-        }
-      );
+      const prediction = await client.predictions.create({
+        model: "meta/llama-2-70b-chat",
+        input: {
+          prompt: "Please write a haiku about llamas.",
+        },
+        webhook: "http://test.host/webhook",
+        webhook_events_filter: ["output", "completed"],
+      });
       expect(prediction.id).toBe("heat2o3bzn3ahtr6bjfftvbaci");
     });
     // Add more tests for error handling, edge cases, etc.

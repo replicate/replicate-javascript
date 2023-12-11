@@ -70,9 +70,6 @@ class Replicate {
         list: models.versions.list.bind(this),
         get: models.versions.get.bind(this),
       },
-      predictions: {
-        create: models.predictions.create.bind(this),
-      },
     };
 
     this.predictions = {
@@ -117,12 +114,13 @@ class Replicate {
         ...data,
         version: identifier.version,
       });
+    } else if (identifier.owner && identifier.name) {
+      prediction = await this.predictions.create({
+        ...data,
+        model: `${identifier.owner}/${identifier.name}`,
+      });
     } else {
-      prediction = await this.models.predictions.create(
-        identifier.owner,
-        identifier.name,
-        data
-      );
+      throw new Error("Invalid model version identifier");
     }
 
     // Call progress callback with the initial prediction object
@@ -260,12 +258,14 @@ class Replicate {
         version: identifier.version,
         stream: true,
       });
+    } else if (identifier.owner && identifier.name) {
+      prediction = await this.predictions.create({
+        ...data,
+        model: `${identifier.owner}/${identifier.name}`,
+        stream: true,
+      });
     } else {
-      prediction = await this.models.predictions.create(
-        identifier.owner,
-        identifier.name,
-        { ...data, stream: true }
-      );
+      throw new Error("Invalid model version identifier");
     }
 
     if (prediction.urls && prediction.urls.stream) {
