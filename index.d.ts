@@ -75,6 +75,13 @@ declare module "replicate" {
     results: T[];
   }
 
+  export interface ServerSentEvent {
+    event: string;
+    data: string;
+    id?: string;
+    retry?: number;
+  }
+
   export default class Replicate {
     constructor(options?: {
       auth?: string;
@@ -102,6 +109,16 @@ declare module "replicate" {
       },
       progress?: (prediction: Prediction) => void
     ): Promise<object>;
+
+    stream(
+      identifier: `${string}/${string}` | `${string}/${string}:${string}`,
+      options: {
+        input: object;
+        webhook?: string;
+        webhook_events_filter?: WebhookEventType[];
+        signal?: AbortSignal;
+      }
+    ): AsyncGenerator<ServerSentEvent>;
 
     request(
       route: string | URL,
