@@ -172,6 +172,49 @@ const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing 
 const output = await replicate.run(model, { input });
 ```
 
+### `replicate.stream`
+
+Run a model and stream its output. Unlike [`replicate.prediction.create`](#replicatepredictionscreate), this method returns only the prediction output rather than the entire prediction object.
+
+```js
+for await (const event of replicate.stream(identifier, options)) { /* ... */ }
+```
+
+| name                            | type     | description                                                                                                                                              |
+| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `identifier`                    | string   | **Required**. The model version identifier in the format `{owner}/{name}` or `{owner}/{name}:{version}`, for example `meta/llama-2-70b-chat`             |
+| `options.input`                 | object   | **Required**. An object with the model inputs.                                                                                                           |
+| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                  |
+| `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed` |
+| `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                  |
+
+Throws `Error` if the prediction failed.
+
+Returns `AsyncGenerator<ServerSentEvent>` which yields the events of running the model.
+
+Example:
+
+```js
+for await (const event of replicate.stream("meta/llama-2-70b-chat")) {
+    process.stdout.write(`${event}`);
+}
+```
+
+### Server-sent events
+
+A stream generates server-sent events with the following properties:
+
+| name    | type   | description                                                                  |
+| ------- | ------ | ---------------------------------------------------------------------------- |
+| `event` | string | The type of event. Possible values are `output`, `logs`, `error`, and `done` |
+| `data`  | string | The event data                                                               |
+| `id`    | string | The event id                                                                 |
+| `retry` | number | The number of milliseconds to wait before reconnecting to the server         |
+
+As the prediction runs, the generator yields `output` and `logs` events. If an error occurs, the generator yields an `error` event with a JSON object containing the error message set to the `data` property. When the prediction is done, the generator yields a `done` event with an empty JSON object set to the `data` property.
+
+Events with the `output` event type have their `toString()` method overridden to return the event data as a string. Other event types return an empty string.
+
 ### `replicate.models.get`
 
 Get metadata for a public model or a private model that you own.
