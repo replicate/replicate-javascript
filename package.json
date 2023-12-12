@@ -19,6 +19,9 @@
     "lint": "biome lint .",
     "test": "jest"
   },
+  "optionalDependencies": {
+    "readable-stream": ">=4.0.0"
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.4.1",
     "@types/jest": "^29.5.3",
