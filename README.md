@@ -5,7 +5,7 @@ It lets you run models from your Node.js code,
 and everything else you can do with
 [Replicate's HTTP API](https://replicate.com/docs/reference/http).
 
-> **Warning**
+> [!IMPORTANT]
 > This library can't interact with Replicate's API directly from a browser.
 > For more information about how to build a web application
 > check out our ["Build a website with Next.js"](https://replicate.com/docs/get-started/nextjs) guide.
