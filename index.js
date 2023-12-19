@@ -191,15 +191,15 @@ class Replicate {
       url.searchParams.append(key, value);
     }
 
-    const headers = new Headers();
+    const headers = {};
     if (auth) {
-      headers.append("Authorization", `Token ${auth}`);
+      headers["Authorization"] = `Token ${auth}`;
     }
-    headers.append("Content-Type", "application/json");
-    headers.append("User-Agent", userAgent);
+    headers["Content-Type"] = "application/json";
+    headers["User-Agent"] = userAgent;
     if (options.headers) {
-      for (const [key, value] of options.headers.entries()) {
-        headers.append(key, value);
+      for (const [key, value] of Object.entries(options.headers)) {
+        headers[key] = value;
       }
     }
 
