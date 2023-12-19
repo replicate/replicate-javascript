@@ -132,8 +132,8 @@ such as injecting headers or adding log statements.
 
 ```js
 replicate.fetch = (url, options) => {
-  const headers = new Headers(options && options.headers);
-  headers.append("X-Custom-Header", "some value");
+  const headers = options && options.headers ? { ...options.headers } : {};
+  headers["X-Custom-Header"] = "some value";
 
   console.log("fetch", { url, ...options, headers });
 
