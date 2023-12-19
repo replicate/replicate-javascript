@@ -17,15 +17,16 @@
         "useMediaCaption": "off",
         "noSvgWithoutTitle": "off"
       },
+      "complexity": {
+        "useLiteralKeys": "off",
+        "useOptionalChain": "off"
+      },
       "performance": {
         "noAccumulatingSpread": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off",
         "noExplicitAny": "off"
-      },
-      "complexity": {
-        "useOptionalChain": "off"
       }
     }
   }
