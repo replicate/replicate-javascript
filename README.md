@@ -132,7 +132,7 @@ such as injecting headers or adding log statements.
 
 ```js
 replicate.fetch = (url, options) => {
-  const headers = options && options.headers ? { ...options.headers } : {};
+  const headers = options?.headers ? { ...options.headers } : {};
   headers["X-Custom-Header"] = "some value";
 
   console.log("fetch", { url, ...options, headers });
@@ -442,7 +442,7 @@ with a URL that you can use to construct an
 [`EventSource`](https://developer.mozilla.org/en-US/docs/Web/API/EventSource).
 
 ```js
-if (prediction && prediction.urls && prediction.urls.stream) {
+if (prediction?.urls?.stream) {
   const source = new EventSource(prediction.urls.stream, { withCredentials: true });
 
   source.addEventListener("output", (e) => {
