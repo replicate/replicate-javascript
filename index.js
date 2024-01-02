@@ -1,6 +1,6 @@
 const ApiError = require("./lib/error");
 const ModelVersionIdentifier = require("./lib/identifier");
-const { Stream } = require("./lib/stream");
+const { createStream } = require("./lib/stream");
 const { withAutomaticRetries } = require("./lib/util");
 
 const collections = require("./lib/collections");
@@ -270,7 +270,7 @@ class Replicate {
 
     if (prediction.urls && prediction.urls.stream) {
       const { signal } = options;
-      const stream = new Stream(prediction.urls.stream, { signal });
+      const stream = createStream(prediction.urls.stream, { signal });
       yield* stream;
     } else {
       throw new Error("Prediction does not support streaming");
