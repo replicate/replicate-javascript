@@ -127,11 +127,11 @@ import fetch from "cross-fetch";
 const replicate = new Replicate({ fetch });
 ```
 
-You can override the `fetch` property to add custom behavior to client requests,
+You can also use the `fetch` option to add custom behavior to client requests,
 such as injecting headers or adding log statements.
 
 ```js
-replicate.fetch = (url, options) => {
+const customFetch = (url, options) => {
   const headers = options && options.headers ? { ...options.headers } : {};
   headers["X-Custom-Header"] = "some value";
 
@@ -139,6 +139,8 @@ replicate.fetch = (url, options) => {
 
   return fetch(url, { ...options, headers });
 };
+
+const replicate = new Replicate({ fetch: customFetch });
 ```
 
 ### `replicate.run`
