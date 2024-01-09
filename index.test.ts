@@ -222,7 +222,7 @@ describe("Replicate client", () => {
       expect(prediction.id).toBe("ufawqhfynnddngldkgtslldrkq");
     });
 
-    test.each([
+    const fileTestCases = [
       // Skip test case if File type is not available
       ...(typeof File !== "undefined"
         ? [
@@ -245,11 +245,47 @@ describe("Replicate client", () => {
         value: Buffer.from("hello world"),
         expected: "data:application/octet-stream;base64,aGVsbG8gd29ybGQ=",
       },
-    ])(
+    ];
+
+    test.each(fileTestCases)(
+      "converts a $type input into a Replicate file URL",
+      async ({ value: data, expected }) => {
+        nock(BASE_URL)
+          .post("/files")
+          .reply(201, {
+            urls: {
+              get: "https://replicate.com/api/files/123",
+            },
+          })
+          .post("/predictions")
+          .reply(201, (uri: string, body: Record<string, any>) => {
+            return body;
+          });
+
+        const prediction = await client.predictions.create({
+          version:
+            "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          input: {
+            prompt: "Tell me a story",
+            data,
+          },
+          stream: true,
+        });
+
+        expect(prediction.input).toEqual({
+          prompt: "Tell me a story",
+          data: "https://replicate.com/api/files/123",
+        });
+      }
+    );
+
+    test.each(fileTestCases)(
       "converts a $type input into a base64 encoded string",
       async ({ value: data, expected }) => {
         let actual: Record<string, any> | undefined;
         nock(BASE_URL)
+          .post("/files")
+          .reply(503, "Service Unavailable")
           .post("/predictions")
           .reply(201, (_uri: string, body: Record<string, any>) => {
             actual = body;
