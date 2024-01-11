@@ -26,3 +26,26 @@ jobs:
       - run: npm run test
       - run: npm run check
       - run: npm run lint
+
+  integration:
+    needs: test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        suite: [commonjs, esm, typescript]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
+
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm --prefix integration/${{ matrix.suite }} ci --omit=dev
+      - run: npm --prefix integration/${{ matrix.suite }} test
