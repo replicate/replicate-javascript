@@ -2,7 +2,7 @@
   "name": "replicate-app-typescript",
   "version": "0.0.0",
   "private": true,
-  "description": "",
+  "description": "TypeScript integration tests",
   "main": "index.js",
   "type": "module",
   "scripts": {
