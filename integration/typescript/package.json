@@ -1,0 +1,16 @@
+{
+  "name": "replicate-app-typescript",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TypeScript integration tests",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "tsc && node --test ./dist/index.test.js"
+  },
+  "dependencies": {
+    "@types/node": "^20.11.0",
+    "replicate": "file:../../",
+    "typescript": "^5.3.3"
+  }
+}

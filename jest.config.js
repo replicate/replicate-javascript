@@ -3,6 +3,7 @@
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
+  testPathIgnorePatterns: ["integration"],
   transform: {
     "^.+\\.ts?$": [
       "ts-jest",
