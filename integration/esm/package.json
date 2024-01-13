@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --test ./index.test.js"
+    "test": "node --test ./*.test.js"
   },
   "dependencies": {
     "replicate": "file:../../"

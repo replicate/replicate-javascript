@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "tsc && node --test ./dist/index.test.js"
+    "test": "tsc && node --test ./dist/*.test.js"
   },
   "dependencies": {
     "@types/node": "^20.11.0",

@@ -5,7 +5,7 @@
   "description": "CommonJS integration tests",
   "main": "index.js",
   "scripts": {
-    "test": "node --test ./index.test.js"
+    "test": "node --test ./*.test.js"
   },
   "dependencies": {
     "replicate": "file:../../"
