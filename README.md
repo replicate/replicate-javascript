@@ -20,20 +20,18 @@ npm install replicate
 
 ## Usage
 
-Create the client:
+Set your `REPLICATE_API_TOKEN` in your environment:
 
-```js
-import Replicate from "replicate";
-
-const replicate = new Replicate({
-  // get your token from https://replicate.com/account
-  auth: "my api token", // defaults to process.env.REPLICATE_API_TOKEN
-});
+```sh
+# get your token from https://replicate.com/account
+export REPLICATE_API_TOKEN="r8_123..."
 ```
 
 Run a model and await the result:
 
 ```js
+import replicate from "replicate";
+
 const model = "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
 const input = {
   prompt: "a 19th century portrait of a raccoon gentleman wearing a suit",
@@ -94,8 +92,12 @@ const output = await replicate.run(model, { input });
 
 ### Constructor
 
+You can create a custom instance of the Replicate client using the `replicate.Replicate` constructor:
+
 ```js
-const replicate = new Replicate(options);
+import replicate from "replicate";
+
+const replicate = new replicate.Replicate(options);
 ```
 
 | name                | type     | description                                                                       |
@@ -121,10 +123,10 @@ you can install a fetch function from an external package like
 and pass it to the `fetch` option in the constructor.
 
 ```js
-import Replicate from "replicate";
+import replicate from "replicate";
 import fetch from "cross-fetch";
 
-const replicate = new Replicate({ fetch });
+const replicate = new replicate.Replicate({ fetch });
 ```
 
 You can also use the `fetch` option to add custom behavior to client requests,
@@ -778,4 +780,50 @@ You can call this method directly to make other requests to the API.
 
 ## TypeScript
 
-The `Replicate` constructor and all `replicate.*` methods are fully typed.
+The `Replicate` constructor and all `replicate.*` methods are fully typed. Types are accessible
+via the named exports:
+
+```ts
+import type { Model, Prediction } from "replicate";
+```
+
+## Deprecated Constructor
+
+Earlier versions of the Replicate library exported the `Replicate` constructor as the default
+export. This will be removed in a future version, to migrate please update your code to use
+the following pattern:
+
+If you don't need to customize your Replicate client you can just remove the constructor code
+entirely:
+
+```js
+// Deprecated
+import Replicate from "replicate";
+
+const replicate = new Replicate();
+
+replicate.run(...);
+
+// Fixed
+import replicate from "replicate";
+
+replicate.run(...);
+```
+
+If you need the Replicate construtor it's available on the `replicate` object.
+
+```js
+// Deprecated
+import Replicate from "replicate";
+
+const replicate = new Replicate({auth: "my-token"});
+
+replicate.run(...);
+
+// Fixed
+import replicate from "replicate";
+
+replicate = new replicate.Replicate({auth: "my-token"});
+
+replicate.run(...);
+```
