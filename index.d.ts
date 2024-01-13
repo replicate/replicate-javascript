@@ -1,7 +1,7 @@
 declare module "replicate" {
-  type Status = "starting" | "processing" | "succeeded" | "failed" | "canceled";
-  type Visibility = "public" | "private";
-  type WebhookEventType = "start" | "output" | "logs" | "completed";
+  export type Status = "starting" | "processing" | "succeeded" | "failed" | "canceled";
+  export type Visibility = "public" | "private";
+  export type WebhookEventType = "start" | "output" | "logs" | "completed";
 
   export interface ApiError extends Error {
     request: Request;
@@ -82,7 +82,7 @@ declare module "replicate" {
     retry?: number;
   }
 
-  export default class Replicate {
+  export class Replicate {
     constructor(options?: {
       auth?: string;
       userAgent?: string;
@@ -223,4 +223,74 @@ declare module "replicate" {
       list(): Promise<Page<Training>>;
     };
   }
+
+  /** @deprecated */
+  class DeprecatedReplicate extends Replicate {
+    /** @deprecated Use `const Replicate = require("replicate").Replicate` instead */
+    constructor(...args: ConstructorParameters<typeof Replicate>);
+  }
+
+
+  /**
+   * Default instance of the Replicate class that gets the access token
+   * from the REPLICATE_API_TOKEN environment variable.
+   *
+   * Create a new Replicate API client instance.
+   *
+   * @example
+   *
+   * import replicate from "replicate";
+   *
+   * // Run a model and await the result:
+   * const model = 'owner/model:version-id'
+   * const input = {text: 'Hello, world!'}
+   * const output = await replicate.run(model, { input });
+   *
+   * @remarks
+   *
+   * NOTE: Use of this object as a constructor is deprecated and will
+   * be removed in a future version. Import the Replicate constructor
+   * instead:
+   *
+   * ```
+   * const Replicate = require("replicate").Replicate;
+   * ```
+   *
+   * Or using esm:
+   *
+   * ```
+   * import replicate from "replicate";
+   * const client = new replicate.Replicate({...});
+   * ```
+   *
+   * @type { Replicate & typeof DeprecatedReplicate & {ApiError: ApiError, Replicate: Replicate} }
+   */
+  const replicate: Replicate & typeof DeprecatedReplicate & {
+    /**
+     * Create a new Replicate API client instance.
+     *
+     * @example
+     * // Create a new Replicate API client instance
+     * const Replicate = require("replicate");
+     * const replicate = new Replicate({
+     *     // get your token from https://replicate.com/account
+     *     auth: process.env.REPLICATE_API_TOKEN,
+     *     userAgent: "my-app/1.2.3"
+     * });
+     *
+     * // Run a model and await the result:
+     * const model = 'owner/model:version-id'
+     * const input = {text: 'Hello, world!'}
+     * const output = await replicate.run(model, { input });
+     *
+     * @param {object} options - Configuration options for the client
+     * @param {string} options.auth - API access token. Defaults to the `REPLICATE_API_TOKEN` environment variable.
+     * @param {string} options.userAgent - Identifier of your app
+     * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
+     * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
+     */
+    Replicate: typeof Replicate
+  };
+
+  export default replicate;
 }

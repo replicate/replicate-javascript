@@ -17,7 +17,7 @@
     "check": "tsc",
     "format": "biome format . --write",
     "lint": "biome lint .",
-    "test": "jest"
+    "test": "REPLICATE_API_TOKEN=test-token jest"
   },
   "optionalDependencies": {
     "readable-stream": ">=4.0.0"
