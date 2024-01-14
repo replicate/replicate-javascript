@@ -5,9 +5,8 @@ import Replicate, {
   Prediction,
   validateWebhook,
   parseProgressFromLogs,
-} from "replicate";
+} from "./";
 import nock from "nock";
-import { Readable } from "node:stream";
 import { createReadableStream } from "./lib/stream";
 
 let client: Replicate;

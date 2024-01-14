@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "type": "commonjs",
-  "types": "index.d.ts",
+  "types": "dist/types/index.d.ts",
   "files": [
     "CONTRIBUTING.md",
     "LICENSE",
@@ -26,12 +26,15 @@
     "yarn": ">=1.7.0"
   },
   "scripts": {
+    "build-types": "tsc --target ES2022 --declaration --emitDeclarationOnly --allowJs --types node --outDir ./dist/types index.js",
     "check": "tsc",
     "format": "biome format . --write",
     "lint-biome": "biome lint .",
     "lint-publint": "publint",
     "lint": "npm run lint-biome && npm run lint-publint",
-    "test": "jest"
+    "test": "jest",
+    "test-integration": "npm run build-types; for x in commonjs esm typescript; do npm --prefix integration/$x install --omit=dev && npm --prefix integration/$x test; done;",
+    "test-all": "npm run check; npm run test; npm run test-integration"
   },
   "optionalDependencies": {
     "readable-stream": ">=4.0.0"

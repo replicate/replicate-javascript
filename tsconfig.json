@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "strict": true,
-    "allowJs": true
+    "strict": true
   },
-  "exclude": ["**/node_modules", "integration"]
+  "types": ["node"],
+  "exclude": ["dist", "integration", "**/node_modules"]
 }
