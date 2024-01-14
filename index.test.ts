@@ -1,41 +1,42 @@
 import { expect, jest, test } from "@jest/globals";
-import Replicate, { ApiError, Model, Prediction } from "replicate";
+import replicate, { ApiError, Model, Prediction, Replicate } from "replicate";
 import nock from "nock";
 import fetch from "cross-fetch";
+import assert from "node:assert";
 
-let client: Replicate;
+assert(process.env.REPLICATE_API_TOKEN === "test-token", `set REPLICATE_API_TOKEN to "test-token"`)
+
 const BASE_URL = "https://api.replicate.com/v1";
 
 nock.disableNetConnect();
 
-describe("Replicate client", () => {
-  let unmatched: any[] = [];
-  const handleNoMatch = (req: unknown, options: any, body: string) =>
-    unmatched.push({ req, options, body });
+describe(`const replicate = require("replicate");`, () => {
+  testInstance(() => {
+    replicate.fetch = fetch;
+    return replicate;
+  })
+});
 
-  beforeEach(() => {
-    client = new Replicate({ auth: "test-token" });
-    client.fetch = fetch;
+describe(`const Replicate = require("replicate"); (deprecated)`, () => {
+  testConstructor((opts) => new replicate({ auth: "test-token", fetch, ...opts }))
+  testInstance((opts) => new replicate({ auth: "test-token", fetch, ...opts }))
+});
 
-    unmatched = [];
-    nock.emitter.on("no match", handleNoMatch);
-  });
+describe(`const Replicate = require("replicate").Replicate;`, () => {
+  testConstructor((opts) => new replicate.Replicate({ auth: "test-token", fetch, ...opts }))
+  testInstance((opts) => new replicate.Replicate({ auth: "test-token", fetch, ...opts }))
+});
 
-  afterEach(() => {
-    nock.emitter.off("no match", handleNoMatch);
-    expect(unmatched).toStrictEqual([]);
-
-    nock.abortPendingRequests();
-    nock.cleanAll();
-  });
-
+/** Test suite to exercise the Replicate constructor */
+function testConstructor(createClient: (opts?: object) => Replicate) {
   describe("constructor", () => {
     test("Sets default baseUrl", () => {
+      const client = createClient();
       expect(client.baseUrl).toBe("https://api.replicate.com/v1");
     });
 
     test("Sets custom baseUrl", () => {
-      const clientWithCustomBaseUrl = new Replicate({
+      const clientWithCustomBaseUrl = createClient({
         baseUrl: "https://example.com/",
         auth: "test-token",
       });
@@ -43,7 +44,7 @@ describe("Replicate client", () => {
     });
 
     test("Sets custom userAgent", () => {
-      const clientWithCustomUserAgent = new Replicate({
+      const clientWithCustomUserAgent = createClient({
         userAgent: "my-app/1.2.3",
         auth: "test-token",
       });
@@ -54,7 +55,7 @@ describe("Replicate client", () => {
       process.env.REPLICATE_API_TOKEN = "test-token";
 
       expect(() => {
-        const clientWithImplicitAuth = new Replicate();
+        const clientWithImplicitAuth = createClient();
 
         expect(clientWithImplicitAuth.auth).toBe("test-token");
       }).not.toThrow();
@@ -62,9 +63,30 @@ describe("Replicate client", () => {
 
     test("Does not throw error if blank auth token is provided", () => {
       expect(() => {
-        new Replicate({ auth: "" });
+        createClient({ auth: "" });
       }).not.toThrow();
     });
+  });
+
+  }
+
+/** Test suite to exercise the Replicate instance */
+function testInstance(createClient: (opts?: object) => Replicate) {
+  let unmatched: any[] = [];
+  const handleNoMatch = (req: unknown, options: any, body: string) =>
+    unmatched.push({ req, options, body });
+
+  beforeEach(() => {
+    unmatched = [];
+    nock.emitter.on("no match", handleNoMatch);
+  });
+
+  afterEach(() => {
+    nock.emitter.off("no match", handleNoMatch);
+    expect(unmatched).toStrictEqual([]);
+
+    nock.abortPendingRequests();
+    nock.cleanAll();
   });
 
   describe("collections.list", () => {
@@ -89,6 +111,7 @@ describe("Replicate client", () => {
           previous: null,
         });
 
+      const client = createClient();
       const collections = await client.collections.list();
       expect(collections.results.length).toBe(2);
     });
@@ -105,6 +128,7 @@ describe("Replicate client", () => {
         models: [],
       });
 
+      const client = createClient();
       const collection = await client.collections.get("super-resolution");
       expect(collection.name).toBe("Super resolution");
     });
@@ -128,6 +152,7 @@ describe("Replicate client", () => {
         latest_version: {},
       });
 
+      const client = createClient();
       await client.models.get("replicate", "hello-world");
     });
     // Add more tests for error handling, edge cases, etc.
@@ -150,6 +175,7 @@ describe("Replicate client", () => {
         });
 
       const results: Model[] = [];
+      const client = createClient();
       for await (const batch of client.paginate(client.models.list)) {
         results.push(...batch);
       }
@@ -188,6 +214,7 @@ describe("Replicate client", () => {
           logs: null,
           metrics: {},
         });
+      const client = createClient();
       const prediction = await client.predictions.create({
         version:
           "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
@@ -208,6 +235,7 @@ describe("Replicate client", () => {
           return body;
         });
 
+      const client = createClient();
       await client.predictions.create({
         version:
           "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
@@ -220,6 +248,7 @@ describe("Replicate client", () => {
 
     test("Throws an error if webhook URL is invalid", async () => {
       await expect(async () => {
+      const client = createClient();
         await client.predictions.create({
           version:
             "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
@@ -244,6 +273,7 @@ describe("Replicate client", () => {
       try {
         expect.hasAssertions();
 
+      const client = createClient();
         await client.predictions.create({
           version:
             "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
@@ -271,6 +301,7 @@ describe("Replicate client", () => {
         .reply(201, {
           id: "ufawqhfynnddngldkgtslldrkq",
         });
+      const client = createClient();
       const prediction = await client.predictions.create({
         version:
           "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
@@ -290,6 +321,7 @@ describe("Replicate client", () => {
         { "Content-Type": "application/json" }
       );
 
+      const client = createClient();
       await expect(
         client.predictions.create({
           version:
@@ -335,6 +367,7 @@ describe("Replicate client", () => {
             predict_time: 4.484541,
           },
         });
+      const client = createClient();
       const prediction = await client.predictions.get(
         "rrr4z55ocneqzikepnug6xezpe"
       );
@@ -356,6 +389,7 @@ describe("Replicate client", () => {
           id: "rrr4z55ocneqzikepnug6xezpe",
         });
 
+      const client = createClient();
       const prediction = await client.predictions.get(
         "rrr4z55ocneqzikepnug6xezpe"
       );
@@ -377,6 +411,7 @@ describe("Replicate client", () => {
           id: "rrr4z55ocneqzikepnug6xezpe",
         });
 
+      const client = createClient();
       const prediction = await client.predictions.get(
         "rrr4z55ocneqzikepnug6xezpe"
       );
@@ -411,6 +446,7 @@ describe("Replicate client", () => {
           metrics: {},
         });
 
+      const client = createClient();
       const prediction = await client.predictions.cancel(
         "ufawqhfynnddngldkgtslldrkq"
       );
@@ -447,6 +483,7 @@ describe("Replicate client", () => {
           ],
         });
 
+      const client = createClient();
       const predictions = await client.predictions.list();
       expect(predictions.results.length).toBe(1);
       expect(predictions.results[0].id).toBe("jpzd7hm5gfcapbfyt4mqytarku");
@@ -468,6 +505,7 @@ describe("Replicate client", () => {
         });
 
       const results: Prediction[] = [];
+      const client = createClient();
       for await (const batch of client.paginate(client.predictions.list)) {
         results.push(...batch);
       }
@@ -502,6 +540,7 @@ describe("Replicate client", () => {
           completed_at: null,
         });
 
+      const client = createClient();
       const training = await client.trainings.create(
         "owner",
         "model",
@@ -517,6 +556,7 @@ describe("Replicate client", () => {
     });
 
     test("Throws an error if webhook is not a valid URL", async () => {
+      const client = createClient();
       await expect(
         client.trainings.create(
           "owner",
@@ -559,6 +599,7 @@ describe("Replicate client", () => {
           completed_at: null,
         });
 
+      const client = createClient();
       const training = await client.trainings.get("zz4ibbonubfz7carwiefibzgga");
       expect(training.status).toBe("succeeded");
     });
@@ -589,6 +630,7 @@ describe("Replicate client", () => {
           completed_at: null,
         });
 
+      const client = createClient();
       const training = await client.trainings.cancel(
         "zz4ibbonubfz7carwiefibzgga"
       );
@@ -625,6 +667,7 @@ describe("Replicate client", () => {
           ],
         });
 
+      const client = createClient();
       const trainings = await client.trainings.list();
       expect(trainings.results.length).toBe(1);
       expect(trainings.results[0].id).toBe("jpzd7hm5gfcapbfyt4mqytarku");
@@ -646,6 +689,7 @@ describe("Replicate client", () => {
         });
 
       const results: Prediction[] = [];
+      const client = createClient();
       for await (const batch of client.paginate(client.trainings.list)) {
         results.push(...batch);
       }
@@ -684,6 +728,7 @@ describe("Replicate client", () => {
           logs: null,
           metrics: {},
         });
+      const client = createClient();
       const prediction = await client.deployments.predictions.create(
         "replicate",
         "greeter",
@@ -721,6 +766,7 @@ describe("Replicate client", () => {
             get: "https://api.replicate.com/v1/predictions/heat2o3bzn3ahtr6bjfftvbaci",
           },
         });
+      const client = createClient();
       const prediction = await client.predictions.create({
         model: "meta/llama-2-70b-chat",
         input: {
@@ -745,6 +791,7 @@ describe("Replicate client", () => {
           { name: "Nvidia A40 (Large) GPU", sku: "gpu-a40-large" },
         ]);
 
+      const client = createClient();
       const hardware = await client.hardware.list();
       expect(hardware.length).toBe(4);
       expect(hardware[0].name).toBe("CPU");
@@ -763,6 +810,7 @@ describe("Replicate client", () => {
         description: "A test model",
       });
 
+      const client = createClient();
       const model = await client.models.create("test-owner", "test-model", {
         visibility: "public",
         hardware: "cpu",
@@ -779,8 +827,6 @@ describe("Replicate client", () => {
 
   describe("run", () => {
     test("Calls the correct API routes for a version", async () => {
-      const firstPollingRequest = true;
-
       nock(BASE_URL)
         .post("/predictions")
         .reply(201, {
@@ -802,6 +848,7 @@ describe("Replicate client", () => {
 
       const progress = jest.fn();
 
+      const client = createClient();
       const output = await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
@@ -861,6 +908,7 @@ describe("Replicate client", () => {
 
       const progress = jest.fn();
 
+      const client = createClient();
       const output = await client.run(
         "replicate/hello-world",
         {
@@ -910,12 +958,14 @@ describe("Replicate client", () => {
           output: "foobar",
         });
 
+      const client = createClient();
       await expect(
         client.run("a/b-1.0:abc123", { input: { text: "Hello, world!" } })
       ).resolves.not.toThrow();
     });
 
     test("Throws an error for invalid identifiers", async () => {
+      const client = createClient();
       const options = { input: { text: "Hello, world!" } };
 
       // @ts-expect-error
@@ -928,6 +978,7 @@ describe("Replicate client", () => {
     });
 
     test("Throws an error if webhook URL is invalid", async () => {
+      const client = createClient();
       await expect(async () => {
         await client.run(
           "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
@@ -966,6 +1017,7 @@ describe("Replicate client", () => {
           status: "canceled",
         });
 
+      const client = createClient();
       await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
@@ -981,4 +1033,5 @@ describe("Replicate client", () => {
   });
 
   // Continue with tests for other methods
-});
+}
+
