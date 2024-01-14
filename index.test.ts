@@ -17,7 +17,7 @@ describe(`const replicate = require("replicate");`, () => {
   })
 });
 
-describe(`const Replicate = require("replicate"); (deprecated)`, function () {
+describe(`const Replicate = require("replicate"); (deprecated)`, () => {
   testConstructor((opts) => new replicate({ auth: "test-token", fetch, ...opts }))
   testInstance((opts) => new replicate({ auth: "test-token", fetch, ...opts }))
 });
