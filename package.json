@@ -7,6 +7,7 @@
   "bugs": "https://github.com/replicate/replicate-javascript/issues",
   "license": "Apache-2.0",
   "main": "index.js",
+  "types": "dist/types/index.d.ts",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=7.19.0",
@@ -17,7 +18,10 @@
     "check": "tsc",
     "format": "biome format . --write",
     "lint": "biome lint .",
-    "test": "REPLICATE_API_TOKEN=test-token jest"
+    "test": "REPLICATE_API_TOKEN=test-token jest",
+    "types": "tsc --target ES2022 --declaration --emitDeclarationOnly --allowJs --types node --outDir ./dist/types index.js ./lib/types.js",
+    "test:integration": "npm --prefix integration/commonjs test;npm --prefix integration/esm test;npm --prefix integration/typescript test",
+    "test:all": "npm run test && npm run test:integration"
   },
   "optionalDependencies": {
     "readable-stream": ">=4.0.0"

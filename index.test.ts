@@ -1,5 +1,5 @@
 import { expect, jest, test } from "@jest/globals";
-import replicate, { ApiError, Model, Prediction, Replicate } from "replicate";
+import replicate, { ApiError, Model, Prediction, Replicate } from "./";
 import nock from "nock";
 import fetch from "cross-fetch";
 import assert from "node:assert";
@@ -216,6 +216,7 @@ function testInstance(createClient: (opts?: object) => Replicate) {
         });
       const client = createClient();
       const prediction = await client.predictions.create({
+        model: "foo",
         version:
           "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         input: {
@@ -237,6 +238,7 @@ function testInstance(createClient: (opts?: object) => Replicate) {
 
       const client = createClient();
       await client.predictions.create({
+        model: "foo",
         version:
           "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         input: {
@@ -250,6 +252,7 @@ function testInstance(createClient: (opts?: object) => Replicate) {
       await expect(async () => {
       const client = createClient();
         await client.predictions.create({
+          model: "foo",
           version:
             "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
           input: {
@@ -275,6 +278,7 @@ function testInstance(createClient: (opts?: object) => Replicate) {
 
       const client = createClient();
         await client.predictions.create({
+          model: "foo",
           version:
             "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
           input: {
@@ -303,6 +307,7 @@ function testInstance(createClient: (opts?: object) => Replicate) {
         });
       const client = createClient();
       const prediction = await client.predictions.create({
+        model: "foo",
         version:
           "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         input: {
@@ -324,6 +329,7 @@ function testInstance(createClient: (opts?: object) => Replicate) {
       const client = createClient();
       await expect(
         client.predictions.create({
+          model: "foo",
           version:
             "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
           input: {
@@ -885,7 +891,6 @@ function testInstance(createClient: (opts?: object) => Replicate) {
     });
 
     test("Calls the correct API routes for a model", async () => {
-      const firstPollingRequest = true;
 
       nock(BASE_URL)
         .post("/models/replicate/hello-world/predictions")
@@ -968,12 +973,10 @@ function testInstance(createClient: (opts?: object) => Replicate) {
       const client = createClient();
       const options = { input: { text: "Hello, world!" } };
 
-      // @ts-expect-error
       await expect(client.run("owner:abc123", options)).rejects.toThrow();
 
       await expect(client.run("/model:abc123", options)).rejects.toThrow();
 
-      // @ts-expect-error
       await expect(client.run(":abc123", options)).rejects.toThrow();
     });
 

@@ -2,9 +2,12 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "noEmit": true,
-    "strict": true
+    "strict": true,
+    "allowJs": true,
   },
   "exclude": [
+    "dist",
+    "integration",
     "**/node_modules"
   ]
 }

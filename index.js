@@ -1,11 +1,12 @@
-const Replicate = require("./lib/replicate");
+const ReplicateClass = require("./lib/replicate");
 const ApiError = require("./lib/error");
+require("./lib/types");
 
 /**
  * Placeholder class used to warn of deprecated constructor.
  * @deprecated use exported Replicate class instead
  */
-class DeprecatedReplicate extends Replicate {
+class DeprecatedReplicate extends ReplicateClass {
   /** @deprecated Use `import { Replicate } from "replicate";` instead */
   // biome-ignore lint/complexity/noUselessConstructor: exists for the tsdoc comment
   constructor(...args) {
@@ -13,8 +14,8 @@ class DeprecatedReplicate extends Replicate {
   }
 }
 
-const named = { ApiError, Replicate };
-const singleton = new Replicate();
+const named = { ApiError, Replicate: ReplicateClass };
+const singleton = new ReplicateClass();
 
 /**
  * Default instance of the Replicate class that gets the access token
@@ -48,7 +49,7 @@ const singleton = new Replicate();
  * const client = new Replicate({...});
  * ```
  *
- * @type { Replicate & typeof DeprecatedReplicate & {ApiError: ApiError, Replicate: Replicate} }
+ * @type { Replicate & typeof DeprecatedReplicate & {Replicate: typeof ReplicateClass} }
  */
 const replicate = new Proxy(DeprecatedReplicate, {
   get(target, prop, receiver) {
@@ -70,3 +71,26 @@ const replicate = new Proxy(DeprecatedReplicate, {
 });
 
 module.exports = replicate;
+
+// - Type Definitions
+
+/** 
+ * @typedef {import("./lib/replicate")} Replicate
+ * @typedef {import("./lib/error")} ApiError
+ * @typedef {typeof import("./lib/types").Collection} Collection
+ * @typedef {typeof import("./lib/types").ModelVersion} ModelVersion
+ * @typedef {typeof import("./lib/types").Hardware} Hardware
+ * @typedef {typeof import("./lib/types").Model} Model
+ * @typedef {typeof import("./lib/types").Prediction} Prediction
+ * @typedef {typeof import("./lib/types").Training} Training
+ * @typedef {typeof import("./lib/types").ServerSentEvent} ServerSentEvent
+ * @typedef {typeof import("./lib/types").Status} Status
+ * @typedef {typeof import("./lib/types").Visibility} Visibility
+ * @typedef {typeof import("./lib/types").WebhookEventType} WebhookEventType
+ */
+
+/**
+ * @template T
+ * @typedef {typeof import("./lib/types").Page} Page
+ */
+
