@@ -23,8 +23,14 @@ npm install replicate
 Create the client:
 
 ```js
-import Replicate from "replicate";
+// CommonJS (default or using .cjs extension)
+const Replicate = require("replicate");
 
+// ESM (where `"module": true` in package.json or using .mjs extension)
+import Replicate from "replicate";
+```
+
+```
 const replicate = new Replicate({
   // get your token from https://replicate.com/account
   auth: "my api token", // defaults to process.env.REPLICATE_API_TOKEN
@@ -69,9 +75,11 @@ console.log(prediction.output);
 
 To run a model that takes a file input, pass a URL to a publicly accessible file. Or, for smaller files (<10MB), you can convert file data into a base64-encoded data URI and pass that directly:
 
-
 ```js
-import { promises as fs } from "fs";
+const fs = require("node:fs/promises");
+
+// Or when using ESM.
+// import fs from "node:fs/promises";
 
 // Read the file into a buffer
 const data = await fs.readFile("path/to/image.png");
@@ -89,6 +97,10 @@ const input = {
 const output = await replicate.run(model, { input });
 // ['https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png']
 ```
+
+## TypeScript
+
+Currently in order to support the module format used by `replicate` you'll need to set `esModuleInterop` to `true` in your tsconfig.json.
 
 ## API
 
@@ -121,8 +133,12 @@ you can install a fetch function from an external package like
 and pass it to the `fetch` option in the constructor.
 
 ```js
-import Replicate from "replicate";
-import fetch from "cross-fetch";
+const Replicate = require("replicate");
+const fetch = require("fetch");
+
+// Using ESM:
+// import Replicate from "replicate";
+// import fetch from "cross-fetch";
 
 const replicate = new Replicate({ fetch });
 ```
