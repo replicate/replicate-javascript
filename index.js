@@ -7,10 +7,13 @@ require("./lib/types");
  * @deprecated use exported Replicate class instead
  */
 class DeprecatedReplicate extends ReplicateClass {
-  /** @deprecated Use `import { Replicate } from "replicate";` instead */
+  /** 
+    * @deprecated Use `import { Replicate } from "replicate";` instead
+    * @param {ConstructorParameters<typeof ReplicateClass>[0]=} options 
+    */
   // biome-ignore lint/complexity/noUselessConstructor: exists for the tsdoc comment
-  constructor(...args) {
-    super(...args);
+  constructor(options) {
+    super(options);
   }
 }
 
@@ -77,20 +80,20 @@ module.exports = replicate;
 /** 
  * @typedef {import("./lib/replicate")} Replicate
  * @typedef {import("./lib/error")} ApiError
- * @typedef {typeof import("./lib/types").Collection} Collection
- * @typedef {typeof import("./lib/types").ModelVersion} ModelVersion
- * @typedef {typeof import("./lib/types").Hardware} Hardware
- * @typedef {typeof import("./lib/types").Model} Model
- * @typedef {typeof import("./lib/types").Prediction} Prediction
- * @typedef {typeof import("./lib/types").Training} Training
- * @typedef {typeof import("./lib/types").ServerSentEvent} ServerSentEvent
- * @typedef {typeof import("./lib/types").Status} Status
- * @typedef {typeof import("./lib/types").Visibility} Visibility
- * @typedef {typeof import("./lib/types").WebhookEventType} WebhookEventType
+ * @typedef {import("./lib/types").Collection} Collection
+ * @typedef {import("./lib/types").ModelVersion} ModelVersion
+ * @typedef {import("./lib/types").Hardware} Hardware
+ * @typedef {import("./lib/types").Model} Model
+ * @typedef {import("./lib/types").Prediction} Prediction
+ * @typedef {import("./lib/types").Training} Training
+ * @typedef {import("./lib/types").ServerSentEvent} ServerSentEvent
+ * @typedef {import("./lib/types").Status} Status
+ * @typedef {import("./lib/types").Visibility} Visibility
+ * @typedef {import("./lib/types").WebhookEventType} WebhookEventType
  */
 
 /**
  * @template T
- * @typedef {typeof import("./lib/types").Page} Page
+ * @typedef {import("./lib/types").Page<T>} Page
  */
 

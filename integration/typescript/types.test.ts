@@ -1,4 +1,4 @@
-import { ApiError, Hardware, Model, ModelVersion, Page, Prediction, Status, Training, Visibility, WebhookEventType } from "replicate";
+import { ApiError, Collection, Hardware, Model, ModelVersion, Page, Prediction, Status, Training, Visibility, WebhookEventType } from "replicate";
 
 // NOTE: We export the constants to avoid unused varaible issues.
 
