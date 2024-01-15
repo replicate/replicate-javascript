@@ -5,6 +5,7 @@
     "strict": true,
     "allowJs": true,
   },
+  "types": ["node"],
   "exclude": [
     "dist",
     "integration",
