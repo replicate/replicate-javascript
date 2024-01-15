@@ -8,6 +8,16 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "type": "commonjs",
+  "types": "index.d.ts",
+  "files": [
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md",
+    "index.d.ts",
+    "index.js",
+    "lib/**/*.js",
+    "package.json"
+  ],
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=7.19.0",
