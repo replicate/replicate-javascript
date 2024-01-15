@@ -1,6 +1,5 @@
-const ReplicateClass = require("./lib/replicate");
-const ApiError = require("./lib/error");
-require("./lib/types");
+import ReplicateClass from "./lib/replicate.js";
+import ApiError from "./lib/error.js";
 
 /**
  * Placeholder class used to warn of deprecated constructor.
@@ -73,13 +72,13 @@ const replicate = new Proxy(DeprecatedReplicate, {
   }
 });
 
-module.exports = replicate;
+export default replicate;
 
 // - Type Definitions
 
 /** 
- * @typedef {import("./lib/replicate")} Replicate
- * @typedef {import("./lib/error")} ApiError
+ * @typedef {import("./lib/replicate").default} Replicate
+ * @typedef {import("./lib/error").default} ApiError
  * @typedef {import("./lib/types").Collection} Collection
  * @typedef {import("./lib/types").ModelVersion} ModelVersion
  * @typedef {import("./lib/types").Hardware} Hardware

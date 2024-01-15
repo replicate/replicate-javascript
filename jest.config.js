@@ -1,15 +1,23 @@
 // eslint-disable-next-line jsdoc/valid-types
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
+export default {
+  // [...]
+  preset: 'ts-jest/presets/js-with-ts-esm', // or other ESM presets
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
   testPathIgnorePatterns: ["integration"],
+  testEnvironment: "node",
+  extensionsToTreatAsEsm: ['.ts'],
+
   transform: {
-    "^.+\\.ts?$": [
-      "ts-jest",
+    // '^.+\\.[tj]sx?$' to process js/ts with `ts-jest`
+    // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with `ts-jest`
+    '^.+\\.tsx?$': [
+      'ts-jest',
       {
-        tsconfig: "tsconfig.json",
+        useESM: true,
       },
     ],
   },
-};
+}
