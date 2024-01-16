@@ -1,6 +1,9 @@
 import ReplicateClass from "./lib/replicate.js";
 import ApiError from "./lib/error.js";
 
+export { default as Replicate } from "./lib/replicate.js";
+export { default as ApiError } from "./lib/error.js";
+
 /**
  * Placeholder class used to warn of deprecated constructor.
  * @deprecated use exported Replicate class instead
@@ -77,8 +80,6 @@ export default replicate;
 // - Type Definitions
 
 /** 
- * @typedef {import("./lib/replicate").default} Replicate
- * @typedef {import("./lib/error").default} ApiError
  * @typedef {import("./lib/types").Collection} Collection
  * @typedef {import("./lib/types").ModelVersion} ModelVersion
  * @typedef {import("./lib/types").Hardware} Hardware

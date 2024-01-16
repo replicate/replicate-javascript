@@ -25,7 +25,7 @@
     "format": "biome format . --write",
     "lint": "biome lint .",
     "test": "REPLICATE_API_TOKEN=test-token jest",
-    "build": "",
+    "build": "npm run build:version && npm run build:types && npm run build:commonjs",
     "build:version": "echo \"export const version = '\"$(node -pe 'require(\"./package.json\").version')\"';\" > version.js",
     "build:types": "tsc --target ES2022 --declaration --emitDeclarationOnly --allowJs --types node --outDir ./dist/types index.js",
     "build:commonjs": "tsc --target ES2022 --allowJs --module commonjs --sourceMap --types node --outDir ./dist/commonjs index.js && echo '{\"type\": \"commonjs\"}' > ./dist/commonjs/package.json",
