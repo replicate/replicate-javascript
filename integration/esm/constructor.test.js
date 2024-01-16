@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import replicate_ from "replicate";
+import { Replicate } from "replicate";
 
-const replicate = new replicate_.Replicate();
+const replicate = new Replicate();
 
 async function main() {
   return await replicate.run(

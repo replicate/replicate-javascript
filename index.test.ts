@@ -1,5 +1,5 @@
 import { expect, jest, test } from "@jest/globals";
-import replicate, { ApiError, Model, Prediction, Replicate } from "./";
+import replicate, { ApiError, Model, Prediction, Replicate } from "./index.js";
 import nock from "nock";
 import fetch from "cross-fetch";
 import assert from "node:assert";
