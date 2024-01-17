@@ -16,7 +16,9 @@
   "scripts": {
     "check": "tsc",
     "format": "biome format . --write",
-    "lint": "biome lint .",
+    "lint-biome": "biome lint .",
+    "lint-publint": "publint",
+    "lint": "npm run lint-biome && npm run lint-publint",
     "test": "jest"
   },
   "optionalDependencies": {
