@@ -47,5 +47,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm --prefix integration/${{ matrix.suite }} ci --omit=dev
-      - run: npm --prefix integration/${{ matrix.suite }} test
+      # Build a production tarball and run the integration tests against it.
+      - run: |
+          PKG_TARBALL=$(npm --loglevel error pack)
+          npm --prefix integration/${{ matrix.suite }} install "file:/./$PKG_TARBALL"
+          npm --prefix integration/${{ matrix.suite }} test
