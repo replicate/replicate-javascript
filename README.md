@@ -213,9 +213,23 @@ Returns `AsyncGenerator<ServerSentEvent>` which yields the events of running the
 Example:
 
 ```js
-for await (const event of replicate.stream("meta/llama-2-70b-chat")) {
-    process.stdout.write(`${event}`);
+const model = "meta/llama-2-70b-chat";
+const options = {
+  input: {
+    prompt: "Write a poem about machine learning in the style of Mary Oliver.",
+  },
+  // webhook: "https://smee.io/dMUlmOMkzeyRGjW" // optional
+};
+const output = [];
+
+for await (const event of replicate.stream(model, options)) {
+  console.debug({ event });
+  if (event && event === "output") {
+    output.push(event.data);
+  }
 }
+
+console.log(output.join("").trim());
 ```
 
 ### Server-sent events
