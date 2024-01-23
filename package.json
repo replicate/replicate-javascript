@@ -13,6 +13,7 @@
     "CONTRIBUTING.md",
     "LICENSE",
     "README.md",
+    "dist/**/*",
     "index.d.ts",
     "index.js",
     "lib/**/*.js",
@@ -26,15 +27,17 @@
     "yarn": ">=1.7.0"
   },
   "scripts": {
-    "build-types": "tsc --target ES2022 --declaration --emitDeclarationOnly --allowJs --types node --outDir ./dist/types index.js",
+    "build": "npm run build:types",
+    "build:types": "tsc --target ES2022 --declaration --emitDeclarationOnly --allowJs --types node --outDir ./dist/types index.js",
     "check": "tsc",
     "format": "biome format . --write",
-    "lint-biome": "biome lint .",
-    "lint-publint": "publint",
-    "lint": "npm run lint-biome && npm run lint-publint",
+    "lint": "biome lint .",
+    "lint:integration": "npm run build; publint",
+    "lint:all": "npm run tsc; npm run lint; npm run lint:integration",
+    "prepack": "npm run build",
     "test": "jest",
-    "test-integration": "npm run build-types; for x in commonjs esm typescript; do npm --prefix integration/$x install --omit=dev && npm --prefix integration/$x test; done;",
-    "test-all": "npm run check; npm run test; npm run test-integration"
+    "test:integration": "npm run build; for x in commonjs esm typescript; do npm --prefix integration/$x install --omit=dev && npm --prefix integration/$x test; done;",
+    "test:all": "npm run check; npm run test; npm run test:integration"
   },
   "optionalDependencies": {
     "readable-stream": ">=4.0.0"
