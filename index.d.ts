@@ -89,6 +89,10 @@ declare module "replicate" {
     retry?: number;
   }
 
+  export interface WebhookSecret {
+    key: string;
+  }
+
   export default class Replicate {
     constructor(options?: {
       auth?: string;
@@ -233,5 +237,26 @@ declare module "replicate" {
       cancel(training_id: string): Promise<Training>;
       list(): Promise<Page<Training>>;
     };
+
+    webhooks: {
+      default: {
+        secret: {
+          get(): Promise<WebhookSecret>;
+        };
+      };
+    };
   }
+
+  export function validateWebhook(
+    requestData:
+      | Request
+      | {
+          id?: string;
+          timestamp?: string;
+          body: string;
+          secret?: string;
+          signature?: string;
+        },
+    secret: string
+  ): boolean;
 }

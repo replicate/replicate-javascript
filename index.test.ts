@@ -1,5 +1,10 @@
 import { expect, jest, test } from "@jest/globals";
-import Replicate, { ApiError, Model, Prediction } from "replicate";
+import Replicate, {
+  ApiError,
+  Model,
+  Prediction,
+  validateWebhook,
+} from "replicate";
 import nock from "nock";
 import fetch from "cross-fetch";
 
@@ -994,6 +999,38 @@ describe("Replicate client", () => {
 
       scope.done();
     });
+  });
+
+  describe("webhooks.default.secret.get", () => {
+    test("Calls the correct API route", async () => {
+      nock(BASE_URL).get("/webhooks/default/secret").reply(200, {
+        key: "whsec_5WbX5kEWLlfzsGNjH64I8lOOqUB6e8FH",
+      });
+
+      const secret = await client.webhooks.default.secret.get();
+      expect(secret.key).toBe("whsec_5WbX5kEWLlfzsGNjH64I8lOOqUB6e8FH");
+    });
+
+    test("Can be used to validate webhook", async () => {
+      const secret = "whsec_5WbX5kEWLlfzsGNjH64I8lOOqUB6e8FH";
+
+      const request = new Request("http://test.host/webhook", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Webhook-ID": "123",
+          "Webhook-Timestamp": "1707329251",
+          "Webhook-Signature":
+            "v1,nSIlB+PQG9cA4fNl6ec/aOmwxZktHIR5L0ymA5/Cm3E=",
+        },
+        body: `{event:"output",data:"Hello, world!"}`,
+      });
+
+      const isValid = await validateWebhook(request, secret);
+      expect(isValid).toBe(true);
+    });
+
+    // Add more tests for error handling, edge cases, etc.
   });
 
   // Continue with tests for other methods
