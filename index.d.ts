@@ -8,6 +8,13 @@ declare module "replicate" {
     response: Response;
   }
 
+  export interface Account {
+    type: "user" | "organization";
+    username: string;
+    name: string;
+    github_url?: string;
+  }
+
   export interface Collection {
     name: string;
     slug: string;
@@ -139,6 +146,10 @@ declare module "replicate" {
       },
       stop?: (prediction: Prediction) => Promise<boolean>
     ): Promise<Prediction>;
+
+    accounts: {
+      current(): Promise<Account>;
+    };
 
     collections: {
       list(): Promise<Page<Collection>>;

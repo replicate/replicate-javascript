@@ -67,6 +67,22 @@ describe("Replicate client", () => {
     });
   });
 
+  describe("accounts.current", () => {
+    test("Calls the correct API route", async () => {
+      nock(BASE_URL).get("/account").reply(200, {
+        type: "organization",
+        username: "replicate",
+        name: "Replicate",
+        github_url: "https://github.com/replicate",
+      });
+
+      const account = await client.accounts.current();
+      expect(account.type).toBe("organization");
+      expect(account.username).toBe("replicate");
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
   describe("collections.list", () => {
     test("Calls the correct API route", async () => {
       nock(BASE_URL)

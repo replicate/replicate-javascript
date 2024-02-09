@@ -3,6 +3,7 @@ const ModelVersionIdentifier = require("./lib/identifier");
 const { Stream } = require("./lib/stream");
 const { withAutomaticRetries } = require("./lib/util");
 
+const accounts = require("./lib/accounts");
 const collections = require("./lib/collections");
 const deployments = require("./lib/deployments");
 const hardware = require("./lib/hardware");
@@ -46,6 +47,10 @@ class Replicate {
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
+
+    this.accounts = {
+      current: accounts.current.bind(this),
+    };
 
     this.collections = {
       list: collections.list.bind(this),
