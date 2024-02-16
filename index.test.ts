@@ -72,7 +72,7 @@ describe("Replicate client", () => {
     });
   });
 
-  describe("accounts.current", () => {
+  describe("account.get", () => {
     test("Calls the correct API route", async () => {
       nock(BASE_URL).get("/account").reply(200, {
         type: "organization",
@@ -717,6 +717,47 @@ describe("Replicate client", () => {
         }
       );
       expect(prediction.id).toBe("mfrgcyzzme2wkmbwgzrgmntcg");
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
+  describe("deployments.get", () => {
+    test("Calls the correct API route with the correct payload", async () => {
+      nock(BASE_URL)
+        .get("/deployments/acme/my-app-image-generator")
+        .reply(200, {
+          owner: "acme",
+          name: "my-app-image-generator",
+          current_release: {
+            number: 1,
+            model: "stability-ai/sdxl",
+            version:
+              "da77bc59ee60423279fd632efb4795ab731d9e3ca9705ef3341091fb989b7eaf",
+            created_at: "2024-02-15T16:32:57.018467Z",
+            created_by: {
+              type: "organization",
+              username: "acme",
+              name: "Acme Corp, Inc.",
+              github_url: "https://github.com/acme",
+            },
+            configuration: {
+              hardware: "gpu-t4",
+              scaling: {
+                min_instances: 1,
+                max_instances: 5,
+              },
+            },
+          },
+        });
+
+      const deployment = await client.deployments.get(
+        "acme",
+        "my-app-image-generator"
+      );
+
+      expect(deployment.owner).toBe("acme");
+      expect(deployment.name).toBe("my-app-image-generator");
+      expect(deployment.current_release.model).toBe("stability-ai/sdxl");
     });
     // Add more tests for error handling, edge cases, etc.
   });
