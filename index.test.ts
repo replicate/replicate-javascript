@@ -716,6 +716,42 @@ describe("Replicate client", () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
+  describe("deployments.get", () => {
+    test("Calls the correct API route with the correct payload", async () => {
+      nock(BASE_URL)
+        .get("/deployments/replicate/greeter")
+        .reply(200, {
+          owner: "replicate",
+          name: "greeter",
+          current_release: {
+            number: 1,
+            model: "replicate/hello-world",
+            version:
+              "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+            created_at: "2022-09-10T09:44:22.165836Z",
+            created_by: {
+              type: "organization",
+              username: "replicate",
+              name: "Replicate",
+              github_url: "https://github.com/replicate",
+            },
+            configuration: {
+              hardware: "gpu-a100",
+              min_instances: 0,
+              max_instances: 1,
+            },
+          },
+        });
+
+      const deployment = await client.deployments.get("replicate", "greeter");
+
+      expect(deployment.owner).toBe("replicate");
+      expect(deployment.name).toBe("greeter");
+      expect(deployment.current_release.model).toBe("replicate/hello-world");
+    });
+    // Add more tests for error handling, edge cases, etc.
+  });
+
   describe("predictions.create with model", () => {
     test("Calls the correct API route with the correct payload", async () => {
       nock(BASE_URL)

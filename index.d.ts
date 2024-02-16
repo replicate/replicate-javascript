@@ -89,6 +89,28 @@ declare module "replicate" {
     retry?: number;
   }
 
+  export interface Deployment {
+    owner: string;
+    name: string;
+    current_release: {
+      number: number;
+      model: string;
+      version: string;
+      created_at: string;
+      created_by: {
+        type: "user" | "organization";
+        username: string;
+        name: string;
+        github_url: string;
+      };
+      configuration: {
+        hardware: string;
+        min_instances: number;
+        max_instances: number;
+      };
+    };
+  }
+
   export default class Replicate {
     constructor(options?: {
       auth?: string;
@@ -169,6 +191,10 @@ declare module "replicate" {
           }
         ): Promise<Prediction>;
       };
+      get(
+        deployment_owner: string,
+        deployment_name: string
+      ): Promise<Deployment>;
     };
 
     hardware: {
