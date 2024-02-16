@@ -22,6 +22,23 @@ declare module "replicate" {
     models?: Model[];
   }
 
+  export interface Deployment {
+    owner: string;
+    name: string;
+    current_release: {
+      number: number;
+      model: string;
+      version: string;
+      created_at: string;
+      created_by: Account;
+      configuration: {
+        hardware: string;
+        min_instances: number;
+        max_instances: number;
+      };
+    };
+  }
+
   export interface Hardware {
     sku: string;
     name: string;
@@ -89,23 +106,6 @@ declare module "replicate" {
     retry?: number;
   }
 
-  export interface Deployment {
-    owner: string;
-    name: string;
-    current_release: {
-      number: number;
-      model: string;
-      version: string;
-      created_at: string;
-      created_by: Account;
-      configuration: {
-        hardware: string;
-        min_instances: number;
-        max_instances: number;
-      };
-    };
-  }
-    
   export interface WebhookSecret {
     key: string;
   }
