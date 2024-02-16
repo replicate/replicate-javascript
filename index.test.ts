@@ -719,35 +719,40 @@ describe("Replicate client", () => {
   describe("deployments.get", () => {
     test("Calls the correct API route with the correct payload", async () => {
       nock(BASE_URL)
-        .get("/deployments/replicate/greeter")
+        .get("/deployments/acme/my-app-image-generator")
         .reply(200, {
-          owner: "replicate",
-          name: "greeter",
+          owner: "acme",
+          name: "my-app-image-generator",
           current_release: {
             number: 1,
-            model: "replicate/hello-world",
+            model: "stability-ai/sdxl",
             version:
-              "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-            created_at: "2022-09-10T09:44:22.165836Z",
+              "da77bc59ee60423279fd632efb4795ab731d9e3ca9705ef3341091fb989b7eaf",
+            created_at: "2024-02-15T16:32:57.018467Z",
             created_by: {
               type: "organization",
-              username: "replicate",
-              name: "Replicate",
-              github_url: "https://github.com/replicate",
+              username: "acme",
+              name: "Acme Corp, Inc.",
+              github_url: "https://github.com/acme",
             },
             configuration: {
-              hardware: "gpu-a100",
-              min_instances: 0,
-              max_instances: 1,
+              hardware: "gpu-t4",
+              scaling: {
+                min_instances: 1,
+                max_instances: 5,
+              },
             },
           },
         });
 
-      const deployment = await client.deployments.get("replicate", "greeter");
+      const deployment = await client.deployments.get(
+        "acme",
+        "my-app-image-generator"
+      );
 
-      expect(deployment.owner).toBe("replicate");
-      expect(deployment.name).toBe("greeter");
-      expect(deployment.current_release.model).toBe("replicate/hello-world");
+      expect(deployment.owner).toBe("acme");
+      expect(deployment.name).toBe("my-app-image-generator");
+      expect(deployment.current_release.model).toBe("stability-ai/sdxl");
     });
     // Add more tests for error handling, edge cases, etc.
   });
