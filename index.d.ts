@@ -97,12 +97,7 @@ declare module "replicate" {
       model: string;
       version: string;
       created_at: string;
-      created_by: {
-        type: "user" | "organization";
-        username: string;
-        name: string;
-        github_url: string;
-      };
+      created_by: Account;
       configuration: {
         hardware: string;
         min_instances: number;
