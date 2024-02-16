@@ -1012,19 +1012,20 @@ describe("Replicate client", () => {
     });
 
     test("Can be used to validate webhook", async () => {
-      const secret = "whsec_5WbX5kEWLlfzsGNjH64I8lOOqUB6e8FH";
-
+      // Test case from https://github.com/svix/svix-webhooks/blob/b41728cd98a7e7004a6407a623f43977b82fcba4/javascript/src/webhook.test.ts#L190-L200
       const request = new Request("http://test.host/webhook", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Webhook-ID": "123",
-          "Webhook-Timestamp": "1707329251",
+          "Webhook-ID": "msg_p5jXN8AQM9LWM0D4loKWxJek",
+          "Webhook-Timestamp": "1614265330",
           "Webhook-Signature":
-            "v1,nSIlB+PQG9cA4fNl6ec/aOmwxZktHIR5L0ymA5/Cm3E=",
+            "v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=",
         },
-        body: `{event:"output",data:"Hello, world!"}`,
+        body: `{"test": 2432232314}`,
       });
+
+      const secret = "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw";
 
       const isValid = await validateWebhook(request, secret);
       expect(isValid).toBe(true);
