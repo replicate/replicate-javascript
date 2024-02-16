@@ -1,7 +1,7 @@
 const ApiError = require("./lib/error");
 const ModelVersionIdentifier = require("./lib/identifier");
 const { Stream } = require("./lib/stream");
-const { withAutomaticRetries } = require("./lib/util");
+const { withAutomaticRetries, validateWebhook } = require("./lib/util");
 
 const accounts = require("./lib/accounts");
 const collections = require("./lib/collections");
@@ -10,6 +10,7 @@ const hardware = require("./lib/hardware");
 const models = require("./lib/models");
 const predictions = require("./lib/predictions");
 const trainings = require("./lib/trainings");
+const webhooks = require("./lib/webhooks");
 
 const packageJSON = require("./package.json");
 
@@ -90,6 +91,14 @@ class Replicate {
       get: trainings.get.bind(this),
       cancel: trainings.cancel.bind(this),
       list: trainings.list.bind(this),
+    };
+
+    this.webhooks = {
+      default: {
+        secret: {
+          get: webhooks.default.secret.get.bind(this),
+        },
+      },
     };
   }
 
@@ -365,3 +374,4 @@ class Replicate {
 }
 
 module.exports = Replicate;
+module.exports.validateWebhook = validateWebhook;
