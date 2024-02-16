@@ -222,10 +222,9 @@ const options = {
 };
 const output = [];
 
-for await (const event of replicate.stream(model, options)) {
-  console.debug({ event });
-  if (event && event === "output") {
-    output.push(event.data);
+for await (const { event, data } of replicate.stream(model, options)) {
+  if (event === "output") {
+    output.push(data);
   }
 }
 
