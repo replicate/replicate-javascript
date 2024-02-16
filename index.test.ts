@@ -67,7 +67,7 @@ describe("Replicate client", () => {
     });
   });
 
-  describe("accounts.current", () => {
+  describe("account.get", () => {
     test("Calls the correct API route", async () => {
       nock(BASE_URL).get("/account").reply(200, {
         type: "organization",
