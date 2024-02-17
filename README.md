@@ -73,7 +73,7 @@ console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
-To run a model that takes a file input, pass a URL to a publicly accessible file. Or, for smaller files (<10MB), you can convert file data into a base64-encoded data URI and pass that directly:
+To run a model that takes a file input, pass a URL to a publicly accessible file. Or, for smaller files (<10MB), you can pass the data directly.
 
 ```js
 const fs = require("node:fs/promises");
@@ -81,18 +81,9 @@ const fs = require("node:fs/promises");
 // Or when using ESM.
 // import fs from "node:fs/promises";
 
-// Read the file into a buffer
-const data = await fs.readFile("path/to/image.png");
-// Convert the buffer into a base64-encoded string
-const base64 = data.toString("base64");
-// Set MIME type for PNG image
-const mimeType = "image/png";
-// Create the data URI
-const dataURI = `data:${mimeType};base64,${base64}`;
-
 const model = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b";
 const input = {
-  image: dataURI,
+  image: await fs.readFile("path/to/image.png"),
 };
 const output = await replicate.run(model, { input });
 // ['https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png']

@@ -221,6 +221,54 @@ describe("Replicate client", () => {
       expect(prediction.id).toBe("ufawqhfynnddngldkgtslldrkq");
     });
 
+    test.each([
+      // Skip test case if File type is not available
+      ...(typeof File !== "undefined"
+        ? [
+            {
+              type: "file",
+              value: new File(["hello world"], "hello.txt", {
+                type: "text/plain",
+              }),
+              expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
+            },
+          ]
+        : []),
+      {
+        type: "blob",
+        value: new Blob(["hello world"], { type: "text/plain" }),
+        expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
+      },
+      {
+        type: "buffer",
+        value: Buffer.from("hello world"),
+        expected: "data:application/octet-stream;base64,aGVsbG8gd29ybGQ=",
+      },
+    ])(
+      "converts a $type input into a base64 encoded string",
+      async ({ value: data, expected }) => {
+        let actual: Record<string, any> | undefined;
+        nock(BASE_URL)
+          .post("/predictions")
+          .reply(201, (uri: string, body: Record<string, any>) => {
+            actual = body;
+            return body;
+          });
+
+        await client.predictions.create({
+          version:
+            "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          input: {
+            prompt: "Tell me a story",
+            data,
+          },
+          stream: true,
+        });
+
+        expect(actual?.input.data).toEqual(expected);
+      }
+    );
+
     test("Passes stream parameter to API endpoint", async () => {
       nock(BASE_URL)
         .post("/predictions")
