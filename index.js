@@ -4,7 +4,7 @@ const { Stream } = require("./lib/stream");
 const {
   withAutomaticRetries,
   validateWebhook,
-  parsePredictionProgress,
+  parseProgress,
 } = require("./lib/util");
 
 const accounts = require("./lib/accounts");
@@ -379,4 +379,4 @@ class Replicate {
 
 module.exports = Replicate;
 module.exports.validateWebhook = validateWebhook;
-module.exports.parsePredictionProgress = parsePredictionProgress;
+module.exports.parseProgress = parseProgress;

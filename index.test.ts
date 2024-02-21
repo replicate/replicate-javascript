@@ -4,7 +4,7 @@ import Replicate, {
   Model,
   Prediction,
   validateWebhook,
-  parsePredictionProgress,
+  parseProgress,
 } from "replicate";
 import nock from "nock";
 import fetch from "cross-fetch";
@@ -946,7 +946,7 @@ describe("Replicate client", () => {
           wait: { interval: 1 },
         },
         (prediction) => {
-          const progress = parsePredictionProgress(prediction);
+          const progress = parseProgress(prediction);
           callback(prediction, progress);
         }
       );

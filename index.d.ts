@@ -281,7 +281,7 @@ declare module "replicate" {
     secret: string
   ): boolean;
 
-  export function parsePredictionProgress(logs: Prediction | string): {
+  export function parseProgress(logs: Prediction | string): {
     percentage: number;
     current: number;
     total: number;
