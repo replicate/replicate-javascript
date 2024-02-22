@@ -181,6 +181,18 @@ const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing 
 const output = await replicate.run(model, { input });
 ```
 
+Example that logs progress as the model is running:
+
+```js
+const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
+const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
+const onProgress = (prediction) => {
+   const last_log_line = prediction.logs.split("\n").pop() 
+   console.log({id: prediction.id, log: last_log_line})
+}
+const output = await replicate.run(model, { input }, onProgress)
+```
+
 ### `replicate.stream`
 
 Run a model and stream its output. Unlike [`replicate.prediction.create`](#replicatepredictionscreate), this method returns only the prediction output rather than the entire prediction object.
