@@ -167,7 +167,7 @@ const output = await replicate.run(identifier, options, progress);
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                    |
 | `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed`                                                   |
 | `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                                                                    |
-| `progress`                      | function | Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed. |
+| `progress`                      | function | Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time it's updated while polling for completion, and when it's completed. |
 
 Throws `Error` if the prediction failed.
 
@@ -179,6 +179,18 @@ Example:
 const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
 const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
 const output = await replicate.run(model, { input });
+```
+
+Example that logs progress as the model is running:
+
+```js
+const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
+const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
+const onProgress = (prediction) => {
+   const last_log_line = prediction.logs.split("\n").pop() 
+   console.log({id: prediction.id, log: last_log_line})
+}
+const output = await replicate.run(model, { input }, onProgress)
 ```
 
 ### `replicate.stream`
