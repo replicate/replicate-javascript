@@ -167,7 +167,7 @@ const output = await replicate.run(identifier, options, progress);
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                    |
 | `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed`                                                   |
 | `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                                                                    |
-| `progress`                      | function | Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed. |
+| `progress`                      | function | Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time it's updated while polling for completion, and when it's completed. |
 
 Throws `Error` if the prediction failed.
 
