@@ -280,4 +280,10 @@ declare module "replicate" {
         },
     secret: string
   ): boolean;
+
+  export function parseProgressFromLogs(logs: Prediction | string): {
+    percentage: number;
+    current: number;
+    total: number;
+  } | null;
 }

@@ -1,7 +1,11 @@
 const ApiError = require("./lib/error");
 const ModelVersionIdentifier = require("./lib/identifier");
 const { Stream } = require("./lib/stream");
-const { withAutomaticRetries, validateWebhook } = require("./lib/util");
+const {
+  withAutomaticRetries,
+  validateWebhook,
+  parseProgressFromLogs,
+} = require("./lib/util");
 
 const accounts = require("./lib/accounts");
 const collections = require("./lib/collections");
@@ -375,3 +379,4 @@ class Replicate {
 
 module.exports = Replicate;
 module.exports.validateWebhook = validateWebhook;
+module.exports.parseProgressFromLogs = parseProgressFromLogs;
