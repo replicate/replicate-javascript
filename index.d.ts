@@ -285,5 +285,5 @@ declare module "replicate" {
     percentage: number;
     current: number;
     total: number;
-  };
+  } | null;
 }
