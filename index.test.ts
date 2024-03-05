@@ -8,6 +8,8 @@ import Replicate, {
 } from "replicate";
 import nock from "nock";
 import fetch from "cross-fetch";
+import { Stream } from "./lib/stream";
+import { PassThrough } from "node:stream";
 
 let client: Replicate;
 const BASE_URL = "https://api.replicate.com/v1";
@@ -251,7 +253,7 @@ describe("Replicate client", () => {
         let actual: Record<string, any> | undefined;
         nock(BASE_URL)
           .post("/predictions")
-          .reply(201, (uri: string, body: Record<string, any>) => {
+          .reply(201, (_uri: string, body: Record<string, any>) => {
             actual = body;
             return body;
           });
@@ -1010,8 +1012,6 @@ describe("Replicate client", () => {
     });
 
     test("Calls the correct API routes for a model", async () => {
-      const firstPollingRequest = true;
-
       nock(BASE_URL)
         .post("/models/replicate/hello-world/predictions")
         .reply(201, {
@@ -1179,7 +1179,7 @@ describe("Replicate client", () => {
       // This is a test secret and should not be used in production
       const secret = "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw";
 
-      const isValid = await validateWebhook(request, secret);
+      const isValid = validateWebhook(request, secret);
       expect(isValid).toBe(true);
     });
 
@@ -1187,4 +1187,286 @@ describe("Replicate client", () => {
   });
 
   // Continue with tests for other methods
+
+  describe("Stream", () => {
+    function createStream(body: string | NodeJS.ReadableStream) {
+      const streamEndpoint = "https://stream.replicate.com";
+      nock(streamEndpoint)
+        .get("/fake_stream")
+        .matchHeader("Accept", "text/event-stream")
+        .reply(200, body);
+
+      return new Stream({ url: `${streamEndpoint}/fake_stream`, fetch });
+    }
+
+    test("consumes a server sent event stream", async () => {
+      const stream = createStream(
+        `
+        event: output
+        id: EVENT_1
+        data: hello world
+
+        event: done
+        id: EVENT_2
+        data: {}
+      `
+          .trim()
+          .replace(/^[ ]+/gm, "")
+      );
+
+      const iterator = stream[Symbol.asyncIterator]();
+
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "output", id: "EVENT_1", data: "hello world" },
+      });
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "done", id: "EVENT_2", data: "{}" },
+      });
+      expect(await iterator.next()).toEqual({ done: true });
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    test("consumes multiple events", async () => {
+      const stream = createStream(
+        `
+        event: output
+        id: EVENT_1
+        data: hello world
+
+        event: output
+        id: EVENT_2
+        data: hello dave
+
+        event: done
+        id: EVENT_3
+        data: {}
+      `
+          .trim()
+          .replace(/^[ ]+/gm, "")
+      );
+
+      const iterator = stream[Symbol.asyncIterator]();
+
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "output", id: "EVENT_1", data: "hello world" },
+      });
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "output", id: "EVENT_2", data: "hello dave" },
+      });
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "done", id: "EVENT_3", data: "{}" },
+      });
+      expect(await iterator.next()).toEqual({ done: true });
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    test("ignores unexpected characters", async () => {
+      const stream = createStream(
+        `
+        : hi
+
+        event: output
+        id: EVENT_1
+        data: hello world
+
+        event: done
+        id: EVENT_2
+        data: {}
+      `
+          .trim()
+          .replace(/^[ ]+/gm, "")
+      );
+
+      const iterator = stream[Symbol.asyncIterator]();
+
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "output", id: "EVENT_1", data: "hello world" },
+      });
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "done", id: "EVENT_2", data: "{}" },
+      });
+      expect(await iterator.next()).toEqual({ done: true });
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    test("supports multiple lines of output in a single event", async () => {
+      const stream = createStream(
+        `
+        : hi
+
+        event: output
+        id: EVENT_1
+        data: hello,
+        data: this is a new line,
+        data: and this is a new line too
+
+        event: done
+        id: EVENT_2
+        data: {}
+      `
+          .trim()
+          .replace(/^[ ]+/gm, "")
+      );
+
+      const iterator = stream[Symbol.asyncIterator]();
+
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: {
+          event: "output",
+          id: "EVENT_1",
+          data: "hello,\nthis is a new line,\nand this is a new line too",
+        },
+      });
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "done", id: "EVENT_2", data: "{}" },
+      });
+      expect(await iterator.next()).toEqual({ done: true });
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    test("supports the server writing data lines in multiple chunks", async () => {
+      const body = new PassThrough();
+      const stream = createStream(body);
+
+      // Create a stream of data chunks split on the pipe character for readability.
+      const data = `
+        event: output
+        id: EVENT_1
+        data: hello,|
+        data: this is a new line,|
+        data: and this is a new line too
+
+        event: done
+        id: EVENT_2
+        data: {}
+      `
+        .trim()
+        .replace(/^[ ]+/gm, "");
+
+      const chunks = data.split("|");
+
+      // Consume the iterator in parallel to writing it.
+      const reading = new Promise((resolve, reject) => {
+        (async () => {
+          const iterator = stream[Symbol.asyncIterator]();
+          expect(await iterator.next()).toEqual({
+            done: false,
+            value: {
+              event: "output",
+              id: "EVENT_1",
+              data: "hello,\nthis is a new line,\nand this is a new line too",
+            },
+          });
+          expect(await iterator.next()).toEqual({
+            done: false,
+            value: { event: "done", id: "EVENT_2", data: "{}" },
+          });
+          expect(await iterator.next()).toEqual({ done: true });
+        })().then(resolve, reject);
+      });
+
+      // Write the chunks to the stream at an interval.
+      const writing = new Promise((resolve, reject) => {
+        (async () => {
+          for await (const chunk of chunks) {
+            body.write(chunk);
+            await new Promise((resolve) => setTimeout(resolve, 1));
+          }
+          body.end();
+          resolve(null);
+        })().then(resolve, reject);
+      });
+
+      // Wait for both promises to resolve.
+      await Promise.all([reading, writing]);
+    });
+
+    test("supports the server writing data in a complete mess", async () => {
+      const body = new PassThrough();
+      const stream = createStream(body);
+
+      // Create a stream of data chunks split on the pipe character for readability.
+      const data = `
+        : hi
+
+        ev|ent: output
+        id: EVENT_1
+        data: hello,
+        data: this |is a new line,|
+        data: and this is |a new line too
+
+        event: d|one
+        id: EVENT|_2
+        data: {}
+      `
+        .trim()
+        .replace(/^[ ]+/gm, "");
+
+      const chunks = data.split("|");
+
+      // Consume the iterator in parallel to writing it.
+      const reading = new Promise((resolve, reject) => {
+        (async () => {
+          const iterator = stream[Symbol.asyncIterator]();
+          expect(await iterator.next()).toEqual({
+            done: false,
+            value: {
+              event: "output",
+              id: "EVENT_1",
+              data: "hello,\nthis is a new line,\nand this is a new line too",
+            },
+          });
+          expect(await iterator.next()).toEqual({
+            done: false,
+            value: { event: "done", id: "EVENT_2", data: "{}" },
+          });
+          expect(await iterator.next()).toEqual({ done: true });
+        })().then(resolve, reject);
+      });
+
+      // Write the chunks to the stream at an interval.
+      const writing = new Promise((resolve, reject) => {
+        (async () => {
+          for await (const chunk of chunks) {
+            body.write(chunk);
+            await new Promise((resolve) => setTimeout(resolve, 1));
+          }
+          body.end();
+          resolve(null);
+        })().then(resolve, reject);
+      });
+
+      // Wait for both promises to resolve.
+      await Promise.all([reading, writing]);
+    });
+
+    test("supports ending without a done", async () => {
+      const stream = createStream(
+        `
+        event: output
+        id: EVENT_1
+        data: hello world
+
+      `
+          .trim()
+          .replace(/^[ ]+/gm, "")
+      );
+
+      const iterator = stream[Symbol.asyncIterator]();
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "output", id: "EVENT_1", data: "hello world" },
+      });
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+  });
 });
