@@ -108,6 +108,8 @@ declare module "replicate" {
 
   export type Training = Prediction;
 
+  export type FileEncodingStrategy = "default" | "upload" | "data-uri";
+
   export interface Page<T> {
     previous?: string;
     next?: string;
@@ -134,16 +136,14 @@ declare module "replicate" {
         input: Request | string,
         init?: RequestInit
       ) => Promise<Response>;
-      prepareInputs?: (
-        input: Record<string, any>
-      ) => Promise<Record<string, any>>;
+      fileEncodingStrategy?: FileEncodingStrategy;
     });
 
     auth: string;
     userAgent?: string;
     baseUrl?: string;
     fetch: (input: Request | string, init?: RequestInit) => Promise<Response>;
-    prepareInputs: (input: Record<string, any>) => Promise<Record<string, any>>;
+    fileEncodingStrategy: FileEncodingStrategy;
 
     run(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
@@ -339,9 +339,4 @@ declare module "replicate" {
     current: number;
     total: number;
   } | null;
-
-  export function transformFileInputs(
-    inputs: Record<string, any>,
-    options: { fallbackToDataURI: boolean }
-  ): Promise<Record<string, any>>;
 }

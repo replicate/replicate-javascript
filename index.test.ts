@@ -228,7 +228,7 @@ describe("Replicate client", () => {
         ? [
             {
               type: "file",
-              value: new File(["hello world"], "hello.txt", {
+              value: new File(["hello world"], "file_hello.txt", {
                 type: "text/plain",
               }),
               expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
@@ -249,16 +249,22 @@ describe("Replicate client", () => {
 
     test.each(fileTestCases)(
       "converts a $type input into a Replicate file URL",
-      async ({ value: data, expected }) => {
+      async ({ value: data, type }) => {
+        const mockedFetch = jest.spyOn(client, "fetch");
+
         nock(BASE_URL)
           .post("/files")
+          .matchHeader("Content-Type", "multipart/form-data")
           .reply(201, {
             urls: {
               get: "https://replicate.com/api/files/123",
             },
           })
-          .post("/predictions")
-          .reply(201, (uri: string, body: Record<string, any>) => {
+          .post(
+            "/predictions",
+            (body) => body.input.data === "https://replicate.com/api/files/123"
+          )
+          .reply(201, (_uri: string, body: Record<string, any>) => {
             return body;
           });
 
@@ -271,6 +277,20 @@ describe("Replicate client", () => {
           },
           stream: true,
         });
+
+        expect(client.fetch).toHaveBeenCalledWith(
+          new URL("https://api.replicate.com/v1/files"),
+          {
+            method: "POST",
+            body: expect.any(FormData),
+            headers: expect.objectContaining({
+              "Content-Type": "multipart/form-data",
+            }),
+          }
+        );
+        const form = mockedFetch.mock.calls[0][1]?.body as FormData;
+        // @ts-ignore
+        expect(form?.get("content")?.name).toMatch(new RegExp(`^${type}_`));
 
         expect(prediction.input).toEqual({
           prompt: "Tell me a story",
