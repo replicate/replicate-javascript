@@ -1179,7 +1179,7 @@ describe("Replicate client", () => {
       // This is a test secret and should not be used in production
       const secret = "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw";
 
-      const isValid = validateWebhook(request, secret);
+      const isValid = await validateWebhook(request, secret);
       expect(isValid).toBe(true);
     });
 
