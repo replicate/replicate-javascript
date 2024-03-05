@@ -1,6 +1,6 @@
 const ApiError = require("./lib/error");
 const ModelVersionIdentifier = require("./lib/identifier");
-const { Stream } = require("./lib/stream");
+const { createReadableStream } = require("./lib/stream");
 const {
   withAutomaticRetries,
   validateWebhook,
@@ -289,7 +289,7 @@ class Replicate {
 
     if (prediction.urls && prediction.urls.stream) {
       const { signal } = options;
-      const stream = new Stream({
+      const stream = createReadableStream({
         url: prediction.urls.stream,
         fetch: this.fetch,
         options: { signal },
