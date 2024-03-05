@@ -289,7 +289,11 @@ class Replicate {
 
     if (prediction.urls && prediction.urls.stream) {
       const { signal } = options;
-      const stream = new Stream(prediction.urls.stream, { signal });
+      const stream = new Stream({
+        url: prediction.urls.stream,
+        fetch: this.fetch,
+        options: { signal },
+      });
       yield* stream;
     } else {
       throw new Error("Prediction does not support streaming");
