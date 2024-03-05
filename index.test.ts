@@ -1189,12 +1189,12 @@ describe("Replicate client", () => {
   // Continue with tests for other methods
 
   describe("Stream", () => {
-    function createStream(body: string | NodeJS.ReadableStream) {
+    function createStream(body: string | NodeJS.ReadableStream, status = 200) {
       const streamEndpoint = "https://stream.replicate.com";
       nock(streamEndpoint)
         .get("/fake_stream")
         .matchHeader("Accept", "text/event-stream")
-        .reply(200, body);
+        .reply(status, body);
 
       return new Stream({ url: `${streamEndpoint}/fake_stream`, fetch });
     }
@@ -1466,6 +1466,42 @@ describe("Replicate client", () => {
         done: false,
         value: { event: "output", id: "EVENT_1", data: "hello world" },
       });
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    test("an error event in the stream raises an exception", async () => {
+      const stream = createStream(
+        `
+        event: output
+        id: EVENT_1
+        data: hello world
+
+        event: error
+        id: EVENT_2
+        data: An unexpected error occurred
+
+      `
+          .trim()
+          .replace(/^[ ]+/gm, "")
+      );
+
+      const iterator = stream[Symbol.asyncIterator]();
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "output", id: "EVENT_1", data: "hello world" },
+      });
+      await expect(iterator.next()).rejects.toThrowError(
+        "An unexpected error occurred"
+      );
+      expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    test("an error when fetching the stream raises an exception", async () => {
+      const stream = createStream("{}", 500);
+      const iterator = stream[Symbol.asyncIterator]();
+      await expect(iterator.next()).rejects.toThrowError(
+        "Request to https://stream.replicate.com/fake_stream failed with status 500 Internal Server Error: {}."
+      );
       expect(await iterator.next()).toEqual({ done: true });
     });
   });
