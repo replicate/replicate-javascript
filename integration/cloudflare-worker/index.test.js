@@ -23,6 +23,6 @@ test("worker streams back a response", { timeout: 1000 }, async (t) => {
   const resp = await worker.fetch("/", { signal: t.signal });
   const text = await resp.text();
 
-  assert.equal(resp.ok, true, "status is 2xx");
+  assert.ok(resp.ok, "status is 2xx");
   assert(text.length > 0, "body.length is greater than 0");
 });
