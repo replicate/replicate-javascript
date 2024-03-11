@@ -1,5 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.0.0/schema.json",
+  "files": {
+    "ignore": ["node_modules", ".wrangler"]
+  },
   "formatter": {
     "indentStyle": "space",
     "indentWidth": 2
