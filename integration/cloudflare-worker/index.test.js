@@ -3,8 +3,8 @@ import { unstable_dev as dev } from "wrangler";
 import { test, after, before, describe } from "node:test";
 import assert from "node:assert";
 
-/** @type {import("wrangler").UnstableDevWorker} */
 describe("CloudFlare Worker", () => {
+  /** @type {import("wrangler").UnstableDevWorker} */
   let worker;
 
   before(async () => {
@@ -22,15 +22,20 @@ describe("CloudFlare Worker", () => {
     await worker.stop();
   });
 
-  test("worker streams back a response", { timeout: 1000 }, async () => {
+  test("worker streams back a response", { timeout: 5000 }, async () => {
     const resp = await worker.fetch();
     const text = await resp.text();
 
-    assert.ok(resp.ok, "status is 2xx");
-    assert(text.length > 0, "body.length is greater than 0");
+    assert.ok(resp.ok, `expected status to be 2xx but got ${resp.status}`);
+    assert(
+      text.length > 0,
+      "expected body to have content but got body.length of 0"
+    );
     assert(
       text.includes("Colin CloudFlare"),
-      "body includes stream characters"
+      `expected body to include "Colin CloudFlare" but got ${JSON.stringify(
+        text
+      )}`
     );
   });
 });

@@ -7,8 +7,8 @@ import Replicate, {
   parseProgressFromLogs,
 } from "replicate";
 import nock from "nock";
+import { Readable } from "node:stream";
 import { createReadableStream } from "./lib/stream";
-import { PassThrough } from "node:stream";
 
 let client: Replicate;
 const BASE_URL = "https://api.replicate.com/v1";
@@ -1187,16 +1187,17 @@ describe("Replicate client", () => {
   // Continue with tests for other methods
 
   describe("createReadableStream", () => {
-    function createStream(body: string | NodeJS.ReadableStream, status = 200) {
-      const streamEndpoint = "https://stream.replicate.com";
-      nock(streamEndpoint)
-        .get("/fake_stream")
-        .matchHeader("Accept", "text/event-stream")
-        .reply(status, body);
-
+    function createStream(body: string | ReadableStream, status = 200) {
+      const streamEndpoint = "https://stream.replicate.com/fake_stream";
+      const fetch = jest.fn((url) => {
+        if (url !== streamEndpoint) {
+          throw new Error(`Unmocked call to fetch() with url: ${url}`);
+        }
+        return new Response(body, { status });
+      });
       return createReadableStream({
-        url: `${streamEndpoint}/fake_stream`,
-        fetch: fetch,
+        url: streamEndpoint,
+        fetch: fetch as any,
       });
     }
 
@@ -1330,9 +1331,6 @@ describe("Replicate client", () => {
     });
 
     test("supports the server writing data lines in multiple chunks", async () => {
-      const body = new PassThrough();
-      const stream = createStream(body);
-
       // Create a stream of data chunks split on the pipe character for readability.
       const data = `
         event: output
@@ -1348,45 +1346,47 @@ describe("Replicate client", () => {
       `.replace(/^[ ]+/gm, "");
 
       const chunks = data.split("|");
+      const body = new ReadableStream({
+        async pull(controller) {
+          if (chunks.length) {
+            await new Promise((resolve) => setTimeout(resolve, 1));
+            const chunk = chunks.shift();
+            controller.enqueue(new TextEncoder().encode(chunk));
+          }
+        },
+      });
+
+      const stream = createStream(body);
 
       // Consume the iterator in parallel to writing it.
-      const reading = new Promise((resolve, reject) => {
-        (async () => {
-          const iterator = stream[Symbol.asyncIterator]();
-          expect(await iterator.next()).toEqual({
-            done: false,
-            value: {
-              event: "output",
-              id: "EVENT_1",
-              data: "hello,\nthis is a new line,\nand this is a new line too",
-            },
-          });
-          expect(await iterator.next()).toEqual({
-            done: false,
-            value: { event: "done", id: "EVENT_2", data: "{}" },
-          });
-          expect(await iterator.next()).toEqual({ done: true });
-        })().then(resolve, reject);
+      const iterator = stream[Symbol.asyncIterator]();
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: {
+          event: "output",
+          id: "EVENT_1",
+          data: "hello,\nthis is a new line,\nand this is a new line too",
+        },
       });
-
-      // Write the chunks to the stream at an interval.
-      const writing = new Promise((resolve, reject) => {
-        (async () => {
-          for await (const chunk of chunks) {
-            body.write(chunk);
-            await new Promise((resolve) => setTimeout(resolve, 1));
-          }
-          body.end();
-          resolve(null);
-        })().then(resolve, reject);
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "done", id: "EVENT_2", data: "{}" },
       });
+      expect(await iterator.next()).toEqual({ done: true });
 
       // Wait for both promises to resolve.
-      await Promise.all([reading, writing]);
     });
 
     test("supports the server writing data in a complete mess", async () => {
-      const body = new PassThrough();
+      const body = new ReadableStream({
+        async pull(controller) {
+          if (chunks.length) {
+            await new Promise((resolve) => setTimeout(resolve, 1));
+            const chunk = chunks.shift();
+            controller.enqueue(new TextEncoder().encode(chunk));
+          }
+        },
+      });
       const stream = createStream(body);
 
       // Create a stream of data chunks split on the pipe character for readability.
@@ -1407,40 +1407,20 @@ describe("Replicate client", () => {
 
       const chunks = data.split("|");
 
-      // Consume the iterator in parallel to writing it.
-      const reading = new Promise((resolve, reject) => {
-        (async () => {
-          const iterator = stream[Symbol.asyncIterator]();
-          expect(await iterator.next()).toEqual({
-            done: false,
-            value: {
-              event: "output",
-              id: "EVENT_1",
-              data: "hello,\nthis is a new line,\nand this is a new line too",
-            },
-          });
-          expect(await iterator.next()).toEqual({
-            done: false,
-            value: { event: "done", id: "EVENT_2", data: "{}" },
-          });
-          expect(await iterator.next()).toEqual({ done: true });
-        })().then(resolve, reject);
+      const iterator = stream[Symbol.asyncIterator]();
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: {
+          event: "output",
+          id: "EVENT_1",
+          data: "hello,\nthis is a new line,\nand this is a new line too",
+        },
       });
-
-      // Write the chunks to the stream at an interval.
-      const writing = new Promise((resolve, reject) => {
-        (async () => {
-          for await (const chunk of chunks) {
-            body.write(chunk);
-            await new Promise((resolve) => setTimeout(resolve, 1));
-          }
-          body.end();
-          resolve(null);
-        })().then(resolve, reject);
+      expect(await iterator.next()).toEqual({
+        done: false,
+        value: { event: "done", id: "EVENT_2", data: "{}" },
       });
-
-      // Wait for both promises to resolve.
-      await Promise.all([reading, writing]);
+      expect(await iterator.next()).toEqual({ done: true });
     });
 
     test("supports ending without a done", async () => {
