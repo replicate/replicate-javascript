@@ -33,9 +33,10 @@ jobs:
 
     strategy:
       matrix:
+        # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
         node-version: [18.x, 20.x]
         suite: [commonjs, esm, typescript, cloudflare-worker]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
+      fail-fast: false
 
     env:
       REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
