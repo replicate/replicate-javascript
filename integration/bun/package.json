@@ -1,0 +1,22 @@
+{
+  "name": "replicate-app-bun",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Bun integration tests",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "tsc && node --test ./dist/index.test.js"
+  },
+  "dependencies": {
+    "@types/node": "^20.11.0",
+    "replicate": "file:../../",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
