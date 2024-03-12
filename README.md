@@ -811,3 +811,11 @@ You can call this method directly to make other requests to the API.
 ## TypeScript
 
 The `Replicate` constructor and all `replicate.*` methods are fully typed.
+
+## Vendored Dependencies
+
+We have a few dependencies that have been bundled into the vendor directory rather than adding external npm dependencies.
+
+These have been generated using bundlejs.com and copied into the appropriate directory along with the license and repository information. 
+
+* [eventsource-parser/stream](https://bundlejs.com/?bundle&q=eventsource-parser%40latest%2Fstream&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%2C%22platform%22%3A%22neutral%22%7D%7D)

@@ -279,7 +279,7 @@ declare module "replicate" {
           signature?: string;
         },
     secret: string
-  ): boolean;
+  ): Promise<boolean>;
 
   export function parseProgressFromLogs(logs: Prediction | string): {
     percentage: number;
