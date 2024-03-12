@@ -13,6 +13,6 @@
     "replicate": "file:../../"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.32.0"
   }
 }

@@ -47,7 +47,9 @@ class Replicate {
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
    */
   constructor(options = {}) {
-    this.auth = options.auth || process.env.REPLICATE_API_TOKEN;
+    this.auth =
+      options.auth ||
+      (typeof process !== "undefined" ? process.env.REPLICATE_API_TOKEN : null);
     this.userAgent =
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
