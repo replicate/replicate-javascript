@@ -36,6 +36,9 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
         node-version: [18.x, 20.x]
         suite: [commonjs, esm, typescript, cloudflare-worker]
+        exclude:
+          - suite: cloudflare-worker
+            node-version: 18.x # Only test Cloudflare suite with the latest Node version
       fail-fast: false
 
     env:
