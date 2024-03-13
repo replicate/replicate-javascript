@@ -5,9 +5,5 @@
     "strict": true,
     "allowJs": true
   },
-  "exclude": [
-    "**/node_modules",
-    "integration/**"
-  ]
+  "exclude": ["integration/**", "**/node_modules"]
 }
-

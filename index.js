@@ -5,6 +5,7 @@ const {
   withAutomaticRetries,
   validateWebhook,
   parseProgressFromLogs,
+  streamAsyncIterator,
 } = require("./lib/util");
 
 const accounts = require("./lib/accounts");
@@ -297,18 +298,7 @@ class Replicate {
         options: { signal },
       });
 
-      const reader = stream.getReader();
-
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          break;
-        }
-
-        yield value;
-      }
-      reader.releaseLock();
+      yield* streamAsyncIterator(stream);
     } else {
       throw new Error("Prediction does not support streaming");
     }

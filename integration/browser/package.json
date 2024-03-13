@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node index.test.js"
+    "test": "playwright test --browser all"
   },
   "license": "ISC",
   "dependencies": {
