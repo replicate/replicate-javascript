@@ -73,7 +73,7 @@ console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
-To run a model that takes a file input, pass a URL to a publicly accessible file. Or, for smaller files (<10MB), you can pass the data directly.
+To run a model that takes a file input you can pass the data directly or pass a URL to a publicly accessible file.
 
 ```js
 const fs = require("node:fs/promises");
@@ -87,6 +87,65 @@ const input = {
 };
 const output = await replicate.run(model, { input });
 // ['https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png']
+```
+
+### Webhooks
+
+Webhooks provide real-time updates about your prediction. Specify an endpoint when you create a prediction, and Replicate will send HTTP POST requests to that URL when the prediction is created, updated, and finished.
+
+It is possible to provide a URL to the predictions.create() function that will be requested by Replicate when the prediction status changes. This is an alternative to polling.
+
+To receive webhooks you’ll need a web server. The following example uses Hono, a web standards based server, but this pattern applies to most frameworks.
+
+<details>
+  <summary>See example</summary>
+
+```js
+import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
+
+const app = new Hono();
+app.get('/webhooks/replicate', async (c) => {
+  // Get the prediction from the request.
+  const prediction = await c.req.json();
+	console.log(prediction);
+  //=> {"id": "xyz", "status": "successful", ... }
+  
+  // Acknowledge the webhook.
+  c.status(200);
+  c.json({ok: true});
+}));
+
+serve(app, (info) => {
+  console.log(`Listening on http://localhost:${info.port}`)
+  //=> Listening on http://localhost:3000
+});
+```
+
+</details>
+
+Create the prediction passing in the webhook URL to `webhook` and specify which events you want to receive in `webhook_events_filter` out of "start", "output", ”logs” and "completed":
+
+```js
+const Replicate = require("replicate");
+const replicate = new Replicate();
+
+const input = {
+    image: "https://replicate.delivery/pbxt/KWDkejqLfER3jrroDTUsSvBWFaHtapPxfg4xxZIqYmfh3zXm/Screenshot%202024-02-28%20at%2022.14.00.png",
+    denoising_strength: 0.5,
+    instant_id_strength: 0.8
+};
+
+const callbackURL = `https://my.app/webhooks/replicate`;
+await replicate.predictions.create({
+  version: "19deaef633fd44776c82edf39fd60e95a7250b8ececf11a725229dc75a81f9ca",
+  input: input,
+  webhook: callbackURL,
+  webhook_events_filter: ["completed"],
+});
+
+// The server will now handle the event and log:
+// => {"id": "xyz", "status": "successful", ... }
 ```
 
 ## TypeScript
