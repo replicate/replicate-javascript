@@ -1,0 +1,19 @@
+{
+  "name": "replicate-app-browser",
+  "private": true,
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node index.test.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "replicate": "../../"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.1",
+    "esbuild": "^0.20.1"
+  }
+}
