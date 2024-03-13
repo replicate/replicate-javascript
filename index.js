@@ -296,7 +296,19 @@ class Replicate {
         fetch: this.fetch,
         options: { signal },
       });
-      yield* stream;
+
+      const reader = stream.getReader();
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        yield value;
+      }
+      reader.releaseLock();
     } else {
       throw new Error("Prediction does not support streaming");
     }
