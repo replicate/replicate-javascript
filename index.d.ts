@@ -33,8 +33,10 @@ declare module "replicate" {
       created_by: Account;
       configuration: {
         hardware: string;
-        min_instances: number;
-        max_instances: number;
+        scaling: {
+          min_instances: number;
+          max_instances: number;
+        };
       };
     };
   }
@@ -206,11 +208,16 @@ declare module "replicate" {
         deployment_owner: string,
         deployment_name: string,
         deployment_config: {
-          version: string;
-          hardware: string;
-          min_instances: number;
-          max_instances: number;
-        }
+          version?: string;
+          hardware?: string;
+          min_instances?: number;
+          max_instances?: number;
+        } & (
+          | { version: string }
+          | { hardware: string }
+          | { min_instances: number }
+          | { max_instances: number }
+        )
       ): Promise<Deployment>;
       list(): Promise<Page<Deployment>>;
     };
