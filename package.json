@@ -27,7 +27,7 @@
     "yarn": ">=1.7.0"
   },
   "scripts": {
-    "build": "npm run build:types",
+    "build": "npm run build:types && tsc --noEmit dist/types/**/*.d.ts",
     "build:types": "tsc --target ES2022 --declaration --emitDeclarationOnly --allowJs --types node --outDir ./dist/types index.js",
     "check": "tsc",
     "format": "biome format . --write",
@@ -39,14 +39,10 @@
     "test:integration": "npm run build; for x in commonjs esm typescript; do npm --prefix integration/$x install --omit=dev && npm --prefix integration/$x test; done;",
     "test:all": "npm run check; npm run test; npm run test:integration"
   },
-  "optionalDependencies": {
-    "readable-stream": ">=4.0.0"
-  },
   "devDependencies": {
     "@biomejs/biome": "^1.4.1",
     "@types/jest": "^29.5.3",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
-    "cross-fetch": "^3.1.5",
     "jest": "^29.6.2",
     "nock": "^14.0.0-beta.4",
     "publint": "^0.2.7",

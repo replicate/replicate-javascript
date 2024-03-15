@@ -151,7 +151,7 @@ class Replicate {
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {WebhookEventType[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
-   * @param {Function} [progress] - Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed.
+   * @param {(p: Prediction) => void} [progress] - Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time its updated while polling for completion, and when it's completed.
    * @throws {Error} If the reference is invalid
    * @throws {Error} If the prediction failed
    * @returns {Promise<Prediction>} - Resolves with the output of running the model
@@ -426,6 +426,7 @@ module.exports.parseProgressFromLogs = parseProgressFromLogs;
 
 /**
  * @typedef {import("./lib/error")} ApiError
+ * @typedef {import("./lib/types").Account} Account
  * @typedef {import("./lib/types").Collection} Collection
  * @typedef {import("./lib/types").ModelVersion} ModelVersion
  * @typedef {import("./lib/types").Hardware} Hardware
