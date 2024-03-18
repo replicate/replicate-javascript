@@ -98,15 +98,23 @@ jobs:
     strategy:
       matrix:
         bun-version: [1.0.11]
+        node-version: [20.x]
         suite: [bun]
 
     steps:
       - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
       - name: Use Bun ${{ matrix.bun-version }}
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: ${{ matrix.bun-version }}
       - run: |
+          PKG_TARBALL=$(npm --loglevel error pack)
           cd integration/${{ matrix.suite }}
-          bun install
+          bun uninstall replicate
+          bun install "file:../../$PKG_TARBALL"
           bun test
