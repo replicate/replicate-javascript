@@ -7,7 +7,7 @@
   },
   "exclude": [
     "**/node_modules",
-    "integration/bun/**"
+    "integration/**"
   ]
 }
 
