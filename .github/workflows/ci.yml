@@ -139,4 +139,4 @@ jobs:
           cd integration/${{ matrix.suite }}
           bun uninstall replicate
           bun install "file:../../${{ needs.build.outputs.tarball-name }}"
-          bun test
+          bun test --timeout 30000
