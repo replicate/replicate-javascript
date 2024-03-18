@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
+        node-version: [18.x, 20.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -27,22 +27,50 @@ jobs:
       - run: npm run check
       - run: npm run lint
 
-  integration:
+
+  integration-node:
     needs: test
     runs-on: ubuntu-latest
+
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
 
     strategy:
       matrix:
         # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
         node-version: [18.x, 20.x]
-        suite: [commonjs, esm, typescript, cloudflare-worker]
+        suite: [commonjs, esm, typescript]
         exclude:
           - suite: cloudflare-worker
             node-version: 18.x # Only test Cloudflare suite with the latest Node version
       fail-fast: false
 
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      # Build a production tarball and run the integration tests against it.
+      - run: |
+          PKG_TARBALL=$(npm --loglevel error pack)
+          npm --prefix integration/${{ matrix.suite }} install
+          npm --prefix integration/${{ matrix.suite }} install "file:/./$PKG_TARBALL"
+          npm --prefix integration/${{ matrix.suite }} test
+
+
+  integration-edge:
+    needs: test
+    runs-on: ubuntu-latest
+
     env:
       REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+        suite: [cloudflare-worker]
 
     steps:
       - uses: actions/checkout@v3
@@ -58,3 +86,35 @@ jobs:
           npm --prefix integration/${{ matrix.suite }} install
           npm --prefix integration/${{ matrix.suite }} install "file:/./$PKG_TARBALL"
           npm --prefix integration/${{ matrix.suite }} test
+
+
+  integration-bun:
+    needs: test
+    runs-on: ubuntu-latest
+
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
+    strategy:
+      matrix:
+        bun-version: [1.0.11]
+        node-version: [20.x]
+        suite: [bun]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - name: Use Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bun-version }}
+      - run: |
+          PKG_TARBALL=$(npm --loglevel error pack)
+          cd integration/${{ matrix.suite }}
+          bun uninstall replicate
+          bun install "file:../../$PKG_TARBALL"
+          bun test
