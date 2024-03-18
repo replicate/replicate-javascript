@@ -1,4 +1,4 @@
-// Adapted from  https://github.com/stardazed/sd-streams
+// Adapted from https://github.com/stardazed/sd-streams
 //
 // MIT License
 //

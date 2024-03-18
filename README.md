@@ -110,7 +110,7 @@ app.get('/webhooks/replicate', async (c) => {
   const prediction = await c.req.json();
 	console.log(prediction);
   //=> {"id": "xyz", "status": "successful", ... }
-  
+
   // Acknowledge the webhook.
   c.status(200);
   c.json({ok: true});
@@ -217,15 +217,15 @@ Run a model and await the result. Unlike [`replicate.prediction.create`](#replic
 const output = await replicate.run(identifier, options, progress);
 ```
 
-| name                            | type     | description                                                                                                                                                                                                |
-| ------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `identifier`                    | string   | **Required**. The model version identifier in the format `{owner}/{name}:{version}`, for example `stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f`                      |
-| `options.input`                 | object   | **Required**. An object with the model inputs.                                                                                                                                                             |
-| `options.wait`                  | object   | Options for waiting for the prediction to finish                                                                                                                                                           |
-| `options.wait.interval`         | number   | Polling interval in milliseconds. Defaults to 500                                                                                                                                                          |
-| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                    |
-| `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed`                                                   |
-| `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                                                                    |
+| name                            | type     | description                                                                                                                                                                                                 |
+| ------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `identifier`                    | string   | **Required**. The model version identifier in the format `{owner}/{name}:{version}`, for example `stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f`                       |
+| `options.input`                 | object   | **Required**. An object with the model inputs.                                                                                                                                                              |
+| `options.wait`                  | object   | Options for waiting for the prediction to finish                                                                                                                                                            |
+| `options.wait.interval`         | number   | Polling interval in milliseconds. Defaults to 500                                                                                                                                                           |
+| `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                     |
+| `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed`                                                    |
+| `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                                                                     |
 | `progress`                      | function | Callback function that receives the prediction object as it's updated. The function is called when the prediction is created, each time it's updated while polling for completion, and when it's completed. |
 
 Throws `Error` if the prediction failed.
@@ -246,7 +246,7 @@ Example that logs progress as the model is running:
 const model = "stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f";
 const input = { prompt: "a 19th century portrait of a raccoon gentleman wearing a suit" };
 const onProgress = (prediction) => {
-   const last_log_line = prediction.logs.split("\n").pop() 
+   const last_log_line = prediction.logs.split("\n").pop()
    console.log({id: prediction.id, log: last_log_line})
 }
 const output = await replicate.run(model, { input }, onProgress)
@@ -875,6 +875,20 @@ The `Replicate` constructor and all `replicate.*` methods are fully typed.
 
 We have a few dependencies that have been bundled into the vendor directory rather than adding external npm dependencies.
 
-These have been generated using bundlejs.com and copied into the appropriate directory along with the license and repository information. 
+These have been generated using bundlejs.com and copied into the appropriate directory along with the license and repository information.
 
 * [eventsource-parser/stream](https://bundlejs.com/?bundle&q=eventsource-parser%40latest%2Fstream&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%2C%22platform%22%3A%22neutral%22%7D%7D)
+* [streams-text-encoding/text-decoder-stream](https://bundlejs.com/?q=%40stardazed%2Fstreams-text-encoding&treeshake=%5B%7B+TextDecoderStream+%7D%5D&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%7D%7D)
+
+> [!NOTE]
+> The vendored implementation of `TextDecoderStream` requires
+> the following patch to be applied to the output of bundlejs.com:
+> ```difff
+>   constructor(label, options) {
+> -   this[decDecoder] = new TextDecoder(label, options);
+> -   this[decTransform] = new TransformStream(new TextDecodeTransformer(this[decDecoder]));
+>   }
+> +   const decoder = new TextDecoder(label || "utf-8", options || {});
+> +   this[decDecoder] = decoder;
+> +   this[decTransform] = new TransformStream(new TextDecodeTransformer(decoder));
+> ```
