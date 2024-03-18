@@ -5,10 +5,11 @@ const replicate = new Replicate({
 });
 
 export default async function main() {
-  const model = "meta/llama-2-70b-chat";
+  const model =
+    "replicate/canary:30e22229542eb3f79d4f945dacb58d32001b02cc313ae6f54eef27904edf3272";
   const options = {
     input: {
-      prompt: "Write a haiku about steam buns",
+      text: "Brünnhilde Bun",
     },
   };
   const output = [];
