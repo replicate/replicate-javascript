@@ -1,4 +1,4 @@
-// Source: https://github.com/stardazed/sd-streams
+// Adapted from  https://github.com/stardazed/sd-streams
 //
 // MIT License
 //
@@ -71,8 +71,9 @@ var TextDecodeTransformer = class {
 };
 var TextDecoderStream = class {
   constructor(label, options) {
-    this[decDecoder] = new TextDecoder(label, options);
-    this[decTransform] = new TransformStream(new TextDecodeTransformer(this[decDecoder]));
+    const decoder = new TextDecoder(label || "utf-8", options || {});
+    this[decDecoder] = decoder;
+    this[decTransform] = new TransformStream(new TextDecodeTransformer(decoder));
   }
   get encoding() {
     return this[decDecoder].encoding;
