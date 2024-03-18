@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --test ./dist/index.test.js"
+    "test": "bun test"
   },
   "dependencies": {
     "@types/node": "^20.11.0",
