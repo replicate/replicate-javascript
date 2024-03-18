@@ -5,12 +5,19 @@ const replicate = new Replicate({
 });
 
 export default async function main() {
-  return await replicate.run(
-    "replicate/hello-world:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-    {
-      input: {
-        text: "Brünnhilde Bun",
-      },
+  const model = "meta/llama-2-70b-chat";
+  const options = {
+    input: {
+      prompt: "Write a poem about steam buns",
+    },
+  };
+  const output = [];
+
+  for await (const { event, data } of replicate.stream(model, options)) {
+    if (event === "output") {
+      output.push(data);
     }
-  );
+  }
+
+  return output.join("").trim();
 }
