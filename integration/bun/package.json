@@ -5,9 +5,6 @@
   "description": "Bun integration tests",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "test": "bun test"
-  },
   "dependencies": {
     "@types/node": "^20.11.0",
     "replicate": "file:../../"
