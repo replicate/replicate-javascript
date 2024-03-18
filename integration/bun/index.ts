@@ -8,7 +8,7 @@ export default async function main() {
   const model = "meta/llama-2-70b-chat";
   const options = {
     input: {
-      prompt: "Write a poem about steam buns",
+      prompt: "Write a haiku about steam buns",
     },
   };
   const output = [];
