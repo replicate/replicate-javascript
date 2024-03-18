@@ -6,17 +6,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "tsc && node --test ./dist/index.test.js"
+    "test": "node --test ./dist/index.test.js"
   },
   "dependencies": {
     "@types/node": "^20.11.0",
-    "replicate": "file:../../",
-    "typescript": "^5.3.3"
+    "replicate": "file:../../"
   },
   "devDependencies": {
     "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
   }
 }
