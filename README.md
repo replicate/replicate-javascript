@@ -883,12 +883,13 @@ These have been generated using bundlejs.com and copied into the appropriate dir
 > [!NOTE]
 > The vendored implementation of `TextDecoderStream` requires
 > the following patch to be applied to the output of bundlejs.com:
-> ```difff
+>
+> ```diff
 >   constructor(label, options) {
 > -   this[decDecoder] = new TextDecoder(label, options);
 > -   this[decTransform] = new TransformStream(new TextDecodeTransformer(this[decDecoder]));
->   }
 > +   const decoder = new TextDecoder(label || "utf-8", options || {});
 > +   this[decDecoder] = decoder;
 > +   this[decTransform] = new TransformStream(new TextDecodeTransformer(decoder));
+>   }
 > ```
