@@ -28,8 +28,32 @@ jobs:
       - run: npm run lint
 
 
+  # Build a production tarball and use it to run the integration
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      tarball-name: ${{ steps.pack.outputs.tarball-name }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: "npm"
+      - name: Build tarball
+        id: pack
+        run: |
+          echo "::set-output name=tarball-name::$(npm --loglevel error pack)"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: package-tarball
+          path: ${{ steps.pack.outputs.tarball-name }}
+
+
   integration-node:
-    needs: test
+    needs: [test, build]
     runs-on: ubuntu-latest
 
     env:
@@ -47,21 +71,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-tarball
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      # Build a production tarball and run the integration tests against it.
       - run: |
-          PKG_TARBALL=$(npm --loglevel error pack)
           npm --prefix integration/${{ matrix.suite }} install
-          npm --prefix integration/${{ matrix.suite }} install "file:/./$PKG_TARBALL"
+          npm --prefix integration/${{ matrix.suite }} install "./${{ needs.build.outputs.tarball-name }}"
           npm --prefix integration/${{ matrix.suite }} test
 
 
   integration-edge:
-    needs: test
+    needs: [test, build]
     runs-on: ubuntu-latest
 
     env:
@@ -74,22 +99,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-tarball
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      # Build a production tarball and run the integration tests against it.
       - run: |
           test "${{ matrix.suite }}" = "cloudflare-worker" && echo "REPLICATE_API_TOKEN=${{ secrets.REPLICATE_API_TOKEN }}" > integration/${{ matrix.suite }}/.dev.vars
-          PKG_TARBALL=$(npm --loglevel error pack)
           npm --prefix integration/${{ matrix.suite }} install
-          npm --prefix integration/${{ matrix.suite }} install "file:/./$PKG_TARBALL"
+          npm --prefix integration/${{ matrix.suite }} install "./${{ needs.build.outputs.tarball-name }}"
           npm --prefix integration/${{ matrix.suite }} test
 
 
   integration-bun:
-    needs: test
+    needs: [test, build]
     runs-on: ubuntu-latest
 
     env:
@@ -98,23 +124,19 @@ jobs:
     strategy:
       matrix:
         bun-version: [1.0.11]
-        node-version: [20.x]
         suite: [bun]
 
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/download-artifact@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          name: package-tarball
       - name: Use Bun ${{ matrix.bun-version }}
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: ${{ matrix.bun-version }}
       - run: |
-          PKG_TARBALL=$(npm --loglevel error pack)
           cd integration/${{ matrix.suite }}
           bun uninstall replicate
-          bun install "file:../../$PKG_TARBALL"
+          bun install "file:../../${{ needs.build.outputs.tarball-name }}"
           bun test
