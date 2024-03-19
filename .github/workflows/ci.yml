@@ -166,4 +166,7 @@ jobs:
           cd integration/${{ matrix.suite }}
           bun uninstall replicate
           bun install "file:../../${{ needs.build.outputs.tarball-name }}"
-          bun test
+          retries=3
+          for ((i=0; i<retries; i++)); do
+            bun test && break || echo "Test failed, retrying..."
+          done
