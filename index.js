@@ -67,6 +67,9 @@ class Replicate {
 
     this.deployments = {
       get: deployments.get.bind(this),
+      create: deployments.create.bind(this),
+      update: deployments.update.bind(this),
+      list: deployments.list.bind(this),
       predictions: {
         create: deployments.predictions.create.bind(this),
       },
