@@ -131,6 +131,7 @@ class Replicate {
       list: trainings.list.bind(this),
     };
 
+    /** @type {webhooks} */
     this.webhooks = {
       default: {
         secret: {
@@ -428,6 +429,7 @@ module.exports.parseProgressFromLogs = parseProgressFromLogs;
  * @typedef {import("./lib/error")} ApiError
  * @typedef {import("./lib/types").Account} Account
  * @typedef {import("./lib/types").Collection} Collection
+ * @typedef {import("./lib/types").Deployment} Deployment
  * @typedef {import("./lib/types").ModelVersion} ModelVersion
  * @typedef {import("./lib/types").Hardware} Hardware
  * @typedef {import("./lib/types").Model} Model
