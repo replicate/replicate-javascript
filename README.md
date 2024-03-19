@@ -108,7 +108,7 @@ const app = new Hono();
 app.get('/webhooks/replicate', async (c) => {
   // Get the prediction from the request.
   const prediction = await c.req.json();
-	console.log(prediction);
+  console.log(prediction);
   //=> {"id": "xyz", "status": "successful", ... }
 
   // Acknowledge the webhook.
@@ -827,6 +827,112 @@ const response = await replicate.deployments.predictions.create(deployment_owner
 
 Use `replicate.wait` to wait for a prediction to finish,
 or `replicate.predictions.cancel` to cancel a prediction before it finishes.
+
+### `replicate.deployments.list`
+
+List your deployments.
+
+```js
+const response = await replicate.deployments.list();
+```
+
+```jsonc
+{
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "owner": "acme",
+      "name": "my-app-image-generator",
+      "current_release": { /* ... */ }
+    }
+    /* ... */
+  ]
+}
+```
+
+### `replicate.deployments.create`
+
+Create a new deployment.
+
+```js
+const response = await replicate.deployments.create(options);
+```
+
+| name                    | type   | description                                                                      |
+| ----------------------- | ------ | -------------------------------------------------------------------------------- |
+| `options.name`          | string | Required. Name of the new deployment                                             |
+| `options.model`         | string | Required. Name of the model in the format `{username}/{model_name}`              |
+| `options.version`       | string | Required. ID of the model version                                                |
+| `options.hardware`      | string | Required. SKU of the hardware to run the deployment on (`cpu`, `gpu-a100`, etc.) |
+| `options.min_instances` | number | Minimum number of instances to run. Defaults to 0                                |
+| `options.max_instances` | number | Maximum number of instances to scale up to based on traffic. Defaults to 1       |
+
+```jsonc
+{
+  "owner": "acme",
+  "name": "my-app-image-generator",
+  "current_release": {
+    "number": 1,
+    "model": "stability-ai/sdxl",
+    "version": "da77bc59ee60423279fd632efb4795ab731d9e3ca9705ef3341091fb989b7eaf",
+    "created_at": "2024-03-14T11:43:32.049157Z",
+    "created_by": {
+       "type": "organization",
+       "username": "acme",
+       "name": "Acme, Inc.",
+       "github_url": "https://github.com/replicate"
+    },
+    "configuration": {
+      "hardware": "gpu-a100",
+      "min_instances": 1,
+      "max_instances": 0
+    }
+  }
+}
+```
+
+### `replicate.deployments.update`
+
+Update an existing deployment.
+
+```js
+const response = await replicate.deployments.update(deploymentOwner, deploymentName, options);
+```
+
+| name                    | type   | description                                                                      |
+| ----------------------- | ------ | -------------------------------------------------------------------------------- |
+| `deploymentOwner`       | string | Required. Owner of the deployment                                                |
+| `deploymentName`        | string | Required. Name of the deployment to update                                       |
+| `options.model`         | string | Name of the model in the format `{username}/{model_name}`                        |
+| `options.version`       | string | ID of the model version                                                          |
+| `options.hardware`      | string | Required. SKU of the hardware to run the deployment on (`cpu`, `gpu-a100`, etc.) |
+| `options.min_instances` | number | Minimum number of instances to run                                               |
+| `options.max_instances` | number | Maximum number of instances to scale up to                                       |
+
+```jsonc
+{
+  "owner": "acme",
+  "name": "my-app-image-generator",
+  "current_release": {
+    "number": 2,
+    "model": "stability-ai/sdxl",
+    "version": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+    "created_at": "2024-03-14T11:43:32.049157Z",
+    "created_by": {
+       "type": "organization",
+       "username": "acme",
+       "name": "Acme, Inc.",
+       "github_url": "https://github.com/replicate"
+    },
+    "configuration": {
+      "hardware": "gpu-a100",
+      "min_instances": 1,
+      "max_instances": 0
+    }
+  }
+}
+```
 
 ### `replicate.paginate`
 
