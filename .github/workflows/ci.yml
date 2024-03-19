@@ -45,6 +45,7 @@ jobs:
       - name: Build tarball
         id: pack
         run: |
+          npm clean-install
           echo "tarball-name=$(npm --loglevel error pack)" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v3
         with:
