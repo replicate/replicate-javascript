@@ -15,6 +15,7 @@ export default async function main() {
   const output = [];
 
   for await (const { event, data } of replicate.stream(model, options)) {
+    console.log({ event, data });
     if (event === "output") {
       output.push(data);
     }
