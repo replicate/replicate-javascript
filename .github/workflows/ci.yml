@@ -64,9 +64,6 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
         node-version: [18.x, 20.x]
         suite: [commonjs, esm, typescript]
-        exclude:
-          - suite: cloudflare-worker
-            node-version: 18.x # Only test Cloudflare suite with the latest Node version
       fail-fast: false
 
     steps:
@@ -84,6 +81,36 @@ jobs:
           npm --prefix integration/${{ matrix.suite }} install "./${{ needs.build.outputs.tarball-name }}"
           npm --prefix integration/${{ matrix.suite }} test
 
+  integration-browser:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
+    strategy:
+      matrix:
+        browser: ["chromium", "firefox", "webkit"]
+        suite: ["browser"]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-tarball
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: |
+          cd integration/${{ matrix.suite }}
+          npm install
+          npm install "../../${{ needs.build.outputs.tarball-name }}"
+          npm exec -- playwright install ${{ matrix.browser }}
+          npm exec -- playwright install-deps ${{ matrix.browser }}
+          npm exec -- playwright test --browser ${{ matrix.browser }}
 
   integration-edge:
     needs: [test, build]
