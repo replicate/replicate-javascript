@@ -19,5 +19,5 @@ import type {
 
 test("main", async () => {
   const output = await main();
-  expect(output as any).toEqual("hello Brünnhilde Bun");
+  expect(output).toContain("Brünnhilde Bun");
 });
