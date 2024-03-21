@@ -33,10 +33,8 @@ declare module "replicate" {
       created_by: Account;
       configuration: {
         hardware: string;
-        scaling: {
-          min_instances: number;
-          max_instances: number;
-        };
+        min_instances: number;
+        max_instances: number;
       };
     };
   }
