@@ -791,10 +791,8 @@ describe("Replicate client", () => {
             },
             configuration: {
               hardware: "gpu-t4",
-              scaling: {
-                min_instances: 1,
-                max_instances: 5,
-              },
+              min_instances: 1,
+              max_instances: 5,
             },
           },
         });
@@ -832,10 +830,8 @@ describe("Replicate client", () => {
             },
             configuration: {
               hardware: "gpu-t4",
-              scaling: {
-                min_instances: 1,
-                max_instances: 5,
-              },
+              min_instances: 1,
+              max_instances: 5,
             },
           },
         });
@@ -878,10 +874,8 @@ describe("Replicate client", () => {
             },
             configuration: {
               hardware: "gpu-a40-large",
-              scaling: {
-                min_instances: 3,
-                max_instances: 10,
-              },
+              min_instances: 3,
+              max_instances: 10,
             },
           },
         });
@@ -905,12 +899,8 @@ describe("Replicate client", () => {
       expect(deployment.current_release.configuration.hardware).toBe(
         "gpu-a40-large"
       );
-      expect(
-        deployment.current_release.configuration.scaling?.min_instances
-      ).toBe(3);
-      expect(
-        deployment.current_release.configuration.scaling?.max_instances
-      ).toBe(10);
+      expect(deployment.current_release.configuration.min_instances).toBe(3);
+      expect(deployment.current_release.configuration.max_instances).toBe(10);
     });
     // Add more tests for error handling, edge cases, etc.
   });
@@ -935,7 +925,7 @@ describe("Replicate client", () => {
         });
 
       const deployments = await client.deployments.list();
-      expect(deployments.results.length).toBe(1)
+      expect(deployments.results.length).toBe(1);
     });
     // Add more tests for pagination, error handling, edge cases, etc.
   });
