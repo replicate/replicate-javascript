@@ -90,6 +90,7 @@ jobs:
 
     strategy:
       matrix:
+        node-version: [20.x]
         browser: ["chromium", "firefox", "webkit"]
         suite: ["browser"]
       fail-fast: false
