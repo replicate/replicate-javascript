@@ -218,7 +218,7 @@ class Replicate {
 
     const headers = {};
     if (auth) {
-      headers["Authorization"] = `Token ${auth}`;
+      headers["Authorization"] = `Bearer ${auth}`;
     }
     headers["Content-Type"] = "application/json";
     headers["User-Agent"] = userAgent;
