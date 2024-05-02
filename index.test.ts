@@ -1233,11 +1233,14 @@ describe("Replicate client", () => {
     test("Aborts the operation when abort signal is invoked", async () => {
       const controller = new AbortController();
       const { signal } = controller;
+      let body: Record<string, unknown> | undefined;
 
       const scope = nock(BASE_URL)
-        .post("/predictions", (body) => {
+        .post("/predictions", (_body) => {
+          // Should not pass the signal object in the body.
+          body = _body;
           controller.abort();
-          return body;
+          return _body;
         })
         .reply(201, {
           id: "ufawqhfynnddngldkgtslldrkq",
@@ -1263,7 +1266,10 @@ describe("Replicate client", () => {
         }
       );
 
+      expect(body).toBeDefined();
+      expect(body?.["signal"]).toBeUndefined();
       expect(signal.aborted).toBe(true);
+      expect(output).toBeUndefined();
 
       scope.done();
     });
