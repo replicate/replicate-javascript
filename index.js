@@ -162,14 +162,18 @@ class Replicate {
           progress(updatedPrediction);
         }
 
-        if (signal && signal.aborted) {
-          await this.predictions.cancel(updatedPrediction.id);
+        // We handle the cancel later in the function.
+        if (signal?.aborted) {
           return true; // stop polling
         }
 
         return false; // continue polling
       }
     );
+
+    if (signal?.aborted) {
+      prediction = await this.predictions.cancel(prediction.id);
+    }
 
     // Call progress callback with the completed prediction object
     if (progress) {
