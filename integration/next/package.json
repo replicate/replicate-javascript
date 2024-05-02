@@ -1,0 +1,14 @@
+{
+  "name": "replicate-next",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next",
+    "build": "rm -rf .next && next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.2.3",
+    "replicate": "../../"
+  }
+}

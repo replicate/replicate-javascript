@@ -171,3 +171,25 @@ jobs:
           for ((i=0; i<retries; i++)); do
             bun test && break || echo "Test failed, retrying..."
           done
+
+  integration-nextjs:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-tarball
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "npm"
+      - run: |
+          npm --prefix integration/next install
+          npm --prefix integration/next install "./${{ needs.build.outputs.tarball-name }}"
+          npm --prefix integration/next run build
