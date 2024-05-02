@@ -6,7 +6,7 @@ const result = await build({
   entryPoints: ["index.js"],
   bundle: true,
   platform: "browser",
-  external: ["node:crypto"],
+  external: ["crypto"],
   write: false,
 });
 const source = new TextDecoder().decode(result.outputFiles[0].contents);
