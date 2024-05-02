@@ -129,7 +129,7 @@ class Replicate {
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(ref, options, progress) {
-    const { wait, ...data } = options;
+    const { wait, signal, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
@@ -152,8 +152,6 @@ class Replicate {
     if (progress) {
       progress(prediction);
     }
-
-    const { signal } = options;
 
     prediction = await this.wait(
       prediction,
