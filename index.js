@@ -163,7 +163,7 @@ class Replicate {
         }
 
         // We handle the cancel later in the function.
-        if (signal?.aborted) {
+        if (signal && signal.aborted) {
           return true; // stop polling
         }
 
@@ -171,7 +171,7 @@ class Replicate {
       }
     );
 
-    if (signal?.aborted) {
+    if (signal && signal.aborted) {
       prediction = await this.predictions.cancel(prediction.id);
     }
 
