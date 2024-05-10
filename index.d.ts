@@ -1,4 +1,4 @@
-declare module "replicate" {
+declare module "replicate-main" {
   type Status = "starting" | "processing" | "succeeded" | "failed" | "canceled";
   type Visibility = "public" | "private";
   type WebhookEventType = "start" | "output" | "logs" | "completed";
