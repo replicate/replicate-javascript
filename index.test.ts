@@ -1233,11 +1233,14 @@ describe("Replicate client", () => {
     test("Aborts the operation when abort signal is invoked", async () => {
       const controller = new AbortController();
       const { signal } = controller;
+      let body: Record<string, unknown> | undefined;
 
       const scope = nock(BASE_URL)
-        .post("/predictions", (body) => {
+        .post("/predictions", (_body) => {
+          // Should not pass the signal object in the body.
+          body = _body;
           controller.abort();
-          return body;
+          return _body;
         })
         .reply(201, {
           id: "ufawqhfynnddngldkgtslldrkq",
@@ -1255,15 +1258,39 @@ describe("Replicate client", () => {
           status: "canceled",
         });
 
-      await client.run(
+      const onProgress = jest.fn();
+      const output = await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
           input: { text: "Hello, world!" },
           signal,
-        }
+        },
+        onProgress
       );
 
+      expect(body).toBeDefined();
+      expect(body?.["signal"]).toBeUndefined();
       expect(signal.aborted).toBe(true);
+      expect(output).toBeUndefined();
+
+      expect(onProgress).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          status: "processing",
+        })
+      );
+      expect(onProgress).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          status: "processing",
+        })
+      );
+      expect(onProgress).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({
+          status: "canceled",
+        })
+      );
 
       scope.done();
     });

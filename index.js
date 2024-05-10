@@ -129,7 +129,7 @@ class Replicate {
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(ref, options, progress) {
-    const { wait, ...data } = options;
+    const { wait, signal, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
@@ -153,8 +153,6 @@ class Replicate {
       progress(prediction);
     }
 
-    const { signal } = options;
-
     prediction = await this.wait(
       prediction,
       wait || {},
@@ -164,14 +162,18 @@ class Replicate {
           progress(updatedPrediction);
         }
 
+        // We handle the cancel later in the function.
         if (signal && signal.aborted) {
-          await this.predictions.cancel(updatedPrediction.id);
           return true; // stop polling
         }
 
         return false; // continue polling
       }
     );
+
+    if (signal && signal.aborted) {
+      prediction = await this.predictions.cancel(prediction.id);
+    }
 
     // Call progress callback with the completed prediction object
     if (progress) {
@@ -218,7 +220,7 @@ class Replicate {
 
     const headers = {};
     if (auth) {
-      headers["Authorization"] = `Token ${auth}`;
+      headers["Authorization"] = `Bearer ${auth}`;
     }
     headers["Content-Type"] = "application/json";
     headers["User-Agent"] = userAgent;
@@ -272,7 +274,7 @@ class Replicate {
    * @yields {ServerSentEvent} Each streamed event from the prediction
    */
   async *stream(ref, options) {
-    const { wait, ...data } = options;
+    const { wait, signal, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
@@ -294,11 +296,10 @@ class Replicate {
     }
 
     if (prediction.urls && prediction.urls.stream) {
-      const { signal } = options;
       const stream = createReadableStream({
         url: prediction.urls.stream,
         fetch: this.fetch,
-        options: { signal },
+        ...(signal ? { options: { signal } } : {}),
       });
 
       yield* streamAsyncIterator(stream);
