@@ -148,6 +148,48 @@ await replicate.predictions.create({
 // => {"id": "xyz", "status": "successful", ... }
 ```
 
+## Verifying webhooks
+
+To prevent unauthorized requests, Replicate signs every webhook and its metadata with a unique key for each user or organization. You can use this signature to verify the webhook indeed comes from Replicate before you process it.
+
+This client includes a `validateWebhook` convenience function that you can use to validate webhooks.
+
+To validate webhooks:
+
+1. [Retrieve your webhook signing secret](https://replicate.com/docs/webhooks#retrieving-the-webhook-signing-key) and store it in your enviroment.
+1. Update your webhook handler to call `validateWebhook(request, secret)`, where `request` is an instance of a [web-standard `Request` object](https://developer.mozilla.org/en-US/docs/Web/API/object, and `secret` is the signing secret for your environment.
+
+Here's an example of how to validate webhooks using Next.js:
+
+```js
+import { NextResponse } from 'next/server';
+import { validateWebhook } from 'replicate';
+
+export async function POST(request) {
+  const secret = process.env.REPLICATE_WEBHOOK_SIGNING_SECRET;
+
+  if (!secret) {
+    console.log("Skipping webhook validation. To validate webhooks, set REPLICATE_WEBHOOK_SIGNING_SECRET")
+    const body = await request.json();
+    console.log(body);
+    return NextResponse.json({ detail: "Webhook received (but not validated)" }, { status: 200 });
+  }
+  
+  const webhookIsValid = await validateWebhook(request.clone(), secret);
+
+  if (!webhookIsValid) {
+    return NextResponse.json({ detail: "Webhook is invalid" }, { status: 401 });
+  }
+
+  // process validated webhook here...
+  console.log("Webhook is valid!");
+  const body = await request.json();
+  console.log(body);
+
+  return NextResponse.json({ detail: "Webhook is valid" }, { status: 200 });
+}
+```
+
 ## TypeScript
 
 Currently in order to support the module format used by `replicate` you'll need to set `esModuleInterop` to `true` in your tsconfig.json.
