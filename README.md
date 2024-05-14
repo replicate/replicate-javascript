@@ -12,6 +12,8 @@ and everything else you can do with
 
 ## Installation
 
+This library requires Node.js >= 18.
+
 Install it from npm:
 
 ```bash
@@ -20,7 +22,7 @@ npm install replicate
 
 ## Usage
 
-Create the client:
+Import or require the package:
 
 ```js
 // CommonJS (default or using .cjs extension)
@@ -30,9 +32,11 @@ const Replicate = require("replicate");
 import Replicate from "replicate";
 ```
 
-```
+Instantiate the client:
+
+```js
 const replicate = new Replicate({
-  // get your token from https://replicate.com/account
+  // get your token from https://replicate.com/account/api-tokens
   auth: "my api token", // defaults to process.env.REPLICATE_API_TOKEN
 });
 ```
