@@ -46,6 +46,7 @@ class Replicate {
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
+   * @param {"default" | "upload" | "data-uri"} [options.fileEncodingStrategy] - Determines the file encoding strategy to use
    */
   constructor(options = {}) {
     this.auth =
@@ -55,6 +56,7 @@ class Replicate {
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
+    this.fileEncodingStrategy = options.fileEncodingStrategy ?? "default";
 
     this.accounts = {
       current: accounts.current.bind(this),
@@ -230,10 +232,17 @@ class Replicate {
       }
     }
 
+    let body = undefined;
+    if (data instanceof FormData) {
+      body = data;
+    } else if (data) {
+      body = JSON.stringify(data);
+    }
+
     const init = {
       method,
       headers,
-      body: data ? JSON.stringify(data) : undefined,
+      body,
     };
 
     const shouldRetry =
