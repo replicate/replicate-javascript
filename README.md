@@ -1021,26 +1021,3 @@ const response = await replicate.request(route, parameters);
 The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
-
-## Vendored Dependencies
-
-We have a few dependencies that have been bundled into the vendor directory rather than adding external npm dependencies.
-
-These have been generated using bundlejs.com and copied into the appropriate directory along with the license and repository information.
-
-* [eventsource-parser/stream](https://bundlejs.com/?bundle&q=eventsource-parser%40latest%2Fstream&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%2C%22platform%22%3A%22neutral%22%7D%7D)
-* [streams-text-encoding/text-decoder-stream](https://bundlejs.com/?q=%40stardazed%2Fstreams-text-encoding&treeshake=%5B%7B+TextDecoderStream+%7D%5D&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%7D%7D)
-
-> [!NOTE]
-> The vendored implementation of `TextDecoderStream` requires
-> the following patch to be applied to the output of bundlejs.com:
->
-> ```diff
->   constructor(label, options) {
-> -   this[decDecoder] = new TextDecoder(label, options);
-> -   this[decTransform] = new TransformStream(new TextDecodeTransformer(this[decDecoder]));
-> +   const decoder = new TextDecoder(label || "utf-8", options || {});
-> +   this[decDecoder] = decoder;
-> +   this[decTransform] = new TransformStream(new TextDecodeTransformer(decoder));
->   }
-> ```
