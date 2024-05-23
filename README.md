@@ -197,6 +197,8 @@ export async function POST(request) {
 
 ## TypeScript
 
+The `Replicate` constructor and all `replicate.*` methods are fully typed.
+
 Currently in order to support the module format used by `replicate` you'll need to set `esModuleInterop` to `true` in your tsconfig.json.
 
 ## API
@@ -1019,10 +1021,6 @@ const response = await replicate.request(route, parameters);
 The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
-
-## TypeScript
-
-The `Replicate` constructor and all `replicate.*` methods are fully typed.
 
 ## Vendored Dependencies
 
