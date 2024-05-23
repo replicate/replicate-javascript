@@ -1021,3 +1021,18 @@ const response = await replicate.request(route, parameters);
 The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
+
+## Troubleshooting
+
+### Predictions hanging in Next.js
+
+Next.js App Router adds some extensions to `fetch` to make it cache responses. To disable this behavior, set the `cache` option to `"no-store"` on the Replicate client's fetch object:
+
+```js
+replicate = new Replicate({/*...*/})
+replicate.fetch = (url, options) => {
+  return fetch(url, { ...options, cache: "no-store" });
+};
+```
+
+Alternatively you can use Next.js [`noStore`](https://github.com/replicate/replicate-javascript/issues/136#issuecomment-1847442879) to opt out of caching for your component.
