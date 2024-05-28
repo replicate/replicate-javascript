@@ -197,6 +197,8 @@ export async function POST(request) {
 
 ## TypeScript
 
+The `Replicate` constructor and all `replicate.*` methods are fully typed.
+
 Currently in order to support the module format used by `replicate` you'll need to set `esModuleInterop` to `true` in your tsconfig.json.
 
 ## API
@@ -1020,29 +1022,17 @@ The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
 
-## TypeScript
+## Troubleshooting
 
-The `Replicate` constructor and all `replicate.*` methods are fully typed.
+### Predictions hanging in Next.js
 
-## Vendored Dependencies
+Next.js App Router adds some extensions to `fetch` to make it cache responses. To disable this behavior, set the `cache` option to `"no-store"` on the Replicate client's fetch object:
 
-We have a few dependencies that have been bundled into the vendor directory rather than adding external npm dependencies.
+```js
+replicate = new Replicate({/*...*/})
+replicate.fetch = (url, options) => {
+  return fetch(url, { ...options, cache: "no-store" });
+};
+```
 
-These have been generated using bundlejs.com and copied into the appropriate directory along with the license and repository information.
-
-* [eventsource-parser/stream](https://bundlejs.com/?bundle&q=eventsource-parser%40latest%2Fstream&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%2C%22platform%22%3A%22neutral%22%7D%7D)
-* [streams-text-encoding/text-decoder-stream](https://bundlejs.com/?q=%40stardazed%2Fstreams-text-encoding&treeshake=%5B%7B+TextDecoderStream+%7D%5D&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%7D%7D)
-
-> [!NOTE]
-> The vendored implementation of `TextDecoderStream` requires
-> the following patch to be applied to the output of bundlejs.com:
->
-> ```diff
->   constructor(label, options) {
-> -   this[decDecoder] = new TextDecoder(label, options);
-> -   this[decTransform] = new TransformStream(new TextDecodeTransformer(this[decDecoder]));
-> +   const decoder = new TextDecoder(label || "utf-8", options || {});
-> +   this[decDecoder] = decoder;
-> +   this[decTransform] = new TransformStream(new TextDecodeTransformer(decoder));
->   }
-> ```
+Alternatively you can use Next.js [`noStore`](https://github.com/replicate/replicate-javascript/issues/136#issuecomment-1847442879) to opt out of caching for your component.
