@@ -114,6 +114,50 @@ describe("Replicate client", () => {
       const collections = await client.collections.list();
       expect(collections.results.length).toBe(2);
     });
+
+    describe("predictions.create", () => {
+      test("Handles array input correctly", async () => {
+        const inputArray = ["Alice", "Bob", "Charlie"];
+
+        nock(BASE_URL)
+          .post("/predictions", {
+            version:
+              "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+            input: {
+              text: inputArray,
+            },
+          })
+          .reply(200, {
+            id: "ufawqhfynnddngldkgtslldrkq",
+            model: "replicate/hello-world",
+            version:
+              "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+            urls: {
+              get: "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
+              cancel:
+                "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel",
+            },
+            created_at: "2022-04-26T22:13:06.224088Z",
+            started_at: null,
+            completed_at: null,
+            status: "starting",
+            input: {
+              text: inputArray,
+            },
+          });
+
+        const response = await client.predictions.create({
+          version:
+            "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          input: {
+            text: inputArray,
+          },
+        });
+
+        expect(response.input).toEqual({ text: inputArray });
+        expect(response.status).toBe("starting");
+      });
+    });
     // Add more tests for error handling, edge cases, etc.
   });
 
