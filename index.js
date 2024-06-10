@@ -220,12 +220,13 @@ class Replicate {
       url.searchParams.append(key, value);
     }
 
-    const headers = {};
+    const headers = {
+      "Content-Type": "application/json",
+      "User-Agent": userAgent,
+    };
     if (auth) {
       headers["Authorization"] = `Bearer ${auth}`;
     }
-    headers["Content-Type"] = "application/json";
-    headers["User-Agent"] = userAgent;
     if (options.headers) {
       for (const [key, value] of Object.entries(options.headers)) {
         headers[key] = value;
@@ -235,6 +236,8 @@ class Replicate {
     let body = undefined;
     if (data instanceof FormData) {
       body = data;
+      // biome-ignore lint/performance/noDelete:
+      delete headers["Content-Type"]; // Use automatic content type header
     } else if (data) {
       body = JSON.stringify(data);
     }
