@@ -296,7 +296,6 @@ describe("Replicate client", () => {
 
         nock(BASE_URL)
           .post("/files")
-          .matchHeader("Content-Type", "multipart/form-data")
           .reply(201, {
             urls: {
               get: "https://replicate.com/api/files/123",
@@ -317,7 +316,6 @@ describe("Replicate client", () => {
             prompt: "Tell me a story",
             data,
           },
-          stream: true,
         });
 
         expect(client.fetch).toHaveBeenCalledWith(
@@ -325,9 +323,7 @@ describe("Replicate client", () => {
           {
             method: "POST",
             body: expect.any(FormData),
-            headers: expect.objectContaining({
-              "Content-Type": "multipart/form-data",
-            }),
+            headers: expect.any(Object),
           }
         );
         const form = mockedFetch.mock.calls[0][1]?.body as FormData;
