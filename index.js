@@ -235,6 +235,8 @@ class Replicate {
     let body = undefined;
     if (data instanceof FormData) {
       body = data;
+      // biome-ignore lint/performance/noDelete:
+      delete headers["Content-Type"]; // Use automatic content type header
     } else if (data) {
       body = JSON.stringify(data);
     }
