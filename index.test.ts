@@ -185,50 +185,92 @@ describe("Replicate client", () => {
   });
 
   describe("predictions.create", () => {
-    test("Calls the correct API route with the correct payload", async () => {
-      nock(BASE_URL)
-        .post("/predictions")
-        .reply(200, {
-          id: "ufawqhfynnddngldkgtslldrkq",
-          model: "replicate/hello-world",
-          version:
-            "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-          urls: {
-            get: "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
-            cancel:
-              "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel",
-          },
-          created_at: "2022-04-26T22:13:06.224088Z",
-          started_at: null,
-          completed_at: null,
-          status: "starting",
-          input: {
-            text: "Alice",
-          },
-          output: null,
-          error: null,
-          logs: null,
-          metrics: {},
-        });
-      const prediction = await client.predictions.create({
-        version:
-          "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+    const predictionTestCases = [
+      {
+        description: "String input",
         input: {
           text: "Alice",
         },
-        webhook: "http://test.host/webhook",
-        webhook_events_filter: ["output", "completed"],
-      });
-      expect(prediction.id).toBe("ufawqhfynnddngldkgtslldrkq");
-    });
+      },
+      {
+        description: "Number input",
+        input: {
+          text: 123,
+        },
+      },
+      {
+        description: "Boolean input",
+        input: {
+          text: true,
+        },
+      },
+      {
+        description: "Array input",
+        input: {
+          text: ["Alice", "Bob", "Charlie"],
+        },
+      },
+      {
+        description: "Object input",
+        input: {
+          text: {
+            name: "Alice",
+          },
+        },
+      },
+    ].map((testCase) => ({
+      ...testCase,
+      expectedResponse: {
+        id: "ufawqhfynnddngldkgtslldrkq",
+        model: "replicate/hello-world",
+        version:
+          "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        urls: {
+          get: "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq",
+          cancel:
+            "https://api.replicate.com/v1/predictions/ufawqhfynnddngldkgtslldrkq/cancel",
+        },
+        input: testCase.input,
+        created_at: "2022-04-26T22:13:06.224088Z",
+        started_at: null,
+        completed_at: null,
+        status: "starting",
+      },
+    }));
 
-    test.each([
+    test.each(predictionTestCases)(
+      "$description",
+      async ({ input, expectedResponse }) => {
+        nock(BASE_URL)
+          .post("/predictions", {
+            version:
+              "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+            input: input as Record<string, any>,
+            webhook: "http://test.host/webhook",
+            webhook_events_filter: ["output", "completed"],
+          })
+          .reply(200, expectedResponse);
+
+        const response = await client.predictions.create({
+          version:
+            "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          input: input as Record<string, any>,
+          webhook: "http://test.host/webhook",
+          webhook_events_filter: ["output", "completed"],
+        });
+
+        expect(response.input).toEqual(input);
+        expect(response.status).toBe(expectedResponse.status);
+      }
+    );
+
+    const fileTestCases = [
       // Skip test case if File type is not available
       ...(typeof File !== "undefined"
         ? [
             {
               type: "file",
-              value: new File(["hello world"], "hello.txt", {
+              value: new File(["hello world"], "file_hello.txt", {
                 type: "text/plain",
               }),
               expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
@@ -245,11 +287,63 @@ describe("Replicate client", () => {
         value: Buffer.from("hello world"),
         expected: "data:application/octet-stream;base64,aGVsbG8gd29ybGQ=",
       },
-    ])(
+    ];
+
+    test.each(fileTestCases)(
+      "converts a $type input into a Replicate file URL",
+      async ({ value: data, type }) => {
+        const mockedFetch = jest.spyOn(client, "fetch");
+
+        nock(BASE_URL)
+          .post("/files")
+          .reply(201, {
+            urls: {
+              get: "https://replicate.com/api/files/123",
+            },
+          })
+          .post(
+            "/predictions",
+            (body) => body.input.data === "https://replicate.com/api/files/123"
+          )
+          .reply(201, (_uri: string, body: Record<string, any>) => {
+            return body;
+          });
+
+        const prediction = await client.predictions.create({
+          version:
+            "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          input: {
+            prompt: "Tell me a story",
+            data,
+          },
+        });
+
+        expect(client.fetch).toHaveBeenCalledWith(
+          new URL("https://api.replicate.com/v1/files"),
+          {
+            method: "POST",
+            body: expect.any(FormData),
+            headers: expect.any(Object),
+          }
+        );
+        const form = mockedFetch.mock.calls[0][1]?.body as FormData;
+        // @ts-ignore
+        expect(form?.get("content")?.name).toMatch(new RegExp(`^${type}_`));
+
+        expect(prediction.input).toEqual({
+          prompt: "Tell me a story",
+          data: "https://replicate.com/api/files/123",
+        });
+      }
+    );
+
+    test.each(fileTestCases)(
       "converts a $type input into a base64 encoded string",
       async ({ value: data, expected }) => {
         let actual: Record<string, any> | undefined;
         nock(BASE_URL)
+          .post("/files")
+          .reply(503, "Service Unavailable")
           .post("/predictions")
           .reply(201, (_uri: string, body: Record<string, any>) => {
             actual = body;

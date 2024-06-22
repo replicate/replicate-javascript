@@ -1,7 +1,11 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.0.0/schema.json",
   "files": {
-    "ignore": [".wrangler", "vendor/*"]
+    "ignore": [
+      ".wrangler",
+      "node_modules",
+      "vendor/*"
+    ]
   },
   "formatter": {
     "indentStyle": "space",

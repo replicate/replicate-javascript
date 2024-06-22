@@ -46,6 +46,7 @@ class Replicate {
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
+   * @param {"default" | "upload" | "data-uri"} [options.fileEncodingStrategy] - Determines the file encoding strategy to use
    */
   constructor(options = {}) {
     this.auth =
@@ -55,6 +56,7 @@ class Replicate {
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
+    this.fileEncodingStrategy = options.fileEncodingStrategy ?? "default";
 
     this.accounts = {
       current: accounts.current.bind(this),
@@ -218,22 +220,32 @@ class Replicate {
       url.searchParams.append(key, value);
     }
 
-    const headers = {};
+    const headers = {
+      "Content-Type": "application/json",
+      "User-Agent": userAgent,
+    };
     if (auth) {
       headers["Authorization"] = `Bearer ${auth}`;
     }
-    headers["Content-Type"] = "application/json";
-    headers["User-Agent"] = userAgent;
     if (options.headers) {
       for (const [key, value] of Object.entries(options.headers)) {
         headers[key] = value;
       }
     }
 
+    let body = undefined;
+    if (data instanceof FormData) {
+      body = data;
+      // biome-ignore lint/performance/noDelete:
+      delete headers["Content-Type"]; // Use automatic content type header
+    } else if (data) {
+      body = JSON.stringify(data);
+    }
+
     const init = {
       method,
       headers,
-      body: data ? JSON.stringify(data) : undefined,
+      body,
     };
 
     const shouldRetry =

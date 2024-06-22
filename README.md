@@ -12,6 +12,8 @@ and everything else you can do with
 
 ## Installation
 
+This library requires Node.js >= 18.
+
 Install it from npm:
 
 ```bash
@@ -20,7 +22,7 @@ npm install replicate
 
 ## Usage
 
-Create the client:
+Import or require the package:
 
 ```js
 // CommonJS (default or using .cjs extension)
@@ -30,9 +32,11 @@ const Replicate = require("replicate");
 import Replicate from "replicate";
 ```
 
-```
+Instantiate the client:
+
+```js
 const replicate = new Replicate({
-  // get your token from https://replicate.com/account
+  // get your token from https://replicate.com/account/api-tokens
   auth: "my api token", // defaults to process.env.REPLICATE_API_TOKEN
 });
 ```
@@ -148,7 +152,52 @@ await replicate.predictions.create({
 // => {"id": "xyz", "status": "successful", ... }
 ```
 
+## Verifying webhooks
+
+To prevent unauthorized requests, Replicate signs every webhook and its metadata with a unique key for each user or organization. You can use this signature to verify the webhook indeed comes from Replicate before you process it.
+
+This client includes a `validateWebhook` convenience function that you can use to validate webhooks.
+
+To validate webhooks:
+
+1. Check out the [webhooks guide](https://replicate.com/docs/webhooks) to get started.
+1. [Retrieve your webhook signing secret](https://replicate.com/docs/webhooks#retrieving-the-webhook-signing-key) and store it in your enviroment.
+1. Update your webhook handler to call `validateWebhook(request, secret)`, where `request` is an instance of a [web-standard `Request` object](https://developer.mozilla.org/en-US/docs/Web/API/object, and `secret` is the signing secret for your environment.
+
+Here's an example of how to validate webhooks using Next.js:
+
+```js
+import { NextResponse } from 'next/server';
+import { validateWebhook } from 'replicate';
+
+export async function POST(request) {
+  const secret = process.env.REPLICATE_WEBHOOK_SIGNING_SECRET;
+
+  if (!secret) {
+    console.log("Skipping webhook validation. To validate webhooks, set REPLICATE_WEBHOOK_SIGNING_SECRET")
+    const body = await request.json();
+    console.log(body);
+    return NextResponse.json({ detail: "Webhook received (but not validated)" }, { status: 200 });
+  }
+  
+  const webhookIsValid = await validateWebhook(request.clone(), secret);
+
+  if (!webhookIsValid) {
+    return NextResponse.json({ detail: "Webhook is invalid" }, { status: 401 });
+  }
+
+  // process validated webhook here...
+  console.log("Webhook is valid!");
+  const body = await request.json();
+  console.log(body);
+
+  return NextResponse.json({ detail: "Webhook is valid" }, { status: 200 });
+}
+```
+
 ## TypeScript
+
+The `Replicate` constructor and all `replicate.*` methods are fully typed.
 
 Currently in order to support the module format used by `replicate` you'll need to set `esModuleInterop` to `true` in your tsconfig.json.
 
@@ -973,29 +1022,17 @@ The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
 
-## TypeScript
+## Troubleshooting
 
-The `Replicate` constructor and all `replicate.*` methods are fully typed.
+### Predictions hanging in Next.js
 
-## Vendored Dependencies
+Next.js App Router adds some extensions to `fetch` to make it cache responses. To disable this behavior, set the `cache` option to `"no-store"` on the Replicate client's fetch object:
 
-We have a few dependencies that have been bundled into the vendor directory rather than adding external npm dependencies.
+```js
+replicate = new Replicate({/*...*/})
+replicate.fetch = (url, options) => {
+  return fetch(url, { ...options, cache: "no-store" });
+};
+```
 
-These have been generated using bundlejs.com and copied into the appropriate directory along with the license and repository information.
-
-* [eventsource-parser/stream](https://bundlejs.com/?bundle&q=eventsource-parser%40latest%2Fstream&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%2C%22platform%22%3A%22neutral%22%7D%7D)
-* [streams-text-encoding/text-decoder-stream](https://bundlejs.com/?q=%40stardazed%2Fstreams-text-encoding&treeshake=%5B%7B+TextDecoderStream+%7D%5D&config=%7B%22esbuild%22%3A%7B%22format%22%3A%22cjs%22%2C%22minify%22%3Afalse%7D%7D)
-
-> [!NOTE]
-> The vendored implementation of `TextDecoderStream` requires
-> the following patch to be applied to the output of bundlejs.com:
->
-> ```diff
->   constructor(label, options) {
-> -   this[decDecoder] = new TextDecoder(label, options);
-> -   this[decTransform] = new TransformStream(new TextDecodeTransformer(this[decDecoder]));
-> +   const decoder = new TextDecoder(label || "utf-8", options || {});
-> +   this[decDecoder] = decoder;
-> +   this[decTransform] = new TransformStream(new TextDecodeTransformer(decoder));
->   }
-> ```
+Alternatively you can use Next.js [`noStore`](https://github.com/replicate/replicate-javascript/issues/136#issuecomment-1847442879) to opt out of caching for your component.
