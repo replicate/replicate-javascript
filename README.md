@@ -78,6 +78,7 @@ console.log(prediction.output);
 ```
 
 To run a model that takes a file input you can pass the data directly or pass a URL to a publicly accessible file.
+If you don't use the built-in file handler but want to pass a file handle directly, you'll need to create a base64 encoded data URL of the file input.
 
 ```js
 const fs = require("node:fs/promises");
