@@ -95,6 +95,10 @@ const output = await replicate.run(model, { input });
 // ['https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png']
 ```
 
+> [!NOTE]
+> File handle inputs are automatically uploaded to Replicate.
+> See [`replicate.files.create`](#replicatefilescreate) for more information.
+
 ### Webhooks
 
 Webhooks provide real-time updates about your prediction. Specify an endpoint when you create a prediction, and Replicate will send HTTP POST requests to that URL when the prediction is created, updated, and finished.
@@ -984,6 +988,95 @@ const response = await replicate.deployments.update(deploymentOwner, deploymentN
   }
 }
 ```
+
+### `replicate.files.create`
+
+Upload a file to Replicate.
+
+> [!TIP]
+> The client library calls this endpoint automatically to upload the contents of
+> file handles provided as prediction and training inputs.
+> You don't need to call this method directly unless you want more control.
+> For example, you might want to reuse a file across multiple predictions
+> without re-uploading it each time,
+> or you may want to set custom metadata on the file resource.
+
+```js
+const response = await replicate.files.create(file, metadata);
+```
+
+| name       | type                  | description                                                |
+| ---------- | --------------------- | ---------------------------------------------------------- |
+| `file`     | Blob, File, or Buffer | **Required**. The file to upload.                          |
+| `metadata` | object                | Optional. User-provided metadata associated with the file. |
+
+```jsonc
+{
+    "id": "MTQzODcyMDct0YjZkLWE1ZGYtMmRjZTViNWIwOGEyNjNhNS0",
+    "name": "photo.webp",
+    "content_type": "image/webp",
+    "size": 96936,
+    "etag": "f211779ff7502705bbf42e9874a17ab3",
+    "checksums": {
+        "sha256": "7282eb6991fa4f38d80c312dc207d938c156d714c94681623aedac846488e7d3",
+        "md5": "f211779ff7502705bbf42e9874a17ab3"
+    },
+    "metadata": {
+        "customer_reference_id": "123"
+    },
+    "created_at": "2024-06-28T10:16:04.062Z",
+    "expires_at": "2024-06-29T10:16:04.062Z",
+    "urls": {
+        "get": "https://api.replicate.com/v1/files/MTQzODcyMDct0YjZkLWE1ZGYtMmRjZTViNWIwOGEyNjNhNS0"
+    }
+}
+```
+
+Files uploaded to Replicate using this endpoint expire after 24 hours.
+
+Pass the `urls.get` property of a file resource
+to use it as an input when running a model on Replicate.
+The value of `urls.get` is opaque,
+and shouldn't be inferred from other attributes.
+
+The contents of a file are only made accessible to a model running on Replicate,
+and only when passed as a prediction or training input
+by the user or organization who created the file.
+
+### `replicate.files.list`
+
+List all files you've uploaded.
+
+```js
+const response = await replicate.files.list();
+```
+
+### `replicate.files.get`
+
+Get metadata for a specific file.
+
+```js
+const response = await replicate.files.get(file_id);
+```
+
+| name      | type   | description                       |
+| --------- | ------ | --------------------------------- |
+| `file_id` | string | **Required**. The ID of the file. |
+
+### `replicate.files.delete`
+
+Delete a file.
+
+Files uploaded using the `replicate.files.create` method expire after 24 hours.
+You can use this method to delete them sooner.
+
+```js
+const response = await replicate.files.delete(file_id);
+```
+
+| name      | type   | description                       |
+| --------- | ------ | --------------------------------- |
+| `file_id` | string | **Required**. The ID of the file. |
 
 ### `replicate.paginate`
 
