@@ -77,7 +77,9 @@ console.log(prediction.output);
 // ['https://replicate.delivery/pbxt/RoaxeXqhL0xaYyLm6w3bpGwF5RaNBjADukfFnMbhOyeoWBdhA/out-0.png']
 ```
 
-To run a model that takes a file input you can pass the data directly or pass a URL to a publicly accessible file.
+To run a model that takes a file input you can pass either
+a URL to a publicly accessible file on the Internet
+or a handle to a file on your local device.
 
 ```js
 const fs = require("node:fs/promises");
@@ -179,7 +181,7 @@ export async function POST(request) {
     console.log(body);
     return NextResponse.json({ detail: "Webhook received (but not validated)" }, { status: 200 });
   }
-  
+
   const webhookIsValid = await validateWebhook(request.clone(), secret);
 
   if (!webhookIsValid) {
