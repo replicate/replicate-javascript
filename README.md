@@ -215,12 +215,14 @@ Currently in order to support the module format used by `replicate` you'll need 
 const replicate = new Replicate(options);
 ```
 
-| name                | type     | description                                                                       |
-| ------------------- | -------- | --------------------------------------------------------------------------------- |
-| `options.auth`      | string   | **Required**. API access token                                                    |
-| `options.userAgent` | string   | Identifier of your app. Defaults to `replicate-javascript/${packageJSON.version}` |
-| `options.baseUrl`   | string   | Defaults to https://api.replicate.com/v1                                          |
-| `options.fetch`     | function | Fetch function to use. Defaults to `globalThis.fetch`                             |
+| name                           | type     | description                                                                                                                      |
+| ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `options.auth`                 | string   | **Required**. API access token                                                                                                   |
+| `options.userAgent`            | string   | Identifier of your app. Defaults to `replicate-javascript/${packageJSON.version}`                                                |
+| `options.baseUrl`              | string   | Defaults to https://api.replicate.com/v1                                                                                         |
+| `options.fetch`                | function | Fetch function to use. Defaults to `globalThis.fetch`                                                                            |
+| `options.fileEncodingStrategy` | string   | Determines the file encoding strategy to use. Possible values: `"default"`, `"upload"`, or `"data-uri"`. Defaults to `"default"` |
+
 
 The client makes requests to Replicate's API using
 [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
@@ -1000,6 +1002,10 @@ Upload a file to Replicate.
 > For example, you might want to reuse a file across multiple predictions
 > without re-uploading it each time,
 > or you may want to set custom metadata on the file resource.
+>
+> You can configure how a client handles file handle inputs
+> by setting the `fileEncodingStrategy` option in the
+> [client constructor](#constructor).
 
 ```js
 const response = await replicate.files.create(file, metadata);
