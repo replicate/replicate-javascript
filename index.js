@@ -11,6 +11,7 @@ const {
 const accounts = require("./lib/accounts");
 const collections = require("./lib/collections");
 const deployments = require("./lib/deployments");
+const files = require("./lib/files");
 const hardware = require("./lib/hardware");
 const models = require("./lib/models");
 const predictions = require("./lib/predictions");
@@ -75,6 +76,13 @@ class Replicate {
       predictions: {
         create: deployments.predictions.create.bind(this),
       },
+    };
+
+    this.files = {
+      create: files.create.bind(this),
+      get: files.get.bind(this),
+      list: files.list.bind(this),
+      delete: files.delete.bind(this),
     };
 
     this.hardware = {
