@@ -15,6 +15,31 @@ const BASE_URL = "https://api.replicate.com/v1";
 
 nock.disableNetConnect();
 
+const fileTestCases = [
+  // Skip test case if File type is not available
+  ...(typeof File !== "undefined"
+    ? [
+        {
+          type: "file",
+          value: new File(["hello world"], "file_hello.txt", {
+            type: "text/plain",
+          }),
+          expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
+        },
+      ]
+    : []),
+  {
+    type: "blob",
+    value: new Blob(["hello world"], { type: "text/plain" }),
+    expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
+  },
+  {
+    type: "buffer",
+    value: Buffer.from("hello world"),
+    expected: "data:application/octet-stream;base64,aGVsbG8gd29ybGQ=",
+  },
+];
+
 describe("Replicate client", () => {
   let unmatched: any[] = [];
   const handleNoMatch = (req: unknown, options: any, body: string) =>
@@ -263,31 +288,6 @@ describe("Replicate client", () => {
         expect(response.status).toBe(expectedResponse.status);
       }
     );
-
-    const fileTestCases = [
-      // Skip test case if File type is not available
-      ...(typeof File !== "undefined"
-        ? [
-            {
-              type: "file",
-              value: new File(["hello world"], "file_hello.txt", {
-                type: "text/plain",
-              }),
-              expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
-            },
-          ]
-        : []),
-      {
-        type: "blob",
-        value: new Blob(["hello world"], { type: "text/plain" }),
-        expected: "data:text/plain;base64,aGVsbG8gd29ybGQ=",
-      },
-      {
-        type: "buffer",
-        value: Buffer.from("hello world"),
-        expected: "data:application/octet-stream;base64,aGVsbG8gd29ybGQ=",
-      },
-    ];
 
     test.each(fileTestCases)(
       "converts a $type input into a Replicate file URL",
@@ -1070,6 +1070,96 @@ describe("Replicate client", () => {
       expect(prediction.id).toBe("heat2o3bzn3ahtr6bjfftvbaci");
     });
     // Add more tests for error handling, edge cases, etc.
+  });
+
+  describe("files.create", () => {
+    test("Calls the correct API route with the correct payload", async () => {
+      for (const testCase of fileTestCases) {
+        nock(BASE_URL)
+          .post("/files")
+          .reply(200, {
+            id: "123",
+            name: "test-file",
+            content_type: "application/octet-stream",
+            size: 1024,
+            etag: "abc123",
+            checksum: "sha256:1234567890abcdef",
+            metadata: {},
+            created_at: "2023-01-01T00:00:00Z",
+            expires_at: null,
+            urls: {
+              get: "https://api.replicate.com/v1/files/123",
+            },
+          });
+        const file = await client.files.create(testCase.value);
+        expect(file.id).toBe("123");
+        expect(file.name).toBe("test-file");
+      }
+    });
+  });
+
+  describe("files.get", () => {
+    test("Calls the correct API route", async () => {
+      nock(BASE_URL)
+        .get("/files/123")
+        .reply(200, {
+          id: "123",
+          name: "test-file",
+          content_type: "application/octet-stream",
+          size: 1024,
+          etag: "abc123",
+          checksum: "sha256:1234567890abcdef",
+          metadata: {},
+          created_at: "2023-01-01T00:00:00Z",
+          expires_at: null,
+          urls: {
+            get: "https://api.replicate.com/v1/files/123",
+          },
+        });
+
+      const file = await client.files.get("123");
+      expect(file.id).toBe("123");
+      expect(file.name).toBe("test-file");
+    });
+  });
+
+  describe("files.list", () => {
+    test("Calls the correct API route", async () => {
+      nock(BASE_URL)
+        .get("/files")
+        .reply(200, {
+          next: null,
+          previous: null,
+          results: [
+            {
+              id: "123",
+              name: "test-file",
+              content_type: "application/octet-stream",
+              size: 1024,
+              etag: "abc123",
+              checksum: "sha256:1234567890abcdef",
+              metadata: {},
+              created_at: "2023-01-01T00:00:00Z",
+              expires_at: null,
+              urls: {
+                get: "https://api.replicate.com/v1/files/123",
+              },
+            },
+          ],
+        });
+
+      const files = await client.files.list();
+      expect(files.results.length).toBe(1);
+      expect(files.results[0].id).toBe("123");
+    });
+  });
+
+  describe("files.delete", () => {
+    test("Calls the correct API route", async () => {
+      nock(BASE_URL).delete("/files/123").reply(204);
+      const success = await client.files.delete("123");
+      expect(success).toBe(true);
+    });
   });
 
   describe("hardware.list", () => {

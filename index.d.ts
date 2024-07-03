@@ -243,6 +243,16 @@ declare module "replicate" {
       list(): Promise<Page<Deployment>>;
     };
 
+    files: {
+      create(
+        file: Blob | Buffer,
+        metadata?: Record<string, unknown>
+      ): Promise<FileObject>;
+      list(): Promise<Page<FileObject>>;
+      get(file_id: string): Promise<FileObject>;
+      delete(file_id: string): Promise<boolean>;
+    };
+
     hardware: {
       list(): Promise<Hardware[]>;
     };
