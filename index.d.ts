@@ -246,7 +246,7 @@ declare module "replicate" {
       ): Promise<FileObject>;
       list(): Promise<Page<FileObject>>;
       get(file_id: string): Promise<FileObject>;
-      delete(file_id: string): Promise<void>;
+      delete(file_id: string): Promise<boolean>;
     };
 
     hardware: {
