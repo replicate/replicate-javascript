@@ -236,6 +236,10 @@ declare module "replicate" {
           | { max_instances: number }
         )
       ): Promise<Deployment>;
+      delete(
+        deployment_owner: string,
+        deployment_name: string
+      ): Promise<boolean>;
       list(): Promise<Page<Deployment>>;
     };
 

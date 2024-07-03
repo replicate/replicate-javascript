@@ -999,6 +999,20 @@ describe("Replicate client", () => {
     // Add more tests for error handling, edge cases, etc.
   });
 
+  describe("deployments.delete", () => {
+    test("Calls the correct API route with the correct payload", async () => {
+      nock(BASE_URL)
+        .delete("/deployments/acme/my-app-image-generator")
+        .reply(204);
+
+      const success = await client.deployments.delete(
+        "acme",
+        "my-app-image-generator"
+      );
+      expect(success).toBe(true);
+    });
+  });
+
   describe("deployments.list", () => {
     test("Calls the correct API route", async () => {
       nock(BASE_URL)
