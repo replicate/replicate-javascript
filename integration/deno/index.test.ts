@@ -21,6 +21,6 @@ Deno.test({
   name: "main",
   async fn() {
     const output = await main();
-    assertEquals({ output }, { output: "hello Deno the dinosaur" });
+    assertEquals({ output }, { output: "hello there, Deno the dinosaur" });
   },
 });

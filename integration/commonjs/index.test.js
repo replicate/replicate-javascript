@@ -4,5 +4,5 @@ const main = require("./index");
 
 test("main", async () => {
   const output = await main();
-  assert.equal(output, "hello Claire CommonJS");
+  assert.equal(output, "hello there, Claire CommonJS");
 });
