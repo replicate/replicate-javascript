@@ -210,6 +210,19 @@ export async function POST(request) {
 }
 ```
 
+If your environment doesn't support `Request` objects, you can pass the required information to `validateWebhook` directly:
+
+```js
+const requestData = {
+  id: "123",            // the `Webhook-Id` header
+  timestamp: "0123456", // the `Webhook-Timestamp` header
+  signature: "xyz",     // the `Webhook-Signature` header
+  body: "{...}",        // the request body as a string, ArrayBuffer or ReadableStream
+  secret: "shhh",       // the webhook secret, obtained from the `replicate.webhooks.defaul.secret` endpoint
+};
+const webhookIsValid = await validateWebhook(requestData);
+```
+
 ## TypeScript
 
 The `Replicate` constructor and all `replicate.*` methods are fully typed.
