@@ -141,7 +141,6 @@ jobs:
           npm --prefix integration/${{ matrix.suite }} install "./${{ needs.build.outputs.tarball-name }}"
           npm --prefix integration/${{ matrix.suite }} test
 
-
   integration-bun:
     needs: [test, build]
     runs-on: ubuntu-latest
@@ -171,6 +170,29 @@ jobs:
           for ((i=0; i<retries; i++)); do
             bun test && break || echo "Test failed, retrying..."
           done
+
+  integration-deno:
+    needs: [test]
+    runs-on: ubuntu-latest
+
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
+    strategy:
+      matrix:
+        deno-version: [v1.x]
+        suite: [deno]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Deno ${{ matrix.deno-version }}
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+      - run: |
+          cd integration/deno
+          deno test --allow-env index.test.ts --allow-net
 
   integration-nextjs:
     needs: [test, build]
