@@ -10,9 +10,17 @@ and everything else you can do with
 > For more information about how to build a web application
 > check out our ["Build a website with Next.js"](https://replicate.com/docs/get-started/nextjs) guide.
 
-## Installation
+## Supported platforms
 
-This library requires Node.js >= 18.
+- [Node.js](https://nodejs.org) >= 18
+- [Bun](https://bun.sh) >= 1.0
+
+You can also use this client library on most serverless platforms, including
+[Cloudflare Workers](https://developers.cloudflare.com/workers/),
+[Vercel functions](https://vercel.com/docs/functions), and
+[AWS Lambda](https://aws.amazon.com/lambda/).
+
+## Installation
 
 Install it from npm:
 
@@ -230,7 +238,7 @@ By default, the `globalThis.fetch` function is used,
 which is available on [Node.js 18](https://nodejs.org/en/blog/announcements/v18-release-announce#fetch-experimental) and later,
 as well as
 [Cloudflare Workers](https://developers.cloudflare.com/workers/runtime-apis/fetch/),
-[Vercel Edge Functions](https://vercel.com/docs/concepts/functions/edge-functions),
+[Vercel Functions](https://vercel.com/docs/functions),
 and other environments.
 
 On earlier versions of Node.js
