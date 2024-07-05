@@ -14,6 +14,7 @@ and everything else you can do with
 
 - [Node.js](https://nodejs.org) >= 18
 - [Bun](https://bun.sh) >= 1.0
+- [Deno](https://deno.com) >= 1.28
 
 You can also use this client library on most serverless platforms, including
 [Cloudflare Workers](https://developers.cloudflare.com/workers/),
