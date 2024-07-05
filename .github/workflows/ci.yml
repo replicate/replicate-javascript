@@ -172,7 +172,7 @@ jobs:
           done
 
   integration-deno:
-    needs: [test]
+    needs: [test, build]
     runs-on: ubuntu-latest
 
     env:
@@ -185,14 +185,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-tarball
       - name: Use Deno ${{ matrix.deno-version }}
         uses: denoland/setup-deno@v1
         with:
           deno-version: ${{ matrix.deno-version }}
       - run: |
           cd integration/deno
-          deno test --allow-env index.test.ts --allow-net
+          deno cache --node-modules-dir index.ts
+          tar -xzf ../../${{ needs.build.outputs.tarball-name }} --strip-components=1 -C node_modules/replicate
+          deno test --allow-env --allow-net --node-modules-dir index.test.ts
 
   integration-nextjs:
     needs: [test, build]
