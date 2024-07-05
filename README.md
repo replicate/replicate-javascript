@@ -107,6 +107,10 @@ const output = await replicate.run(model, { input });
 > [!NOTE]
 > File handle inputs are automatically uploaded to Replicate.
 > See [`replicate.files.create`](#replicatefilescreate) for more information.
+> The maximum size for uploaded files is 100MiB.
+> To run a model with a larger file as an input,
+> upload the file to your own storage provider
+> and pass a publicly accessible URL.
 
 ### Webhooks
 
