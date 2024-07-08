@@ -9,12 +9,27 @@ import Replicate, {
 import nock from "nock";
 import { Readable } from "node:stream";
 import { createReadableStream } from "./lib/stream";
+import { LazyFile } from "./lib/util";
 
 let client: Replicate;
 const BASE_URL = "https://api.replicate.com/v1";
 
 nock.disableNetConnect();
 
+expect.addEqualityTesters([
+  function areLazyFilesEqual(a, b) {
+    const isALazyFile = a instanceof LazyFile;
+    const isBLazyFile = b instanceof LazyFile;
+
+    if (isALazyFile && isBLazyFile) {
+      return this.equals(String(a.source), String(b.source));
+    }
+    if (isALazyFile === isBLazyFile) {
+      return undefined;
+    }
+    return false;
+  },
+]);
 const fileTestCases = [
   // Skip test case if File type is not available
   ...(typeof File !== "undefined"
@@ -1202,6 +1217,317 @@ describe("Replicate client", () => {
       expect(model.visibility).toBe("public");
       // expect(model.hardware).toBe('cpu');
       expect(model.description).toBe("A test model");
+    });
+  });
+
+  describe("run {strict: true}", () => {
+    function setupMockedEndpoints(
+      output: object | string | number | boolean,
+      schema: object
+    ) {
+      nock("http://example.com")
+        .get("/1")
+        .reply(200, "hello")
+        .get("/2")
+        .reply(200, "world");
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output,
+          logs: "",
+        })
+        .get(
+          "/models/owner/model/versions/5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa"
+        )
+        .reply(200, {
+          id: "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          created_at: "2023-11-06T23:13:07.906314Z",
+          cog_version: "0.8.6",
+          openapi_schema: {
+            info: { title: "Cog", version: "0.1.0" },
+            paths: {
+              "/": {},
+              "/shutdown": {},
+              "/predictions": {},
+              "/health-check": {},
+              "/predictions/{prediction_id}": {},
+              "/predictions/{prediction_id}/cancel": {},
+            },
+            openapi: "3.0.2",
+            components: {
+              schemas: {
+                Input: {},
+                Output: schema,
+              },
+            },
+          },
+        });
+    }
+
+    test("predict() -> Iterator[Path]", async () => {
+      setupMockedEndpoints(["http://example.com/1", "http://example.com/2"], {
+        type: "array",
+        "x-cog-array-type": "iterator",
+        items: {
+          type: "string",
+          format: "uri",
+        },
+      });
+
+      const output: AsyncIterator<LazyFile, void> = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(await output.next()).toEqual({
+        value: new LazyFile(new URL("http://example.com/1")),
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: new LazyFile(new URL("http://example.com/2")),
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: undefined,
+        done: true,
+      });
+    });
+
+    test("predict() -> Iterator[str]", async () => {
+      setupMockedEndpoints(["hello ", "world"], {
+        type: "array",
+        "x-cog-array-type": "iterator",
+        items: {
+          type: "string",
+        },
+      });
+
+      const output: any = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(await output.next()).toEqual({
+        value: "hello ",
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: "world",
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: undefined,
+        done: true,
+      });
+    });
+
+    test("predict() -> Iterator[int]", async () => {
+      setupMockedEndpoints([1, 2, 3], {
+        type: "array",
+        "x-cog-array-type": "iterator",
+        items: {
+          type: "number",
+        },
+      });
+
+      const output: any = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(await output.next()).toEqual({
+        value: 1,
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: 2,
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: 3,
+        done: false,
+      });
+      expect(await output.next()).toEqual({
+        value: undefined,
+        done: true,
+      });
+    });
+
+    test("predict() -> Path[]", async () => {
+      setupMockedEndpoints(["https://example.com/1", "https://example.com/2"], {
+        type: "array",
+        items: {
+          type: "string",
+          format: "uri",
+        },
+      });
+
+      const output: LazyFile[] = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual([
+        new LazyFile(new URL("https://example.com/1")),
+        new LazyFile(new URL("https://example.com/2")),
+      ]);
+    });
+
+    test("predict() -> str[]", async () => {
+      setupMockedEndpoints(["hello ", "world"], {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      });
+
+      const output: any = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual(["hello ", "world"]);
+    });
+
+    test("predict() -> int[]", async () => {
+      setupMockedEndpoints([123, 456, 789], {
+        type: "integer",
+      });
+
+      const output: number[] = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual([123, 456, 789]);
+    });
+
+    test("predict() -> Path", async () => {
+      setupMockedEndpoints("https://example.com/1", {
+        type: "string",
+        format: "uri",
+      });
+
+      const output: LazyFile = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual(new LazyFile(new URL("https://example.com/1")));
+    });
+
+    test("predict() -> str", async () => {
+      setupMockedEndpoints("hello world", {
+        type: "string",
+      });
+
+      const output: any = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual("hello world");
+    });
+
+    test("predict() -> int", async () => {
+      setupMockedEndpoints(123, {
+        type: "integer",
+      });
+
+      const output: any = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual(123);
+    });
+
+    test("predict() -> dict", async () => {
+      const result = {
+        string_prop: "hello world",
+        number_prop: 123,
+        boolean_prop: true,
+        file_prop: "https://example.com/1",
+        array_prop: ["hello", "world"],
+        object_prop: { value: "hello world" },
+      };
+      setupMockedEndpoints(result, {
+        type: "object",
+        properties: {
+          string_prop: {
+            type: "string",
+          },
+          number_prop: {
+            type: "integer",
+          },
+          boolean_prop: {
+            type: "boolean",
+          },
+          file_prop: {
+            type: "string",
+            format: "uri",
+          },
+          array_prop: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+          object_prop: {
+            type: "object",
+            properties: {
+              value: { type: "string" },
+            },
+          },
+        },
+      });
+
+      const output: any = await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+          strict: true,
+        }
+      );
+
+      expect(output).toEqual({
+        string_prop: "hello world",
+        number_prop: 123,
+        boolean_prop: true,
+        file_prop: new LazyFile(new URL("https://example.com/1")),
+        array_prop: ["hello", "world"],
+        object_prop: { value: "hello world" },
+      });
     });
   });
 

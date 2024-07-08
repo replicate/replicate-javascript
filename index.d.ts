@@ -145,17 +145,18 @@ declare module "replicate" {
     fetch: (input: Request | string, init?: RequestInit) => Promise<Response>;
     fileEncodingStrategy: FileEncodingStrategy;
 
-    run(
+    run<T>(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
       options: {
         input: object;
         wait?: { interval?: number };
+        strict?: boolean;
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
       },
       progress?: (prediction: Prediction) => void
-    ): Promise<object>;
+    ): Promise<T>;
 
     stream(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
