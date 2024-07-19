@@ -14,7 +14,7 @@ jobs:
       matrix:
         suite: [node]
         # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
-        node-version: [18.x, 20.x, 22.4] # TODO: unpin to 22.x once https://github.com/nodejs/node/issues/53902 is resolved
+        node-version: [18.x, 20.x, 22.x]
 
     steps:
       - uses: actions/checkout@v4
