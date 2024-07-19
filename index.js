@@ -304,13 +304,11 @@ class Replicate {
       prediction = await this.predictions.create({
         ...data,
         version: identifier.version,
-        stream: true,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
-        stream: true,
       });
     } else {
       throw new Error("Invalid model version identifier");

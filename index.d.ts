@@ -289,6 +289,7 @@ declare module "replicate" {
           model?: string;
           version?: string;
           input: object;
+          /** @deprecated */
           stream?: boolean;
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
