@@ -98,6 +98,7 @@ class Replicate {
         list: models.versions.list.bind(this),
         get: models.versions.get.bind(this),
       },
+      search: models.search.bind(this),
     };
 
     this.predictions = {

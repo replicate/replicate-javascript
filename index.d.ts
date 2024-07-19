@@ -281,6 +281,7 @@ declare module "replicate" {
           version_id: string
         ): Promise<ModelVersion>;
       };
+      search(query: string): Promise<Page<Model>>;
     };
 
     predictions: {
