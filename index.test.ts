@@ -1,13 +1,13 @@
 import { expect, jest, test } from "@jest/globals";
 import Replicate, {
   ApiError,
+  FileOutput,
   Model,
   Prediction,
   validateWebhook,
   parseProgressFromLogs,
 } from "replicate";
 import nock from "nock";
-import { Readable } from "node:stream";
 import { createReadableStream } from "./lib/stream";
 
 let client: Replicate;
@@ -1561,6 +1561,203 @@ describe("Replicate client", () => {
       );
 
       scope.done();
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: "https://example.com",
+          logs: [].join("\n"),
+        });
+
+      nock("https://example.com")
+        .get("/")
+        .reply(200, "hello world", { "Content-Type": "text/plain" });
+
+      const output = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as FileOutput;
+
+      expect(output).toBeInstanceOf(ReadableStream);
+      expect(output.url()).toEqual(new URL("https://example.com"));
+
+      const blob = await output.blob();
+      expect(blob.type).toEqual("text/plain");
+      expect(blob.arrayBuffer()).toEqual(
+        new Blob(["Hello, world!"]).arrayBuffer()
+      );
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true - acts like string", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: "https://example.com",
+          logs: [].join("\n"),
+        });
+
+      nock("https://example.com")
+        .get("/")
+        .reply(200, "hello world", { "Content-Type": "text/plain" });
+
+      const output = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as unknown as string;
+
+      expect(fetch(output).then((r) => r.text())).resolves.toEqual(
+        "hello world"
+      );
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true - array output", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: ["https://example.com"],
+          logs: [].join("\n"),
+        });
+
+      nock("https://example.com")
+        .get("/")
+        .reply(200, "hello world", { "Content-Type": "text/plain" });
+
+      const [output] = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as FileOutput[];
+
+      expect(output).toBeInstanceOf(ReadableStream);
+      expect(output.url()).toEqual(new URL("https://example.com"));
+
+      const blob = await output.blob();
+      expect(blob.type).toEqual("text/plain");
+      expect(blob.arrayBuffer()).toEqual(
+        new Blob(["Hello, world!"]).arrayBuffer()
+      );
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true - data uri", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==",
+          logs: [].join("\n"),
+        });
+
+      const output = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as FileOutput;
+
+      expect(output).toBeInstanceOf(ReadableStream);
+      expect(output.url()).toEqual(
+        new URL("data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==")
+      );
+
+      const blob = await output.blob();
+      expect(blob.type).toEqual("text/plain");
+      expect(blob.arrayBuffer()).toEqual(
+        new Blob(["Hello, world!"]).arrayBuffer()
+      );
     });
   });
 
