@@ -8,6 +8,12 @@ declare module "replicate" {
     response: Response;
   }
 
+  export interface FileOutput extends ReadableStream {
+    blob(): Promise<Blob>;
+    url(): URL;
+    toString(): string;
+  }
+
   export interface Account {
     type: "user" | "organization";
     username: string;
@@ -137,6 +143,7 @@ declare module "replicate" {
         init?: RequestInit
       ) => Promise<Response>;
       fileEncodingStrategy?: FileEncodingStrategy;
+      useFileOutput?: boolean;
     });
 
     auth: string;
