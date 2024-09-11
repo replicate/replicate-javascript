@@ -59,8 +59,8 @@ class Replicate {
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
-    this.fileEncodingStrategy = options.fileEncodingStrategy ?? "default";
-    this.useFileOutput = options.useFileOutput ?? false;
+    this.fileEncodingStrategy = options.fileEncodingStrategy || "default";
+    this.useFileOutput = options.useFileOutput || false;
 
     this.accounts = {
       current: accounts.current.bind(this),
