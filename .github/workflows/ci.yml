@@ -52,7 +52,7 @@ jobs:
         id: pack
         run: |
           echo "tarball-name=$(npm --loglevel error pack)" >> $GITHUB_OUTPUT
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: package-tarball
           path: ${{ steps.pack.outputs.tarball-name }}
