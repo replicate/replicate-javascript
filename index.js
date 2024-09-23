@@ -1,7 +1,8 @@
 const ApiError = require("./lib/error");
 const ModelVersionIdentifier = require("./lib/identifier");
-const { createReadableStream } = require("./lib/stream");
+const { createReadableStream, createFileOutput } = require("./lib/stream");
 const {
+  transform,
   withAutomaticRetries,
   validateWebhook,
   parseProgressFromLogs,
@@ -47,6 +48,7 @@ class Replicate {
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
+   * @param {boolean} [options.useFileOutput] - Set to `true` to return `FileOutput` objects from `run` instead of URLs, defaults to false.
    * @param {"default" | "upload" | "data-uri"} [options.fileEncodingStrategy] - Determines the file encoding strategy to use
    */
   constructor(options = {}) {
@@ -57,7 +59,8 @@ class Replicate {
       options.userAgent || `replicate-javascript/${packageJSON.version}`;
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
-    this.fileEncodingStrategy = options.fileEncodingStrategy ?? "default";
+    this.fileEncodingStrategy = options.fileEncodingStrategy || "default";
+    this.useFileOutput = options.useFileOutput || false;
 
     this.accounts = {
       current: accounts.current.bind(this),
@@ -98,6 +101,7 @@ class Replicate {
         list: models.versions.list.bind(this),
         get: models.versions.get.bind(this),
       },
+      search: models.search.bind(this),
     };
 
     this.predictions = {
@@ -195,7 +199,17 @@ class Replicate {
       throw new Error(`Prediction failed: ${prediction.error}`);
     }
 
-    return prediction.output;
+    return transform(prediction.output, (value) => {
+      if (
+        typeof value === "string" &&
+        (value.startsWith("https:") || value.startsWith("data:"))
+      ) {
+        return this.useFileOutput
+          ? createFileOutput({ url: value, fetch: this.fetch })
+          : value;
+      }
+      return value;
+    });
   }
 
   /**

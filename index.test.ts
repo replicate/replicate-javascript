@@ -1,13 +1,13 @@
 import { expect, jest, test } from "@jest/globals";
 import Replicate, {
   ApiError,
+  FileOutput,
   Model,
   Prediction,
   validateWebhook,
   parseProgressFromLogs,
 } from "replicate";
 import nock from "nock";
-import { Readable } from "node:stream";
 import { createReadableStream } from "./lib/stream";
 
 let client: Replicate;
@@ -1053,7 +1053,7 @@ describe("Replicate client", () => {
   describe("predictions.create with model", () => {
     test("Calls the correct API route with the correct payload", async () => {
       nock(BASE_URL)
-        .post("/models/meta/llama-2-70b-chat/predictions")
+        .post("/models/meta/meta-llama-3-70b-instruct/predictions")
         .reply(200, {
           id: "heat2o3bzn3ahtr6bjfftvbaci",
           model: "replicate/lifeboat-70b",
@@ -1072,7 +1072,7 @@ describe("Replicate client", () => {
           },
         });
       const prediction = await client.predictions.create({
-        model: "meta/llama-2-70b-chat",
+        model: "meta/meta-llama-3-70b-instruct",
         input: {
           prompt: "Please write a haiku about llamas.",
         },
@@ -1215,6 +1215,44 @@ describe("Replicate client", () => {
       // expect(model.hardware).toBe('cpu');
       expect(model.description).toBe("A test model");
     });
+  });
+
+  describe("models.search", () => {
+    test("Calls the correct API route with the correct payload", async () => {
+      nock(BASE_URL)
+        .intercept("/models", "QUERY")
+        .reply(200, {
+          results: [
+            {
+              url: "https://replicate.com/meta/meta-llama-3-70b-instruct",
+              owner: "meta",
+              name: "meta-llama-3-70b-instruct",
+              description:
+                "Llama 2 is a collection of pretrained and fine-tuned generative text models ranging in scale from 7 billion to 70 billion parameters.",
+              visibility: "public",
+              github_url: null,
+              paper_url:
+                "https://ai.meta.com/research/publications/llama-2-open-foundation-and-fine-tuned-chat-models/",
+              license_url: "https://ai.meta.com/llama/license/",
+              run_count: 1000000,
+              cover_image_url:
+                "https://replicate.delivery/pbxt/IJqFrnAKEDiCBnlXyndzVVxkZvfQ7kLjGVEZZPXTRXxOOPkQA/llama2.png",
+              default_example: null,
+              latest_version: null,
+            },
+            // ... more results ...
+          ],
+          next: null,
+          previous: null,
+        });
+
+      const searchResults = await client.models.search("llama");
+      expect(searchResults.results.length).toBeGreaterThan(0);
+      expect(searchResults.results[0].owner).toBe("meta");
+      expect(searchResults.results[0].name).toBe("meta-llama-3-70b-instruct");
+    });
+
+    // Add more tests for error handling, edge cases, etc.
   });
 
   describe("run", () => {
@@ -1503,6 +1541,203 @@ describe("Replicate client", () => {
       );
 
       scope.done();
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: "https://example.com",
+          logs: [].join("\n"),
+        });
+
+      nock("https://example.com")
+        .get("/")
+        .reply(200, "hello world", { "Content-Type": "text/plain" });
+
+      const output = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as FileOutput;
+
+      expect(output).toBeInstanceOf(ReadableStream);
+      expect(output.url()).toEqual(new URL("https://example.com"));
+
+      const blob = await output.blob();
+      expect(blob.type).toEqual("text/plain");
+      expect(blob.arrayBuffer()).toEqual(
+        new Blob(["Hello, world!"]).arrayBuffer()
+      );
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true - acts like string", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: "https://example.com",
+          logs: [].join("\n"),
+        });
+
+      nock("https://example.com")
+        .get("/")
+        .reply(200, "hello world", { "Content-Type": "text/plain" });
+
+      const output = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as unknown as string;
+
+      expect(fetch(output).then((r) => r.text())).resolves.toEqual(
+        "hello world"
+      );
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true - array output", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: ["https://example.com"],
+          logs: [].join("\n"),
+        });
+
+      nock("https://example.com")
+        .get("/")
+        .reply(200, "hello world", { "Content-Type": "text/plain" });
+
+      const [output] = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as FileOutput[];
+
+      expect(output).toBeInstanceOf(ReadableStream);
+      expect(output.url()).toEqual(new URL("https://example.com"));
+
+      const blob = await output.blob();
+      expect(blob.type).toEqual("text/plain");
+      expect(blob.arrayBuffer()).toEqual(
+        new Blob(["Hello, world!"]).arrayBuffer()
+      );
+    });
+
+    test("returns FileOutput for URLs when useFileOutput is true - data uri", async () => {
+      client = new Replicate({ auth: "foo", useFileOutput: true });
+
+      nock(BASE_URL)
+        .post("/predictions")
+        .reply(201, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "starting",
+          logs: null,
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "processing",
+          logs: [].join("\n"),
+        })
+        .get("/predictions/ufawqhfynnddngldkgtslldrkq")
+        .reply(200, {
+          id: "ufawqhfynnddngldkgtslldrkq",
+          status: "succeeded",
+          output: "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==",
+          logs: [].join("\n"),
+        });
+
+      const output = (await client.run(
+        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+        {
+          input: { text: "Hello, world!" },
+        }
+      )) as FileOutput;
+
+      expect(output).toBeInstanceOf(ReadableStream);
+      expect(output.url()).toEqual(
+        new URL("data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==")
+      );
+
+      const blob = await output.blob();
+      expect(blob.type).toEqual("text/plain");
+      expect(blob.arrayBuffer()).toEqual(
+        new Blob(["Hello, world!"]).arrayBuffer()
+      );
     });
   });
 

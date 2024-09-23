@@ -455,6 +455,18 @@ const response = await replicate.models.list();
 }
 ```
 
+### `replicate.models.search`
+
+Search for public models on Replicate.
+
+```js
+const response = await replicate.models.search(query);
+```
+
+| name    | type   | description                            |
+| ------- | ------ | -------------------------------------- |
+| `query` | string | **Required**. The search query string. |
+
 ### `replicate.models.create`
 
 Create a new public or private model.
