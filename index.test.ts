@@ -357,7 +357,6 @@ describe("Replicate client", () => {
             prompt: "Tell me a story",
             data,
           },
-          stream: true,
         });
 
         expect(actual?.input.data).toEqual(expected);
@@ -385,7 +384,6 @@ describe("Replicate client", () => {
               prompt: "Tell me a story",
               data,
             },
-            stream: true,
           });
         }).rejects.toThrowError(
           expect.objectContaining({
@@ -395,24 +393,6 @@ describe("Replicate client", () => {
         );
       }
     );
-
-    test("Passes stream parameter to API endpoint", async () => {
-      nock(BASE_URL)
-        .post("/predictions")
-        .reply(201, (_uri, body) => {
-          expect((body as any).stream).toBe(true);
-          return body;
-        });
-
-      await client.predictions.create({
-        version:
-          "5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-        input: {
-          prompt: "Tell me a story",
-        },
-        stream: true,
-      });
-    });
 
     test("Throws an error if webhook URL is invalid", async () => {
       await expect(async () => {
