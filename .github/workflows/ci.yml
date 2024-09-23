@@ -52,7 +52,7 @@ jobs:
         id: pack
         run: |
           echo "tarball-name=$(npm --loglevel error pack)" >> $GITHUB_OUTPUT
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: package-tarball
           path: ${{ steps.pack.outputs.tarball-name }}
@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: package-tarball
       - name: Use Node.js ${{ matrix.node-version }}
@@ -103,7 +103,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: package-tarball
       - name: Use Node.js ${{ matrix.node-version }}
@@ -133,7 +133,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: package-tarball
       - name: Use Node.js ${{ matrix.node-version }}
@@ -161,7 +161,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: package-tarball
       - name: Use Bun ${{ matrix.bun-version }}
@@ -191,7 +191,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: package-tarball
       - name: Use Deno ${{ matrix.deno-version }}
@@ -218,7 +218,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: package-tarball
       - name: Use Node.js
