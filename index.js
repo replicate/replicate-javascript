@@ -133,7 +133,7 @@ class Replicate {
    * @param {string} ref - Required. The model version identifier in the format "owner/name" or "owner/name:version"
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
-   * @param {object} [options.wait] - Options for waiting for the prediction to finish
+   * @param {object} [options.wait] - Options for waiting for the prediction to finish. If `wait` is explicitly true, the function will block and wait for the prediction to finish.
    * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 500
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
@@ -144,7 +144,11 @@ class Replicate {
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(ref, options, progress) {
+    let { block } = options;
     const { wait, signal, ...data } = options;
+
+    // Block if `block` is explicitly true or if `wait` is explicitly true
+    block = block || (block === undefined && wait === true);
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
@@ -153,11 +157,13 @@ class Replicate {
       prediction = await this.predictions.create({
         ...data,
         version: identifier.version,
+        block,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
+        block,
       });
     } else {
       throw new Error("Invalid model version identifier");
