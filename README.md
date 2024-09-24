@@ -112,6 +112,32 @@ const output = await replicate.run(model, { input });
 > upload the file to your own storage provider
 > and pass a publicly accessible URL.
 
+## TypeScript usage
+
+This library exports TypeScript definitions. You can import them like this:
+
+```ts
+import Replicate, { Prediction } from 'replicate';
+```
+
+Here's an example that uses the `Prediction` type with a custom `onProgress` callback:
+
+```ts
+import Replicate, { Prediction } from 'replicate';
+
+const replicate = new Replicate();
+const model = "black-forest-labs/flux-schnell";
+const prompt = "a 19th century portrait of a raccoon gentleman wearing a suit";
+const onProgress = (prediction: Prediction) => {
+  console.log({ prediction });
+};
+
+const output = await replicate.run(model, { input: { prompt } }, onProgress)
+console.log({ output })
+```
+
+See the full list of exported types in [index.d.ts](./index.d.ts).
+
 ### Webhooks
 
 Webhooks provide real-time updates about your prediction. Specify an endpoint when you create a prediction, and Replicate will send HTTP POST requests to that URL when the prediction is created, updated, and finished.
