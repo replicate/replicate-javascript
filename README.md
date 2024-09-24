@@ -117,7 +117,7 @@ const output = await replicate.run(model, { input });
 This library exports TypeScript definitions. You can import them like this:
 
 ```ts
-import Replicate, { Prediction } from 'replicate';
+import Replicate, { type Prediction } from 'replicate';
 ```
 
 Here's an example that uses the `Prediction` type with a custom `onProgress` callback:
