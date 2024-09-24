@@ -123,7 +123,7 @@ import Replicate, { type Prediction } from 'replicate';
 Here's an example that uses the `Prediction` type with a custom `onProgress` callback:
 
 ```ts
-import Replicate, { Prediction } from 'replicate';
+import Replicate, { type Prediction } from 'replicate';
 
 const replicate = new Replicate();
 const model = "black-forest-labs/flux-schnell";
