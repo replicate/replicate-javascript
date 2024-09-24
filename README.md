@@ -128,9 +128,9 @@ import Replicate, { Prediction } from 'replicate';
 const replicate = new Replicate();
 const model = "black-forest-labs/flux-schnell";
 const prompt = "a 19th century portrait of a raccoon gentleman wearing a suit";
-const onProgress = (prediction: Prediction) => {
+function onProgress(prediction: Prediction) {
   console.log({ prediction });
-};
+}
 
 const output = await replicate.run(model, { input: { prompt } }, onProgress)
 console.log({ output })
