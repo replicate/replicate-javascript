@@ -144,11 +144,7 @@ class Replicate {
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(ref, options, progress) {
-    let { block } = options;
-    const { wait, signal, block: _, ...data } = options;
-
-    // Block if `block` is explicitly true or if `wait` is explicitly true
-    block = block || (block === undefined && wait === true);
+    const { wait, signal, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
@@ -157,13 +153,13 @@ class Replicate {
       prediction = await this.predictions.create({
         ...data,
         version: identifier.version,
-        block,
+        wait: wait,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
-        block,
+        wait: wait,
       });
     } else {
       throw new Error("Invalid model version identifier");

@@ -156,7 +156,7 @@ declare module "replicate" {
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
       options: {
         input: object;
-        wait?: { interval?: number };
+        wait?: boolean | number | { mode?: "poll"; interval?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
@@ -189,6 +189,7 @@ declare module "replicate" {
     wait(
       prediction: Prediction,
       options?: {
+        mode?: "poll";
         interval?: number;
       },
       stop?: (prediction: Prediction) => Promise<boolean>
