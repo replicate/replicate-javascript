@@ -145,7 +145,7 @@ class Replicate {
    */
   async run(ref, options, progress) {
     let { block } = options;
-    const { wait, signal, ...data } = options;
+    const { wait, signal, block: _, ...data } = options;
 
     // Block if `block` is explicitly true or if `wait` is explicitly true
     block = block || (block === undefined && wait === true);
