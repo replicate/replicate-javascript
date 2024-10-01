@@ -162,7 +162,7 @@ declare module "replicate" {
         signal?: AbortSignal;
       },
       progress?: (prediction: Prediction) => void
-    ): Promise<object>;
+    ): Promise<Prediction | any>;
 
     stream(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
@@ -215,9 +215,9 @@ declare module "replicate" {
             stream?: boolean;
             webhook?: string;
             webhook_events_filter?: WebhookEventType[];
-            block?: boolean;
+            wait?: boolean | number | { mode?: "poll"; interval?: number };
           }
-        ): Promise<Prediction>;
+        ): Promise<Prediction | any>;
       };
       get(
         deployment_owner: string,
@@ -304,9 +304,9 @@ declare module "replicate" {
           stream?: boolean;
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
-          block?: boolean;
+          wait?: boolean | number | { mode?: "poll"; interval?: number };
         } & ({ version: string } | { model: string })
-      ): Promise<Prediction>;
+      ): Promise<Prediction | any>;
       get(prediction_id: string): Promise<Prediction>;
       cancel(prediction_id: string): Promise<Prediction>;
       list(): Promise<Page<Prediction>>;
