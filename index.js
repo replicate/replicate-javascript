@@ -165,6 +165,15 @@ class Replicate {
       throw new Error("Invalid model version identifier");
     }
 
+    // When `wait` is set, the server may respond
+    // with the prediction output directly.
+    // If it hasn't finished, the prediction object is returned
+    // with an `id` property that can be used to poll for completion.
+    if (wait && !("id" in prediction)) {
+      const output = prediction;
+      return output;
+    }
+
     // Call progress callback with the initial prediction object
     if (progress) {
       progress(prediction);
