@@ -147,19 +147,20 @@ class Replicate {
     const { wait, signal, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
+    const isBlocking = typeof wait === "boolean" || typeof wait === "number";
 
     let prediction;
     if (identifier.version) {
       prediction = await this.predictions.create({
         ...data,
         version: identifier.version,
-        wait: wait,
+        wait: isBlocking ? wait : false,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
-        wait: wait,
+        wait: isBlocking ? wait : false,
       });
     } else {
       throw new Error("Invalid model version identifier");
@@ -170,23 +171,26 @@ class Replicate {
       progress(prediction);
     }
 
-    prediction = await this.wait(
-      prediction,
-      wait || {},
-      async (updatedPrediction) => {
-        // Call progress callback with the updated prediction object
-        if (progress) {
-          progress(updatedPrediction);
-        }
+    const isDone = isBlocking && prediction.status !== "starting";
+    if (!isDone) {
+      prediction = await this.wait(
+        prediction,
+        isBlocking ? {} : wait,
+        async (updatedPrediction) => {
+          // Call progress callback with the updated prediction object
+          if (progress) {
+            progress(updatedPrediction);
+          }
 
-        // We handle the cancel later in the function.
-        if (signal && signal.aborted) {
-          return true; // stop polling
-        }
+          // We handle the cancel later in the function.
+          if (signal && signal.aborted) {
+            return true; // stop polling
+          }
 
-        return false; // continue polling
-      }
-    );
+          return false; // continue polling
+        }
+      );
+    }
 
     if (signal && signal.aborted) {
       prediction = await this.predictions.cancel(prediction.id);
