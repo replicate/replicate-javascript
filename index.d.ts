@@ -93,9 +93,9 @@ declare module "replicate" {
     model: string;
     version: string;
     input: object;
-    output?: any;
+    output?: any; // TODO: this should be `unknown`
     source: "api" | "web";
-    error?: any;
+    error?: unknown;
     logs?: string;
     metrics?: {
       predict_time?: number;
@@ -156,7 +156,7 @@ declare module "replicate" {
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
       options: {
         input: object;
-        wait?: boolean | number | { mode?: "poll"; interval?: number };
+        wait?: boolean | number | { interval?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
@@ -215,7 +215,7 @@ declare module "replicate" {
             stream?: boolean;
             webhook?: string;
             webhook_events_filter?: WebhookEventType[];
-            block?: boolean;
+            wait?: boolean | number | { mode?: "poll"; interval?: number };
           }
         ): Promise<Prediction>;
       };
@@ -304,7 +304,7 @@ declare module "replicate" {
           stream?: boolean;
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
-          block?: boolean;
+          wait?: boolean | number | { mode?: "poll"; interval?: number };
         } & ({ version: string } | { model: string })
       ): Promise<Prediction>;
       get(prediction_id: string): Promise<Prediction>;
