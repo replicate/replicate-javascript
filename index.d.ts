@@ -162,7 +162,7 @@ declare module "replicate" {
         signal?: AbortSignal;
       },
       progress?: (prediction: Prediction) => void
-    ): Promise<unknown>;
+    ): Promise<object>;
 
     stream(
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
