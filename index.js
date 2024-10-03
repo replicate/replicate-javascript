@@ -48,7 +48,7 @@ class Replicate {
    * @param {string} options.userAgent - Identifier of your app
    * @param {string} [options.baseUrl] - Defaults to https://api.replicate.com/v1
    * @param {Function} [options.fetch] - Fetch function to use. Defaults to `globalThis.fetch`
-   * @param {boolean} [options.useFileOutput] - Set to `true` to return `FileOutput` objects from `run` instead of URLs, defaults to false.
+   * @param {boolean} [options.useFileOutput] - Set to `false` to disable `FileOutput` objects from `run` instead of URLs, defaults to true.
    * @param {"default" | "upload" | "data-uri"} [options.fileEncodingStrategy] - Determines the file encoding strategy to use
    */
   constructor(options = {}) {
@@ -60,7 +60,7 @@ class Replicate {
     this.baseUrl = options.baseUrl || "https://api.replicate.com/v1";
     this.fetch = options.fetch || globalThis.fetch;
     this.fileEncodingStrategy = options.fileEncodingStrategy || "default";
-    this.useFileOutput = options.useFileOutput || false;
+    this.useFileOutput = options.useFileOutput === false ? false : true;
 
     this.accounts = {
       current: accounts.current.bind(this),
@@ -133,8 +133,7 @@ class Replicate {
    * @param {string} ref - Required. The model version identifier in the format "owner/name" or "owner/name:version"
    * @param {object} options
    * @param {object} options.input - Required. An object with the model inputs
-   * @param {object} [options.wait] - Options for waiting for the prediction to finish. If `wait` is explicitly true, the function will block and wait for the prediction to finish.
-   * @param {number} [options.wait.interval] - Polling interval in milliseconds. Defaults to 500
+   * @param {{mode: "block", timeout?: number, interval?: number} | {mode: "poll", interval?: number }} [options.wait] - Options for waiting for the prediction to finish. If `wait` is explicitly true, the function will block and wait for the prediction to finish.
    * @param {string} [options.webhook] - An HTTPS URL for receiving a webhook when the prediction has new output
    * @param {string[]} [options.webhook_events_filter] - You can change which events trigger webhook requests by specifying webhook events (`start`|`output`|`logs`|`completed`)
    * @param {AbortSignal} [options.signal] - AbortSignal to cancel the prediction
@@ -144,23 +143,22 @@ class Replicate {
    * @returns {Promise<object>} - Resolves with the output of running the model
    */
   async run(ref, options, progress) {
-    const { wait, signal, ...data } = options;
+    const { wait = { mode: "block" }, signal, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
-    const isBlocking = typeof wait === "boolean" || typeof wait === "number";
 
     let prediction;
     if (identifier.version) {
       prediction = await this.predictions.create({
         ...data,
         version: identifier.version,
-        wait: isBlocking ? wait : false,
+        wait: wait.mode === "block" ? wait.timeout ?? true : false,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
-        wait: isBlocking ? wait : false,
+        wait: wait.mode === "block" ? wait.timeout ?? true : false,
       });
     } else {
       throw new Error("Invalid model version identifier");
@@ -171,11 +169,11 @@ class Replicate {
       progress(prediction);
     }
 
-    const isDone = isBlocking && prediction.status !== "starting";
+    const isDone = wait.mode === "block" && prediction.status !== "starting";
     if (!isDone) {
       prediction = await this.wait(
         prediction,
-        isBlocking ? {} : wait,
+        { interval: wait.mode === "poll" ? wait.interval : undefined },
         async (updatedPrediction) => {
           // Call progress callback with the updated prediction object
           if (progress) {

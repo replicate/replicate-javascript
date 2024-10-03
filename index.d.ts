@@ -156,7 +156,9 @@ declare module "replicate" {
       identifier: `${string}/${string}` | `${string}/${string}:${string}`,
       options: {
         input: object;
-        wait?: boolean | number | { interval?: number };
+        wait?:
+          | { mode: "block"; interval?: number; timeout?: number }
+          | { mode: "poll"; interval?: number };
         webhook?: string;
         webhook_events_filter?: WebhookEventType[];
         signal?: AbortSignal;
@@ -189,7 +191,6 @@ declare module "replicate" {
     wait(
       prediction: Prediction,
       options?: {
-        mode?: "poll";
         interval?: number;
       },
       stop?: (prediction: Prediction) => Promise<boolean>
@@ -215,7 +216,7 @@ declare module "replicate" {
             stream?: boolean;
             webhook?: string;
             webhook_events_filter?: WebhookEventType[];
-            wait?: boolean | number | { mode?: "poll"; interval?: number };
+            wait?: number | boolean;
           }
         ): Promise<Prediction>;
       };
@@ -304,7 +305,7 @@ declare module "replicate" {
           stream?: boolean;
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
-          wait?: boolean | number | { mode?: "poll"; interval?: number };
+          wait?: boolean | number;
         } & ({ version: string } | { model: string })
       ): Promise<Prediction>;
       get(prediction_id: string): Promise<Prediction>;
