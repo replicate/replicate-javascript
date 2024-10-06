@@ -284,7 +284,7 @@ declare module "replicate" {
         }
       ): Promise<Model>;
       versions: {
-        list(model_owner: string, model_name: string): Promise<Page<ModelVersion[]>>;
+        list(model_owner: string, model_name: string): Promise<Page<ModelVersion>>;
         get(
           model_owner: string,
           model_name: string,
