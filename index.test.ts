@@ -1310,7 +1310,7 @@ describe("Replicate client", () => {
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
           input: { text: "Hello, world!" },
-          wait: { interval: 1 },
+          wait: { mode: "poll", interval: 1 },
         },
         (prediction) => {
           const progress = parseProgressFromLogs(prediction);
@@ -1402,7 +1402,7 @@ describe("Replicate client", () => {
         "replicate/hello-world",
         {
           input: { text: "Hello, world!" },
-          wait: { interval: 1 },
+          wait: { mode: "poll", interval: 1 },
         },
         progress
       );
@@ -1448,12 +1448,18 @@ describe("Replicate client", () => {
         });
 
       await expect(
-        client.run("a/b-1.0:abc123", { input: { text: "Hello, world!" } })
+        client.run("a/b-1.0:abc123", {
+          wait: { mode: "poll" },
+          input: { text: "Hello, world!" },
+        })
       ).resolves.not.toThrow();
     });
 
     test("Throws an error for invalid identifiers", async () => {
-      const options = { input: { text: "Hello, world!" } };
+      const options = {
+        wait: { mode: "poll" } as { mode: "poll" },
+        input: { text: "Hello, world!" },
+      };
 
       // @ts-expect-error
       await expect(client.run("owner:abc123", options)).rejects.toThrow();
@@ -1469,6 +1475,7 @@ describe("Replicate client", () => {
         await client.run(
           "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
           {
+            wait: { mode: "poll" },
             input: {
               text: "Alice",
             },
@@ -1492,7 +1499,7 @@ describe("Replicate client", () => {
         })
         .reply(201, {
           id: "ufawqhfynnddngldkgtslldrkq",
-          status: "processing",
+          status: "starting",
         })
         .persist()
         .get("/predictions/ufawqhfynnddngldkgtslldrkq")
@@ -1510,6 +1517,7 @@ describe("Replicate client", () => {
       const output = await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
+          wait: { mode: "poll" },
           input: { text: "Hello, world!" },
           signal,
         },
@@ -1524,7 +1532,7 @@ describe("Replicate client", () => {
       expect(onProgress).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
-          status: "processing",
+          status: "starting",
         })
       );
       expect(onProgress).toHaveBeenNthCalledWith(
@@ -1580,6 +1588,7 @@ describe("Replicate client", () => {
       const output = (await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
+          wait: { mode: "poll" },
           input: { text: "Hello, world!" },
         }
       )) as FileOutput;
@@ -1631,6 +1640,7 @@ describe("Replicate client", () => {
       const output = (await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
+          wait: { mode: "poll" },
           input: { text: "Hello, world!" },
         }
       )) as unknown as string;
@@ -1677,6 +1687,7 @@ describe("Replicate client", () => {
       const [output] = (await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
+          wait: { mode: "poll" },
           input: { text: "Hello, world!" },
         }
       )) as FileOutput[];
@@ -1724,6 +1735,7 @@ describe("Replicate client", () => {
       const output = (await client.run(
         "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
         {
+          wait: { mode: "poll" },
           input: { text: "Hello, world!" },
         }
       )) as FileOutput;
