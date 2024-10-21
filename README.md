@@ -57,8 +57,11 @@ const model = "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b29
 const input = {
   prompt: "a 19th century portrait of a raccoon gentleman wearing a suit",
 };
-const output = await replicate.run(model, { input });
-// ['https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt8xjquFk9EX5LP0fF68NTIWlgBMUpguQA/out-0.png']
+const [output] = await replicate.run(model, { input });
+// FileOutput('https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt8xjquFk9EX5LP0fF68NTIWlgBMUpguQA/out-0.png')
+
+console.log(output.url()); // 'https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt8xjquFk9EX5LP0fF68NTIWlgBMUpguQA/out-0.png'
+console.log(output.blob()); // Blob
 ```
 
 You can also run a model in the background:
@@ -100,8 +103,8 @@ const model = "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc
 const input = {
   image: await fs.readFile("path/to/image.png"),
 };
-const output = await replicate.run(model, { input });
-// ['https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png']
+const [output] = await replicate.run(model, { input });
+// FileOutput('https://replicate.delivery/mgxm/e7b0e122-9daa-410e-8cde-006c7308ff4d/output.png')
 ```
 
 > [!NOTE]
