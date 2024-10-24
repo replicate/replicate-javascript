@@ -64,6 +64,15 @@ console.log(output.url()); // 'https://replicate.delivery/pbxt/GtQb3Sgve42ZZyVnt
 console.log(output.blob()); // Blob
 ```
 
+> [!NOTE]
+> A model that outputs file data returns a `FileOutput` object by default. This is an implementation
+> of `ReadableStream` that returns the file contents. It has a `.blob()` method for accessing a
+> `Blob` representation and a `.url()` method that will return the underlying data-source.
+>
+> **This data source can be either a remote URL or a data-uri with base64 encoded data. Check
+> out the documentation on [creating a prediction](https://replicate.com/docs/topics/predictions/create-a-prediction)
+> for more information.**
+
 You can also run a model in the background:
 
 ```js
@@ -277,6 +286,7 @@ const replicate = new Replicate(options);
 | `options.baseUrl`              | string   | Defaults to https://api.replicate.com/v1                                                                                         |
 | `options.fetch`                | function | Fetch function to use. Defaults to `globalThis.fetch`                                                                            |
 | `options.fileEncodingStrategy` | string   | Determines the file encoding strategy to use. Possible values: `"default"`, `"upload"`, or `"data-uri"`. Defaults to `"default"` |
+| `options.useFileOutput`        | boolean  | Determines if the `replicate.run()` method should convert file output into `FileOutput` objects |
 
 
 The client makes requests to Replicate's API using
@@ -333,8 +343,10 @@ const output = await replicate.run(identifier, options, progress);
 | ------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `identifier`                    | string   | **Required**. The model version identifier in the format `{owner}/{name}:{version}`, for example `stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f`                       |
 | `options.input`                 | object   | **Required**. An object with the model inputs.                                                                                                                                                              |
-| `options.wait`                  | object   | Options for waiting for the prediction to finish                                                                                                                                                            |
-| `options.wait.interval`         | number   | Polling interval in milliseconds. Defaults to 500                                                                                                                                                           |
+| `options.wait`                  | object   | Options for waiting for the prediction to finish                        | 
+| `options.wait.type`             | `"poll" \| "block"`   | `"block"` holds the request open, `"poll"` makes repeated requests to fetch the prediction. Defaults to `"block"`  |
+| `options.wait.interval`         | number   | Polling interval in milliseconds. Defaults to 500 |
+| `options.wait.timeout`          | number   | In `"block"` mode determines how long the request will be held open until falling back to polling. Defaults to 60 |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                     |
 | `options.webhook_events_filter` | string[] | An array of events which should trigger [webhooks](https://replicate.com/docs/webhooks). Allowable values are `start`, `output`, `logs`, and `completed`                                                    |
 | `options.signal`                | object   | An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the prediction                                                                                                     |
@@ -342,7 +354,12 @@ const output = await replicate.run(identifier, options, progress);
 
 Throws `Error` if the prediction failed.
 
-Returns `Promise<object>` which resolves with the output of running the model.
+Returns `Promise<unknown>` which resolves with the output of running the model.
+
+> [!NOTE]
+> Currently the TypeScript return type of `replicate.run()` is `Promise<object>` this is
+> misleading as a model can return array types as well as primative types like strings,
+> numbers and booleans.
 
 Example:
 
@@ -363,6 +380,26 @@ const onProgress = (prediction) => {
 }
 const output = await replicate.run(model, { input }, onProgress)
 ```
+
+#### Sync vs. Async API (`"poll"` vs. `"block"`)
+
+The `replicate.run()` API takes advantage of the [Replicate sync API](https://replicate.com/docs/topics/predictions/create-a-prediction)
+which is optimized for low latency requests to file models like `black-forest-labs/flux-dev` and 
+`black-forest-labs/flux-schnell`. When creating a prediction this will hold a connection open to the
+server and return a `FileObject` containing the generated file as quickly as possible.
+
+> [!NOTE]
+> In this mode the `url()` method on the `FileObject` may refer to either a remote URL or
+> base64 encoded data-uri. The latter is an optimization we make on certain models to deliver
+> the files faster to the client.
+>
+> If you need the prediction URLs for whatever reason you can opt out of the sync mode by
+> passing `wait: { "type": "poll" }` to the `run()` method.
+>
+> ```js
+> const output = await replicate.run(model, { input, wait: { type: "poll" } });
+> output.url() // URL<https://...>
+> ```
 
 ### `replicate.stream`
 
@@ -1191,6 +1228,41 @@ const response = await replicate.request(route, parameters);
 The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
+
+### `FileOutput`
+
+`FileOutput` is a `ReadableStream` instance that represents a model file output. It can be used to stream file data to disk or as a `Response` body to an HTTP request.
+
+```javascript
+const [output] = await replicate.run("black-forest-labs/flux-schnell", { 
+  input: { prompt: "astronaut riding a rocket like a horse" }
+});
+
+// To access the file URL (or data-uri):
+console.log(output.url()); //=> "http://example.com"
+
+// To write the file to disk:
+fs.writeFile("my-image.png", output);
+
+// To stream the file back to a browser:
+return new Response(output);
+
+// To read the file in chunks:
+for await (const chunk of output) {
+  console.log(chunk); // UInt8Array
+}
+```
+
+You can opt out of FileOutput by passing `useFileOutput: false` to the `Replicate` constructor:
+
+```javascript
+const replicate = new Replicate({ useFileOutput: false });
+```
+
+| method               | returns   | description                                                  |
+| -------------------- | ------    | ------------------------------------------------------------ |
+| `url()`              | string    | A `URL` object representing the HTTP URL or data-uri         |
+| `blob()`             | object    | A `Blob` instance containing the binary file                 |
 
 ## Troubleshooting
 
