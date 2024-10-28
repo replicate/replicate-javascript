@@ -219,7 +219,7 @@ To validate webhooks:
 
 1. Check out the [webhooks guide](https://replicate.com/docs/webhooks) to get started.
 1. [Retrieve your webhook signing secret](https://replicate.com/docs/webhooks#retrieving-the-webhook-signing-key) and store it in your enviroment.
-1. Update your webhook handler to call `validateWebhook(request, secret)`, where `request` is an instance of a [web-standard `Request` object](https://developer.mozilla.org/en-US/docs/Web/API/object, and `secret` is the signing secret for your environment.
+1. Update your webhook handler to call `validateWebhook(request, secret)`, where `request` is an instance of a [web-standard `Request` object](https://developer.mozilla.org/en-US/docs/Web/API/object), and `secret` is the signing secret for your environment.
 
 Here's an example of how to validate webhooks using Next.js:
 
