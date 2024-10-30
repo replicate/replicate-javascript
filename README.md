@@ -69,9 +69,8 @@ console.log(output.blob()); // Blob
 > of `ReadableStream` that returns the file contents. It has a `.blob()` method for accessing a
 > `Blob` representation and a `.url()` method that will return the underlying data-source.
 >
-> **This data source can be either a remote URL or a data-uri with base64 encoded data. Check
-> out the documentation on [creating a prediction](https://replicate.com/docs/topics/predictions/create-a-prediction)
-> for more information.**
+> We recommend accessing file data directly either as readable stream or via `.blob()` as the
+> `.url()` property may not always return a HTTP URL in future.
 
 You can also run a model in the background:
 
@@ -387,19 +386,6 @@ The `replicate.run()` API takes advantage of the [Replicate sync API](https://re
 which is optimized for low latency requests to file models like `black-forest-labs/flux-dev` and 
 `black-forest-labs/flux-schnell`. When creating a prediction this will hold a connection open to the
 server and return a `FileObject` containing the generated file as quickly as possible.
-
-> [!NOTE]
-> In this mode the `url()` method on the `FileObject` may refer to either a remote URL or
-> base64 encoded data-uri. The latter is an optimization we make on certain models to deliver
-> the files faster to the client.
->
-> If you need the prediction URLs for whatever reason you can opt out of the sync mode by
-> passing `wait: { "type": "poll" }` to the `run()` method.
->
-> ```js
-> const output = await replicate.run(model, { input, wait: { type: "poll" } });
-> output.url() // URL<https://...>
-> ```
 
 ### `replicate.stream`
 
@@ -1238,7 +1224,7 @@ const [output] = await replicate.run("black-forest-labs/flux-schnell", {
   input: { prompt: "astronaut riding a rocket like a horse" }
 });
 
-// To access the file URL (or data-uri):
+// To access the file URL:
 console.log(output.url()); //=> "http://example.com"
 
 // To write the file to disk:
@@ -1261,8 +1247,8 @@ const replicate = new Replicate({ useFileOutput: false });
 
 | method               | returns   | description                                                  |
 | -------------------- | ------    | ------------------------------------------------------------ |
-| `url()`              | string    | A `URL` object representing the HTTP URL or data-uri         |
 | `blob()`             | object    | A `Blob` instance containing the binary file                 |
+| `url()`              | string    | A `URL` object pointing to the underlying data source. Please note that this may not always be an HTTP URL in future.       |
 
 ## Troubleshooting
 
