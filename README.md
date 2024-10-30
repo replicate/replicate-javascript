@@ -1247,8 +1247,8 @@ const replicate = new Replicate({ useFileOutput: false });
 
 | method               | returns   | description                                                  |
 | -------------------- | ------    | ------------------------------------------------------------ |
-| `url()`              | string    | A `URL` object pointing to the underlying data source       |
 | `blob()`             | object    | A `Blob` instance containing the binary file                 |
+| `url()`              | string    | A `URL` object pointing to the underlying data source. Please note that this may not always be an HTTP URL in future.       |
 
 ## Troubleshooting
 
