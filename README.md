@@ -68,6 +68,9 @@ console.log(output.blob()); // Blob
 > A model that outputs file data returns a `FileOutput` object by default. This is an implementation
 > of `ReadableStream` that returns the file contents. It has a `.blob()` method for accessing a
 > `Blob` representation and a `.url()` method that will return the underlying data-source.
+>
+> We recommend accessing file data directly either as readable stream or via `.blob()` as the
+> `.url()` property may not always return a HTTP URL in future.
 
 You can also run a model in the background:
 
