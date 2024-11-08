@@ -596,7 +596,7 @@ const response = await replicate.models.versions.list(model_owner, model_name);
 
 ### `replicate.models.versions.get`
 
-Get metatadata for a specific version of a model.
+Get metadata for a specific version of a model.
 
 ```js
 const response = await replicate.models.versions.get(model_owner, model_name, version_id);
