@@ -183,6 +183,7 @@ declare module "replicate" {
         headers?: object | Headers;
         params?: object;
         data?: object;
+        signal?: AbortSignal;
       }
     ): Promise<Response>;
 

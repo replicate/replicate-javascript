@@ -225,6 +225,7 @@ class Replicate {
    * @param {object} [options.params] - Query parameters
    * @param {object|Headers} [options.headers] - HTTP headers
    * @param {object} [options.data] - Body parameters
+   * @param {AbortSignal} [options.signal] - AbortSignal to cancel the request
    * @returns {Promise<Response>} - Resolves with the response object
    * @throws {ApiError} If the request failed
    */
@@ -241,7 +242,7 @@ class Replicate {
       );
     }
 
-    const { method = "GET", params = {}, data } = options;
+    const { method = "GET", params = {}, data, signal } = options;
 
     for (const [key, value] of Object.entries(params)) {
       url.searchParams.append(key, value);
@@ -273,6 +274,7 @@ class Replicate {
       method,
       headers,
       body,
+      signal,
     };
 
     const shouldRetry =
