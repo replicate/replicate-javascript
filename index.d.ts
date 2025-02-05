@@ -187,7 +187,10 @@ declare module "replicate" {
       }
     ): Promise<Response>;
 
-    paginate<T>(endpoint: () => Promise<Page<T>>): AsyncGenerator<[T]>;
+    paginate<T>(
+      endpoint: () => Promise<Page<T>>,
+      options?: { signal?: AbortSignal }
+    ): AsyncGenerator<T[]>;
 
     wait(
       prediction: Prediction,

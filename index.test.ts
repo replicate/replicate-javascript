@@ -99,6 +99,90 @@ describe("Replicate client", () => {
     });
   });
 
+  describe("paginate", () => {
+    test("pages through results", async () => {
+      nock(BASE_URL)
+        .get("/collections")
+        .reply(200, {
+          results: [
+            {
+              name: "Super resolution",
+              slug: "super-resolution",
+              description:
+                "Upscaling models that create high-quality images from low-quality images.",
+            },
+          ],
+          next: `${BASE_URL}/collections?page=2`,
+          previous: null,
+        });
+      nock(BASE_URL)
+        .get("/collections?page=2")
+        .reply(200, {
+          results: [
+            {
+              name: "Image classification",
+              slug: "image-classification",
+              description: "Models that classify images.",
+            },
+          ],
+          next: null,
+          previous: null,
+        });
+
+      const iterator = client.paginate(client.collections.list);
+
+      const firstPage = (await iterator.next()).value;
+      expect(firstPage.length).toBe(1);
+
+      const secondPage = (await iterator.next()).value;
+      expect(secondPage.length).toBe(1);
+    });
+
+    test("accepts an abort signal", async () => {
+      nock(BASE_URL)
+        .get("/collections")
+        .reply(200, {
+          results: [
+            {
+              name: "Super resolution",
+              slug: "super-resolution",
+              description:
+                "Upscaling models that create high-quality images from low-quality images.",
+            },
+          ],
+          next: `${BASE_URL}/collections?page=2`,
+          previous: null,
+        });
+      nock(BASE_URL)
+        .get("/collections?page=2")
+        .reply(200, {
+          results: [
+            {
+              name: "Image classification",
+              slug: "image-classification",
+              description: "Models that classify images.",
+            },
+          ],
+          next: null,
+          previous: null,
+        });
+
+      const controller = new AbortController();
+      const iterator = client.paginate(client.collections.list, {
+        signal: controller.signal,
+      });
+
+      const firstIteration = await iterator.next();
+      expect(firstIteration.value.length).toBe(1);
+
+      controller.abort();
+
+      const secondIteration = await iterator.next();
+      expect(secondIteration.value).toBeUndefined();
+      expect(secondIteration.done).toBe(true);
+    });
+  });
+
   describe("account.get", () => {
     test("Calls the correct API route", async () => {
       nock(BASE_URL).get("/account").reply(200, {

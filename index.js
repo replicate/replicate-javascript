@@ -356,15 +356,20 @@ class Replicate {
    *    console.log(page);
    * }
    * @param {Function} endpoint - Function that returns a promise for the next page of results
+   * @param {object} [options]
+   * @param {AbortSignal} [options.signal] - AbortSignal to cancel the request.
    * @yields {object[]} Each page of results
    */
-  async *paginate(endpoint) {
+  async *paginate(endpoint, options = {}) {
     const response = await endpoint();
     yield response.results;
-    if (response.next) {
+    if (response.next && !(options.signal && options.signal.aborted)) {
       const nextPage = () =>
-        this.request(response.next, { method: "GET" }).then((r) => r.json());
-      yield* this.paginate(nextPage);
+        this.request(response.next, {
+          method: "GET",
+          signal: options.signal,
+        }).then((r) => r.json());
+      yield* this.paginate(nextPage, options);
     }
   }
 
