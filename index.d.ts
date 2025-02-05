@@ -201,12 +201,15 @@ declare module "replicate" {
     ): Promise<Prediction>;
 
     accounts: {
-      current(): Promise<Account>;
+      current(options?: { signal?: AbortSignal }): Promise<Account>;
     };
 
     collections: {
-      list(): Promise<Page<Collection>>;
-      get(collection_slug: string): Promise<Collection>;
+      list(options?: { signal?: AbortSignal }): Promise<Page<Collection>>;
+      get(
+        collection_slug: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Collection>;
     };
 
     deployments: {
@@ -221,21 +224,26 @@ declare module "replicate" {
             webhook?: string;
             webhook_events_filter?: WebhookEventType[];
             wait?: number | boolean;
+            signal?: AbortSignal;
           }
         ): Promise<Prediction>;
       };
       get(
         deployment_owner: string,
-        deployment_name: string
+        deployment_name: string,
+        options?: { signal?: AbortSignal }
       ): Promise<Deployment>;
-      create(deployment_config: {
-        name: string;
-        model: string;
-        version: string;
-        hardware: string;
-        min_instances: number;
-        max_instances: number;
-      }): Promise<Deployment>;
+      create(
+        deployment_config: {
+          name: string;
+          model: string;
+          version: string;
+          hardware: string;
+          min_instances: number;
+          max_instances: number;
+        },
+        options?: { signal?: AbortSignal }
+      ): Promise<Deployment>;
       update(
         deployment_owner: string,
         deployment_name: string,
@@ -249,32 +257,45 @@ declare module "replicate" {
           | { hardware: string }
           | { min_instances: number }
           | { max_instances: number }
-        )
+        ),
+        options?: { signal?: AbortSignal }
       ): Promise<Deployment>;
       delete(
         deployment_owner: string,
-        deployment_name: string
+        deployment_name: string,
+        options?: { signal?: AbortSignal }
       ): Promise<boolean>;
-      list(): Promise<Page<Deployment>>;
+      list(options?: { signal?: AbortSignal }): Promise<Page<Deployment>>;
     };
 
     files: {
       create(
         file: Blob | Buffer,
-        metadata?: Record<string, unknown>
+        metadata?: Record<string, unknown>,
+        options?: { signal?: AbortSignal }
       ): Promise<FileObject>;
-      list(): Promise<Page<FileObject>>;
-      get(file_id: string): Promise<FileObject>;
-      delete(file_id: string): Promise<boolean>;
+      list(options?: { signal?: AbortSignal }): Promise<Page<FileObject>>;
+      get(
+        file_id: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<FileObject>;
+      delete(
+        file_id: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<boolean>;
     };
 
     hardware: {
-      list(): Promise<Hardware[]>;
+      list(options?: { signal?: AbortSignal }): Promise<Hardware[]>;
     };
 
     models: {
-      get(model_owner: string, model_name: string): Promise<Model>;
-      list(): Promise<Page<Model>>;
+      get(
+        model_owner: string,
+        model_name: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Model>;
+      list(options?: { signal?: AbortSignal }): Promise<Page<Model>>;
       create(
         model_owner: string,
         model_name: string,
@@ -286,17 +307,26 @@ declare module "replicate" {
           paper_url?: string;
           license_url?: string;
           cover_image_url?: string;
+          signal?: AbortSignal;
         }
       ): Promise<Model>;
       versions: {
-        list(model_owner: string, model_name: string): Promise<ModelVersion[]>;
+        list(
+          model_owner: string,
+          model_name: string,
+          options?: { signal?: AbortSignal }
+        ): Promise<ModelVersion[]>;
         get(
           model_owner: string,
           model_name: string,
-          version_id: string
+          version_id: string,
+          options?: { signal?: AbortSignal }
         ): Promise<ModelVersion>;
       };
-      search(query: string): Promise<Page<Model>>;
+      search(
+        query: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Page<Model>>;
     };
 
     predictions: {
@@ -310,11 +340,18 @@ declare module "replicate" {
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
           wait?: boolean | number;
+          signal?: AbortSignal;
         } & ({ version: string } | { model: string })
       ): Promise<Prediction>;
-      get(prediction_id: string): Promise<Prediction>;
-      cancel(prediction_id: string): Promise<Prediction>;
-      list(): Promise<Page<Prediction>>;
+      get(
+        prediction_id: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Prediction>;
+      cancel(
+        prediction_id: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Prediction>;
+      list(options?: { signal?: AbortSignal }): Promise<Page<Prediction>>;
     };
 
     trainings: {
@@ -327,17 +364,24 @@ declare module "replicate" {
           input: object;
           webhook?: string;
           webhook_events_filter?: WebhookEventType[];
+          signal?: AbortSignal;
         }
       ): Promise<Training>;
-      get(training_id: string): Promise<Training>;
-      cancel(training_id: string): Promise<Training>;
-      list(): Promise<Page<Training>>;
+      get(
+        training_id: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Training>;
+      cancel(
+        training_id: string,
+        options?: { signal?: AbortSignal }
+      ): Promise<Training>;
+      list(options?: { signal?: AbortSignal }): Promise<Page<Training>>;
     };
 
     webhooks: {
       default: {
         secret: {
-          get(): Promise<WebhookSecret>;
+          get(options?: { signal?: AbortSignal }): Promise<WebhookSecret>;
         };
       };
     };
