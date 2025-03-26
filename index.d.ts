@@ -340,16 +340,20 @@ declare module "replicate" {
   }
 
   export function validateWebhook(
-    requestData:
-      | Request
-      | {
-          id?: string;
-          timestamp?: string;
-          body: string;
-          secret?: string;
-          signature?: string;
-        },
-    secret: string
+    request: Request,
+    secret: string,
+    crypto?: Crypto
+  ): Promise<boolean>;
+
+  export function validateWebhook(
+    requestData: {
+      id: string;
+      timestamp: string;
+      signature: string;
+      body: string;
+      secret: string;
+    },
+    crypto?: Crypto
   ): Promise<boolean>;
 
   export function parseProgressFromLogs(logs: Prediction | string): {
