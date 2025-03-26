@@ -9,6 +9,7 @@ import Replicate, {
 } from "replicate";
 import nock from "nock";
 import { createReadableStream } from "./lib/stream";
+import { webcrypto } from "node:crypto";
 
 let client: Replicate;
 const BASE_URL = "https://api.replicate.com/v1";
@@ -1779,9 +1780,40 @@ describe("Replicate client", () => {
 
       // This is a test secret and should not be used in production
       const secret = "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw";
+      if (globalThis.crypto) {
+        const isValid = await validateWebhook(request, secret);
+        expect(isValid).toBe(true);
+      } else {
+        const isValid = await validateWebhook(
+          request,
+          secret,
+          webcrypto as Crypto // Node 18 requires this to be passed manually
+        );
+        expect(isValid).toBe(true);
+      }
+    });
 
-      const isValid = await validateWebhook(request, secret);
-      expect(isValid).toBe(true);
+    test("Can be used to validate webhook", async () => {
+      // Test case from https://github.com/svix/svix-webhooks/blob/b41728cd98a7e7004a6407a623f43977b82fcba4/javascript/src/webhook.test.ts#L190-L200
+      const requestData = {
+        id: "msg_p5jXN8AQM9LWM0D4loKWxJek",
+        timestamp: "1614265330",
+        signature: "v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=",
+        body: `{"test": 2432232314}`,
+        secret: "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw",
+      };
+
+      // This is a test secret and should not be used in production
+      if (globalThis.crypto) {
+        const isValid = await validateWebhook(requestData);
+        expect(isValid).toBe(true);
+      } else {
+        const isValid = await validateWebhook(
+          requestData,
+          webcrypto as Crypto // Node 18 requires this to be passed manually
+        );
+        expect(isValid).toBe(true);
+      }
     });
 
     // Add more tests for error handling, edge cases, etc.
