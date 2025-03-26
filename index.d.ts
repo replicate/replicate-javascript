@@ -315,7 +315,7 @@ declare module "replicate" {
           model_owner: string,
           model_name: string,
           options?: { signal?: AbortSignal }
-        ): Promise<ModelVersion[]>;
+        ): Promise<Page<ModelVersion>>;
         get(
           model_owner: string,
           model_name: string,
