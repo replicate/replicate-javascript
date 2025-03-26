@@ -264,6 +264,13 @@ const requestData = {
 const webhookIsValid = await validateWebhook(requestData);
 ```
 
+> [!NOTE]
+> The `validateWebhook` function uses the global `crypto` API available in most JavaScript runtimes. Node <= 18 does not provide this global so in this case you need to either call node with the `--no-experimental-global-webcrypto` or provide the `webcrypto` module manually.
+> ```js
+> const crypto = require("node:crypto").webcrypto;
+> const webhookIsValid = await valdiateWebhook(requestData, crypto);
+> ```
+
 ## TypeScript
 
 The `Replicate` constructor and all `replicate.*` methods are fully typed.
