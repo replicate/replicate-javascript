@@ -343,7 +343,7 @@ const output = await replicate.run(identifier, options, progress);
 | `identifier`                    | string   | **Required**. The model version identifier in the format `{owner}/{name}:{version}`, for example `stability-ai/sdxl:8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f`                       |
 | `options.input`                 | object   | **Required**. An object with the model inputs.                                                                                                                                                              |
 | `options.wait`                  | object   | Options for waiting for the prediction to finish                        | 
-| `options.wait.type`             | `"poll" \| "block"`   | `"block"` holds the request open, `"poll"` makes repeated requests to fetch the prediction. Defaults to `"block"`  |
+| `options.wait.mode`             | `"poll" \| "block"`   | `"block"` holds the request open, `"poll"` makes repeated requests to fetch the prediction. Defaults to `"block"`  |
 | `options.wait.interval`         | number   | Polling interval in milliseconds. Defaults to 500 |
 | `options.wait.timeout`          | number   | In `"block"` mode determines how long the request will be held open until falling back to polling. Defaults to 60 |
 | `options.webhook`               | string   | An HTTPS URL for receiving a webhook when the prediction has new output                                                                                                                                     |
