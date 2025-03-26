@@ -1219,7 +1219,7 @@ const response = await replicate.request(route, parameters);
 | `options.params`     | `object`            | URL query parameters for the given route. |
 | `options.method`     | `string`            | HTTP method for the given route. |
 | `options.headers`    | `object`            | Additional HTTP headers for the given route. |
-| `options.data`       | `object | FormData` | Request body. |
+| `options.data`       | `object \| FormData` | Request body. |
 | `options.signal`     | `AbortSignal`       | Optional `AbortSignal`. |
 
 The `replicate.request()` method is used by the other methods
