@@ -225,6 +225,7 @@ class Replicate {
    * @param {object} [options.params] - Query parameters
    * @param {object|Headers} [options.headers] - HTTP headers
    * @param {object} [options.data] - Body parameters
+   * @param {AbortSignal} [options.signal] - AbortSignal to cancel the request
    * @returns {Promise<Response>} - Resolves with the response object
    * @throws {ApiError} If the request failed
    */
@@ -241,7 +242,7 @@ class Replicate {
       );
     }
 
-    const { method = "GET", params = {}, data } = options;
+    const { method = "GET", params = {}, data, signal } = options;
 
     for (const [key, value] of Object.entries(params)) {
       url.searchParams.append(key, value);
@@ -273,6 +274,7 @@ class Replicate {
       method,
       headers,
       body,
+      signal,
     };
 
     const shouldRetry =
@@ -354,15 +356,20 @@ class Replicate {
    *    console.log(page);
    * }
    * @param {Function} endpoint - Function that returns a promise for the next page of results
+   * @param {object} [options]
+   * @param {AbortSignal} [options.signal] - AbortSignal to cancel the request.
    * @yields {object[]} Each page of results
    */
-  async *paginate(endpoint) {
+  async *paginate(endpoint, options = {}) {
     const response = await endpoint();
     yield response.results;
-    if (response.next) {
+    if (response.next && !(options.signal && options.signal.aborted)) {
       const nextPage = () =>
-        this.request(response.next, { method: "GET" }).then((r) => r.json());
-      yield* this.paginate(nextPage);
+        this.request(response.next, {
+          method: "GET",
+          signal: options.signal,
+        }).then((r) => r.json());
+      yield* this.paginate(nextPage, options);
     }
   }
 

@@ -1213,14 +1213,20 @@ Low-level method used by the Replicate client to interact with API endpoints.
 const response = await replicate.request(route, parameters);
 ```
 
-| name                 | type   | description                                                  |
-| -------------------- | ------ | ------------------------------------------------------------ |
-| `options.route`      | string | Required. REST API endpoint path.                            |
-| `options.parameters` | object | URL, query, and request body parameters for the given route. |
+| name                 | type                | description |
+| -------------------- | ------------------- | ----------- |
+| `options.route`      | `string`            | Required. REST API endpoint path.
+| `options.params`     | `object`            | URL query parameters for the given route. |
+| `options.method`     | `string`            | HTTP method for the given route. |
+| `options.headers`    | `object`            | Additional HTTP headers for the given route. |
+| `options.data`       | `object \| FormData` | Request body. |
+| `options.signal`     | `AbortSignal`       | Optional `AbortSignal`. |
 
 The `replicate.request()` method is used by the other methods
 to interact with the Replicate API.
 You can call this method directly to make other requests to the API.
+
+The method accepts an `AbortSignal` which can be used to cancel the request in flight.
 
 ### `FileOutput`
 
