@@ -315,7 +315,7 @@ class Replicate {
    * @yields {ServerSentEvent} Each streamed event from the prediction
    */
   async *stream(ref, options) {
-    const { wait, signal, ...data } = options;
+    const { wait, signal, useFileOutput = this.useFileOutput, ...data } = options;
 
     const identifier = ModelVersionIdentifier.parse(ref);
 
@@ -338,7 +338,10 @@ class Replicate {
       const stream = createReadableStream({
         url: prediction.urls.stream,
         fetch: this.fetch,
-        ...(signal ? { options: { signal } } : {}),
+        options: {
+          useFileOutput,
+          ...(signal ? { signal } : {}),
+        },
       });
 
       yield* streamAsyncIterator(stream);
