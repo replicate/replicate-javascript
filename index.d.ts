@@ -71,6 +71,7 @@ declare module "replicate" {
     name: string;
     description?: string;
     visibility: "public" | "private";
+    is_official: boolean;
     github_url?: string;
     paper_url?: string;
     license_url?: string;
