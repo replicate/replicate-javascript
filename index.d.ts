@@ -25,6 +25,7 @@ declare module "replicate" {
     name: string;
     slug: string;
     description: string;
+    full_description: string | null;
     models?: Model[];
   }
 
