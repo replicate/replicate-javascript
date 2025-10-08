@@ -1,6 +1,6 @@
 {
   "name": "replicate",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "JavaScript client for Replicate",
   "repository": "github:replicate/replicate-javascript",
   "homepage": "https://github.com/replicate/replicate-javascript#readme",
