@@ -4,6 +4,7 @@ import Replicate, {
   FileOutput,
   Model,
   Prediction,
+  Training,
   validateWebhook,
   parseProgressFromLogs,
 } from "replicate";
@@ -906,7 +907,7 @@ describe("Replicate client", () => {
           next: null,
         });
 
-      const results: Prediction[] = [];
+      const results: Training[] = [];
       for await (const batch of client.paginate(client.trainings.list)) {
         results.push(...batch);
       }
@@ -1176,11 +1177,11 @@ describe("Replicate client", () => {
           .post("/files")
           .reply(200, {
             id: "123",
-            name: "test-file",
             content_type: "application/octet-stream",
             size: 1024,
-            etag: "abc123",
-            checksum: "sha256:1234567890abcdef",
+            checksums: {
+              sha256: "1234567890abcdef",
+            },
             metadata: {},
             created_at: "2023-01-01T00:00:00Z",
             expires_at: null,
@@ -1190,7 +1191,6 @@ describe("Replicate client", () => {
           });
         const file = await client.files.create(testCase.value);
         expect(file.id).toBe("123");
-        expect(file.name).toBe("test-file");
       }
     });
   });
@@ -1201,11 +1201,11 @@ describe("Replicate client", () => {
         .get("/files/123")
         .reply(200, {
           id: "123",
-          name: "test-file",
           content_type: "application/octet-stream",
           size: 1024,
-          etag: "abc123",
-          checksum: "sha256:1234567890abcdef",
+          checksums: {
+            sha256: "1234567890abcdef",
+          },
           metadata: {},
           created_at: "2023-01-01T00:00:00Z",
           expires_at: null,
@@ -1216,7 +1216,6 @@ describe("Replicate client", () => {
 
       const file = await client.files.get("123");
       expect(file.id).toBe("123");
-      expect(file.name).toBe("test-file");
     });
   });
 
@@ -1230,11 +1229,11 @@ describe("Replicate client", () => {
           results: [
             {
               id: "123",
-              name: "test-file",
               content_type: "application/octet-stream",
               size: 1024,
-              etag: "abc123",
-              checksum: "sha256:1234567890abcdef",
+              checksums: {
+                sha256: "1234567890abcdef",
+              },
               metadata: {},
               created_at: "2023-01-01T00:00:00Z",
               expires_at: null,
