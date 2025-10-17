@@ -104,6 +104,7 @@ declare module "replicate" {
     deadline?: string;
     deployment?: string;
     metrics?: {
+      predict_time?: number;
       total_time?: number;
     };
     webhook?: string;
