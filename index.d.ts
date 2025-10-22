@@ -1,5 +1,5 @@
 declare module "replicate" {
-  type Status = "starting" | "processing" | "succeeded" | "failed" | "canceled";
+  type Status = "starting" | "processing" | "succeeded" | "failed" | "canceled" | "aborted";
   type Visibility = "public" | "private";
   type WebhookEventType = "start" | "output" | "logs" | "completed";
 
