@@ -19,6 +19,7 @@ declare module "replicate" {
     username: string;
     name: string;
     github_url?: string;
+    avatar_url?: string;
   }
 
   export interface Collection {
@@ -48,11 +49,11 @@ declare module "replicate" {
 
   export interface FileObject {
     id: string;
-    name: string;
     content_type: string;
     size: number;
-    etag: string;
-    checksum: string;
+    checksums: {
+      sha256: string;
+    };
     metadata: Record<string, unknown>;
     created_at: string;
     expires_at: string | null;
@@ -85,22 +86,26 @@ declare module "replicate" {
   export interface ModelVersion {
     id: string;
     created_at: string;
-    cog_version: string;
-    openapi_schema: object;
+    cog_version: string | null;
+    openapi_schema: object | null;
   }
 
   export interface Prediction {
     id: string;
     status: Status;
     model: string;
-    version: string;
+    version: string | "hidden";
     input: object;
     output?: any; // TODO: this should be `unknown`
     source: "api" | "web";
     error?: unknown;
     logs?: string;
+    data_removed: boolean;
+    deadline?: string;
+    deployment?: string;
     metrics?: {
       predict_time?: number;
+      total_time?: number;
     };
     webhook?: string;
     webhook_events_filter?: WebhookEventType[];
@@ -111,10 +116,38 @@ declare module "replicate" {
       get: string;
       cancel: string;
       stream?: string;
+      web?: string;
     };
   }
 
-  export type Training = Prediction;
+  export interface Training {
+    id: string;
+    status: Status;
+    model: string;
+    version: string;
+    input: object;
+    output?: {
+      version?: string;
+      weights?: string;
+    };
+    source: "api" | "web";
+    error?: unknown;
+    logs?: string;
+    metrics?: {
+      predict_time?: number;
+      total_time?: number;
+    };
+    webhook?: string;
+    webhook_events_filter?: WebhookEventType[];
+    created_at: string;
+    started_at?: string;
+    completed_at?: string;
+    urls: {
+      get: string;
+      cancel: string;
+      web?: string;
+    };
+  }
 
   export type FileEncodingStrategy = "default" | "upload" | "data-uri";
 
