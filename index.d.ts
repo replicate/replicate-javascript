@@ -145,6 +145,7 @@ declare module "replicate" {
     urls: {
       get: string;
       cancel: string;
+      web?: string;
     };
   }
 
