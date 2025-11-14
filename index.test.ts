@@ -1905,8 +1905,12 @@ describe("Replicate client", () => {
   // Continue with tests for other methods
 
   describe("createReadableStream", () => {
-    function createStream(body: string | ReadableStream, status = 200) {
-      const streamEndpoint = "https://stream.replicate.com/fake_stream";
+    function createStream(
+      body: string | ReadableStream,
+      status = 200,
+      streamEndpoint = "https://stream.replicate.com/fake_stream",
+      options: { useFileOutput?: boolean } = {}
+    ) {
       const fetch = jest.fn((url) => {
         if (url !== streamEndpoint) {
           throw new Error(`Unmocked call to fetch() with url: ${url}`);
@@ -1916,6 +1920,7 @@ describe("Replicate client", () => {
       return createReadableStream({
         url: streamEndpoint,
         fetch: fetch as any,
+        options,
       });
     }
 
@@ -2191,6 +2196,96 @@ describe("Replicate client", () => {
         "Request to https://stream.replicate.com/fake_stream failed with status 500"
       );
       expect(await iterator.next()).toEqual({ done: true });
+    });
+
+    describe("file streams", () => {
+      test("emits FileOutput objects", async () => {
+        const stream = createStream(
+          `
+          event: output
+          id: EVENT_1
+          data: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+
+          event: output
+          id: EVENT_2
+          data: https://delivery.replicate.com/my_file.png
+
+          event: done
+          id: EVENT_3
+          data: {}
+
+          `.replace(/^[ ]+/gm, ""),
+          200,
+          "https://stream.replicate.com/v1/files/abcd"
+        );
+
+        const iterator = stream[Symbol.asyncIterator]();
+        const { value: event1 } = await iterator.next();
+        expect(event1.data).toBeInstanceOf(ReadableStream);
+        expect(event1.data.url().href).toEqual(
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        );
+
+        const { value: event2 } = await iterator.next();
+        expect(event2.data).toBeInstanceOf(ReadableStream);
+        expect(event2.data.url().href).toEqual(
+          "https://delivery.replicate.com/my_file.png"
+        );
+
+        expect(await iterator.next()).toEqual({
+          done: false,
+          value: { event: "done", id: "EVENT_3", data: "{}" },
+        });
+
+        expect(await iterator.next()).toEqual({ done: true });
+      });
+
+      test("emits strings when useFileOutput is false", async () => {
+        const stream = createStream(
+          `
+          event: output
+          id: EVENT_1
+          data: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+
+          event: output
+          id: EVENT_2
+          data: https://delivery.replicate.com/my_file.png
+
+          event: done
+          id: EVENT_3
+          data: {}
+
+          `.replace(/^[ ]+/gm, ""),
+          200,
+          "https://stream.replicate.com/v1/files/abcd",
+          { useFileOutput: false }
+        );
+
+        const iterator = stream[Symbol.asyncIterator]();
+
+        expect(await iterator.next()).toEqual({
+          done: false,
+          value: {
+            event: "output",
+            id: "EVENT_1",
+            data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          },
+        });
+        expect(await iterator.next()).toEqual({
+          done: false,
+          value: {
+            event: "output",
+            id: "EVENT_2",
+            data: "https://delivery.replicate.com/my_file.png",
+          },
+        });
+        expect(await iterator.next()).toEqual({
+          done: false,
+          value: { event: "done", id: "EVENT_3", data: "{}" },
+        });
+
+        expect(await iterator.next()).toEqual({ done: true });
+      });
     });
   });
 });
