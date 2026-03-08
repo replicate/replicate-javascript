@@ -145,6 +145,13 @@ class Replicate {
   async run(ref, options, progress) {
     const { wait = { mode: "block" }, signal, ...data } = options;
 
+    // Check if the signal is already aborted before starting
+    if (signal && signal.aborted) {
+      const error = new Error("Prediction canceled");
+      error.name = "AbortError";
+      throw error;
+    }
+
     const identifier = ModelVersionIdentifier.parse(ref);
 
     let prediction;
@@ -153,12 +160,14 @@ class Replicate {
         ...data,
         version: identifier.version,
         wait: wait.mode === "block" ? wait.timeout ?? true : false,
+        signal,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
         wait: wait.mode === "block" ? wait.timeout ?? true : false,
+        signal,
       });
     } else {
       throw new Error("Invalid model version identifier");
@@ -173,7 +182,10 @@ class Replicate {
     if (!isDone) {
       prediction = await this.wait(
         prediction,
-        { interval: wait.mode === "poll" ? wait.interval : undefined },
+        {
+          interval: wait.mode === "poll" ? wait.interval : undefined,
+          signal,
+        },
         async (updatedPrediction) => {
           // Call progress callback with the updated prediction object
           if (progress) {
@@ -192,6 +204,15 @@ class Replicate {
 
     if (signal && signal.aborted) {
       prediction = await this.predictions.cancel(prediction.id);
+
+      // Call progress callback with the canceled prediction object
+      if (progress) {
+        progress(prediction);
+      }
+
+      const error = new Error("Prediction canceled");
+      error.name = "AbortError";
+      throw error;
     }
 
     // Call progress callback with the completed prediction object
@@ -411,12 +432,32 @@ class Replicate {
       return prediction;
     }
 
+    const signal = options && options.signal;
+
     // eslint-disable-next-line no-promise-executor-return
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const sleep = (ms) =>
+      new Promise((resolve, reject) => {
+        if (signal && signal.aborted) {
+          return resolve();
+        }
+
+        const timer = setTimeout(resolve, ms);
+
+        if (signal) {
+          signal.addEventListener(
+            "abort",
+            () => {
+              clearTimeout(timer);
+              resolve();
+            },
+            { once: true }
+          );
+        }
+      });
 
     const interval = (options && options.interval) || 500;
 
-    let updatedPrediction = await this.predictions.get(id);
+    let updatedPrediction = await this.predictions.get(id, { signal });
 
     while (
       updatedPrediction.status !== "succeeded" &&
@@ -428,8 +469,19 @@ class Replicate {
         break;
       }
 
+      if (signal && signal.aborted) {
+        break;
+      }
+
       await sleep(interval);
-      updatedPrediction = await this.predictions.get(prediction.id);
+
+      if (signal && signal.aborted) {
+        break;
+      }
+
+      updatedPrediction = await this.predictions.get(prediction.id, {
+        signal,
+      });
       /* eslint-enable no-await-in-loop */
     }
 

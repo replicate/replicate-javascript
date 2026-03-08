@@ -232,6 +232,7 @@ declare module "replicate" {
       prediction: Prediction,
       options?: {
         interval?: number;
+        signal?: AbortSignal;
       },
       stop?: (prediction: Prediction) => Promise<boolean>
     ): Promise<Prediction>;
