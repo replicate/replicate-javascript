@@ -1598,20 +1598,22 @@ describe("Replicate client", () => {
         });
 
       const onProgress = jest.fn();
-      const output = await client.run(
-        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-        {
-          wait: { mode: "poll" },
-          input: { text: "Hello, world!" },
-          signal,
-        },
-        onProgress
-      );
+
+      await expect(
+        client.run(
+          "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          {
+            wait: { mode: "poll" },
+            input: { text: "Hello, world!" },
+            signal,
+          },
+          onProgress
+        )
+      ).rejects.toThrow("Prediction canceled");
 
       expect(body).toBeDefined();
       expect(body?.["signal"]).toBeUndefined();
       expect(signal.aborted).toBe(true);
-      expect(output).toBeUndefined();
 
       expect(onProgress).toHaveBeenNthCalledWith(
         1,
@@ -1633,6 +1635,22 @@ describe("Replicate client", () => {
       );
 
       scope.done();
+    });
+
+    test("Throws immediately when abort signal is already aborted", async () => {
+      const controller = new AbortController();
+      controller.abort();
+      const { signal } = controller;
+
+      await expect(
+        client.run(
+          "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          {
+            input: { text: "Hello, world!" },
+            signal,
+          }
+        )
+      ).rejects.toThrow("Prediction canceled");
     });
 
     test("returns FileOutput for URLs when useFileOutput is true", async () => {
