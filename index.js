@@ -145,6 +145,13 @@ class Replicate {
   async run(ref, options, progress) {
     const { wait = { mode: "block" }, signal, ...data } = options;
 
+    // Throw immediately if signal is already aborted
+    if (signal?.aborted) {
+      const error = new Error("Aborted");
+      error.name = "AbortError";
+      throw error;
+    }
+
     const identifier = ModelVersionIdentifier.parse(ref);
 
     let prediction;
@@ -191,7 +198,10 @@ class Replicate {
     }
 
     if (signal && signal.aborted) {
-      prediction = await this.predictions.cancel(prediction.id);
+      await this.predictions.cancel(prediction.id).catch(() => {});
+      const error = new Error("Aborted");
+      error.name = "AbortError";
+      throw error;
     }
 
     // Call progress callback with the completed prediction object
