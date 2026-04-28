@@ -123,6 +123,65 @@ const [output] = await replicate.run(model, { input });
 > upload the file to your own storage provider
 > and pass a publicly accessible URL.
 
+#### Tencent Hunyuan Image 3
+
+```js
+import { writeFile } from "node:fs/promises";
+import Replicate from "replicate";
+
+const replicate = new Replicate();
+const input = {
+  prompt:
+    "An illustration of a pink and brown butterfly on a pink background, with the black text Hunyuan Image 3 on Replicate below.",
+};
+
+const output = await replicate.run("tencent/hunyuan-image-3", { input });
+await writeFile("hunyuan-image-3.png", output[0]);
+```
+
+#### Tencent Hunyuan Video
+
+```js
+import { writeFile } from "node:fs/promises";
+import Replicate from "replicate";
+
+const replicate = new Replicate();
+const input = {
+  prompt: "A cat walks on the grass, realistic style.",
+  width: 854,
+  height: 480,
+  video_length: 129,
+  infer_steps: 50,
+  seed: 42,
+};
+
+const output = await replicate.run("tencent/hunyuan-video", { input });
+await writeFile("hunyuan-video.mp4", output);
+```
+
+#### Tencent Hunyuan3D-2mv
+
+```js
+import { readFile, writeFile } from "node:fs/promises";
+import Replicate from "replicate";
+
+const replicate = new Replicate();
+const input = {
+  front_image: await readFile("./front.png"),
+  // Optional additional views for better reconstruction:
+  // back_image: await readFile("./back.png"),
+  // left_image: await readFile("./left.png"),
+  // right_image: await readFile("./right.png"),
+  file_type: "glb",
+  steps: 30,
+  guidance_scale: 5,
+  target_face_num: 10000,
+};
+
+const output = await replicate.run("tencent/hunyuan3d-2mv", { input });
+await writeFile("hunyuan3d-2mv.glb", output);
+```
+
 ## TypeScript usage
 
 This library exports TypeScript definitions. You can import them like this:
