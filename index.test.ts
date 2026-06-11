@@ -1598,20 +1598,28 @@ describe("Replicate client", () => {
         });
 
       const onProgress = jest.fn();
-      const output = await client.run(
-        "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
-        {
-          wait: { mode: "poll" },
-          input: { text: "Hello, world!" },
-          signal,
-        },
-        onProgress
-      );
+      let caught: unknown;
+      try {
+        await client.run(
+          "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          {
+            wait: { mode: "poll" },
+            input: { text: "Hello, world!" },
+            signal,
+          },
+          onProgress
+        );
+      } catch (err) {
+        caught = err;
+      }
 
       expect(body).toBeDefined();
       expect(body?.["signal"]).toBeUndefined();
       expect(signal.aborted).toBe(true);
-      expect(output).toBeUndefined();
+      // Regression for replicate-javascript#370: an aborted run() must throw
+      // an AbortError so the caller can detect cancellation, not silently
+      // resolve to `undefined` from the canceled prediction's empty output.
+      expect((caught as Error | undefined)?.name).toBe("AbortError");
 
       expect(onProgress).toHaveBeenNthCalledWith(
         1,
@@ -1625,14 +1633,34 @@ describe("Replicate client", () => {
           status: "processing",
         })
       );
-      expect(onProgress).toHaveBeenNthCalledWith(
-        3,
-        expect.objectContaining({
-          status: "canceled",
-        })
-      );
 
       scope.done();
+    });
+
+    test("throws AbortError immediately when signal is already aborted", async () => {
+      // Regression for replicate-javascript#370: a pre-aborted signal must
+      // short-circuit before any HTTP request — previously run() created the
+      // prediction and waited for it anyway.
+      const controller = new AbortController();
+      controller.abort();
+
+      let caught: unknown;
+      try {
+        await client.run(
+          "owner/model:5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+          {
+            wait: { mode: "poll" },
+            input: { text: "Hello, world!" },
+            signal: controller.signal,
+          }
+        );
+      } catch (err) {
+        caught = err;
+      }
+
+      expect((caught as Error | undefined)?.name).toBe("AbortError");
+      // No nock scope was registered — if any HTTP request fired, nock would
+      // throw a "Nock: No match for request" error instead of an AbortError.
     });
 
     test("returns FileOutput for URLs when useFileOutput is true", async () => {

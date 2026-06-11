@@ -145,6 +145,11 @@ class Replicate {
   async run(ref, options, progress) {
     const { wait = { mode: "block" }, signal, ...data } = options;
 
+    // Honour an already-aborted signal before any network work happens.
+    if (signal && signal.aborted) {
+      signal.throwIfAborted();
+    }
+
     const identifier = ModelVersionIdentifier.parse(ref);
 
     let prediction;
@@ -153,12 +158,14 @@ class Replicate {
         ...data,
         version: identifier.version,
         wait: wait.mode === "block" ? wait.timeout ?? true : false,
+        signal,
       });
     } else if (identifier.owner && identifier.name) {
       prediction = await this.predictions.create({
         ...data,
         model: `${identifier.owner}/${identifier.name}`,
         wait: wait.mode === "block" ? wait.timeout ?? true : false,
+        signal,
       });
     } else {
       throw new Error("Invalid model version identifier");
@@ -191,7 +198,16 @@ class Replicate {
     }
 
     if (signal && signal.aborted) {
-      prediction = await this.predictions.cancel(prediction.id);
+      // Best-effort cancel on Replicate's side so we don't keep billing the
+      // user for compute they no longer want, then surface the abort to the
+      // caller. Without the throw, the awaited promise would resolve with a
+      // half-cancelled prediction, which is silent on the consumer side.
+      try {
+        prediction = await this.predictions.cancel(prediction.id);
+      } catch {
+        // Ignore cancel failures — the abort is the higher-priority signal.
+      }
+      signal.throwIfAborted();
     }
 
     // Call progress callback with the completed prediction object
